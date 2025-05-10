@@ -1,0 +1,8 @@
+export interface IHero{
+    id: number,
+    name: string,
+    gender: string,
+    mail: string,
+    age: number,
+    address: string
+}

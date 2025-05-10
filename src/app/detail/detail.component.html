@@ -1,0 +1,171 @@
+<div>
+  <h2 class="text-center fs-4 mb-2">{{ "detail hero" | capitalizeWords }}</h2>
+  
+  <div class="container">
+    <div class="row">
+      <div class="d-flex flex-column gap-2 col p-20">
+        <p class="fw-bold fs-5">
+          Id:
+          <span class="fw-normal">
+            {{ heroes[id - 1].id }}
+          </span>
+        </p>
+        <p class="fw-bold fs-5">
+          Name:
+          <span class="fw-normal">
+            {{ formDetail.get('name')?.value }}
+          </span>
+        </p>
+        <p class="fw-bold fs-5">
+          Gender:
+          <span class="fw-normal">
+            {{ formDetail.get('gender')?.value }}
+          </span>
+        </p>
+        <p class="fw-bold fs-5">
+          Mail:
+          <span class="fw-normal">
+            {{ formDetail.get('mail')?.value }}
+          </span>
+        </p>
+        <p class="fw-bold fs-5">
+          Age:
+          <span class="fw-normal">
+            {{ formDetail.get('age')?.value }}
+          </span>
+        </p>
+        <p class="fw-bold fs-5">
+          Address:
+          <span class="fw-normal">
+            {{ formDetail.get('address')?.value }}
+          </span>
+        </p>
+      </div>
+      <form
+        action=""
+        class="text-center wrapper-form"
+        (ngSubmit)="handleSubmit()"
+        [formGroup]="formDetail"
+      >
+        <div class="mb-3 text-start">
+          <label for="" class="form-label">Name:</label>
+          <input
+            [ngClass]="
+              formDetail.get('name')?.invalid &&
+              (formDetail.get('name')?.touched || formDetail.get('name')?.dirty)
+                ? 'border-red'
+                : ''
+            "
+            class="form-control"
+            type="text"
+            name="name"
+            formControlName="name"
+          />
+          <p
+            class="form-text text-danger"
+            *ngIf="
+              formDetail.get('name')?.invalid &&
+              (formDetail.get('name')?.touched || formDetail.get('name')?.dirty)
+            "
+          >
+            Name is required
+          </p>
+        </div>
+        <div class="text-start mb-3">
+          <label for="" class="form-label">Gender:</label>
+          <div class="d-flex">
+            <label class="me-3">
+              <input type="radio" formControlName="gender" value="male" /> Male
+            </label>
+            <label>
+              <input type="radio" formControlName="gender" value="female" />
+              Female
+            </label>
+          </div>
+        </div>
+        <div class="text-start mb-3">
+          <label for="" class="form-label">Mail:</label>
+          <input
+            [ngClass]="
+              formDetail.get('mail')?.invalid &&
+              (formDetail.get('mail')?.touched || formDetail.get('mail')?.dirty)
+                ? 'border-red'
+                : ''
+            "
+            class="form-control"
+            type="email"
+            name="mail"
+            formControlName="mail"
+          />
+          <p
+            class="form-text text-danger"
+            *ngIf="
+              formDetail.get('mail')?.invalid &&
+              (formDetail.get('mail')?.touched || formDetail.get('mail')?.dirty)
+            "
+          >
+            Mail is required
+          </p>
+        </div>
+        <div class="text-start mb-3">
+          <label for="" class="form-label">Age:</label>
+          <input
+            [ngClass]="
+              formDetail.get('age')?.invalid &&
+              (formDetail.get('age')?.touched || formDetail.get('age')?.dirty)
+                ? 'border-red'
+                : ''
+            "
+            class="form-control"
+            type="number"
+            name="age"
+            formControlName="age"
+          />
+          <p
+            class="form-text text-danger"
+            *ngIf="
+              formDetail.get('age')?.invalid &&
+              (formDetail.get('age')?.touched || formDetail.get('age')?.dirty)
+            "
+          >
+            Age is required
+          </p>
+        </div>
+        <div class="text-start mb-3">
+          <label for="" class="form-label">Address:</label>
+          <input
+            [ngClass]="
+              formDetail.get('address')?.invalid &&
+              (formDetail.get('address')?.touched ||
+                formDetail.get('address')?.dirty)
+                ? 'border-red'
+                : ''
+            "
+            class="form-control"
+            type="text"
+            name="address"
+            formControlName="address"
+          />
+          <p
+            class="form-text text-danger"
+            *ngIf="
+              formDetail.get('address')?.invalid &&
+              (formDetail.get('address')?.touched ||
+                formDetail.get('address')?.dirty)
+            "
+          >
+            Address is required
+          </p>
+        </div>
+
+        <button
+          [disabled]="formDetail.invalid"
+          type="submit"
+          class="btn btn-primary"
+        >
+          Update
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

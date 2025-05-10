@@ -1,0 +1,136 @@
+<div>
+  <form
+    action=""
+    class="text-center wrapper-form"
+    (ngSubmit)="handleSubmit()"
+    [formGroup]="formCreate"
+  >
+    <div class="mb-3 text-start">
+      <label for="" class="form-label">Name:</label>
+      <input
+        [ngClass]="
+          formCreate.get('name')?.invalid &&
+          (formCreate.get('name')?.touched || formCreate.get('name')?.dirty)
+            ? 'border-red'
+            : ''
+        "
+        class="form-control"
+        type="text"
+        name="name"
+        formControlName="name"
+      />
+      <p
+        class="form-text text-danger"
+        *ngIf="
+          formCreate.get('name')?.invalid &&
+          (formCreate.get('name')?.touched || formCreate.get('name')?.dirty)
+        "
+      >
+        Name is required
+      </p>
+    </div>
+    <div class="text-start mb-3">
+      <label for="" class="form-label">Gender:</label>
+      <div class="d-flex">
+        <label class="me-3">
+          <input type="radio" formControlName="gender" value="male" /> Male
+        </label>
+        <label>
+          <input type="radio" formControlName="gender" value="female" /> Female
+        </label>
+      </div>
+    </div>
+    <div class="text-start mb-3">
+      <label for="" class="form-label">Mail:</label>
+      <input
+        [ngClass]="
+          formCreate.get('mail')?.invalid &&
+          (formCreate.get('mail')?.touched || formCreate.get('mail')?.dirty)
+            ? 'border-red'
+            : ''
+        "
+        class="form-control"
+        type="email"
+        name="mail"
+        formControlName="mail"
+      />
+      <p
+        class="form-text text-danger"
+        *ngIf="
+          formCreate.get('mail')?.invalid && formCreate.get('mail')?.hasError('required') &&
+          (formCreate.get('mail')?.touched || formCreate.get('mail')?.dirty)
+        "
+      >
+        Mail is required
+      </p>
+      <p
+        class="form-text text-danger"
+        *ngIf="
+          formCreate.get('mail')?.invalid && formCreate.get('mail')?.hasError('pattern') &&
+          !formCreate.get('mail')?.hasError('required') &&
+          (formCreate.get('mail')?.touched || formCreate.get('mail')?.dirty)
+        "
+      >
+        Invalid email format
+      </p>
+    </div>
+    <div class="text-start mb-3">
+      <label for="" class="form-label">Age:</label>
+      <input
+        [ngClass]="
+          formCreate.get('age')?.invalid &&
+          (formCreate.get('age')?.touched || formCreate.get('age')?.dirty)
+            ? 'border-red'
+            : ''
+        "
+        class="form-control"
+        type="number"
+        name="age"
+        formControlName="age"
+      />
+      <p
+        class="form-text text-danger"
+        *ngIf="
+          formCreate.get('age')?.invalid &&
+          (formCreate.get('age')?.touched || formCreate.get('age')?.dirty)
+        "
+      >
+        Age is required
+      </p>
+    </div>
+    <div class="text-start mb-3">
+      <label for="" class="form-label">Address:</label>
+      <input
+        [ngClass]="
+          formCreate.get('address')?.invalid &&
+          (formCreate.get('address')?.touched ||
+            formCreate.get('address')?.dirty)
+            ? 'border-red'
+            : ''
+        "
+        class="form-control"
+        type="text"
+        name="address"
+        formControlName="address"
+      />
+      <p
+        class="form-text text-danger"
+        *ngIf="
+          formCreate.get('address')?.invalid &&
+          (formCreate.get('address')?.touched ||
+            formCreate.get('address')?.dirty)
+        "
+      >
+        Address is required
+      </p>
+    </div>
+
+    <button
+      [disabled]="formCreate.invalid"
+      type="submit"
+      class="btn btn-primary"
+    >
+      Create
+    </button>
+  </form>
+</div>
