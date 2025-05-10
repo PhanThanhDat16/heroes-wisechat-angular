@@ -43,7 +43,7 @@
       </div>
       <form
         action=""
-        class="text-center wrapper-form"
+        class="text-center wrapper-form col"
         (ngSubmit)="handleSubmit()"
         [formGroup]="formDetail"
       >
@@ -158,13 +158,23 @@
           </p>
         </div>
 
-        <button
+        <div class="d-flex gap-3 justify-content-center">
+          <button
+          [disabled]="formDetail.invalid"
+          type="button"
+          class="btn btn-secondary"
+          (click)="handleDelete()"
+        >
+          Delete
+        </button>
+          <button
           [disabled]="formDetail.invalid"
           type="submit"
           class="btn btn-primary"
         >
           Update
         </button>
+        </div>
       </form>
     </div>
   </div>

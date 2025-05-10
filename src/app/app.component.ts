@@ -11,6 +11,6 @@ export class AppComponent implements OnInit {
   title = 'my-app';
 
   ngOnInit(): void {
-      localStorage.setItem('heroes', JSON.stringify(test))
+    localStorage.setItem('heroes', JSON.stringify(test))
   }
 }

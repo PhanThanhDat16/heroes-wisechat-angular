@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { IHero } from '../types/heroes';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import Swal from 'sweetalert2';
 import { test } from '../list-hero';
 
 @Component({
@@ -39,5 +40,24 @@ export class DetailComponent implements OnInit {
 
   handleSubmit() {
     console.log(this.formDetail.value);
+  }
+
+  handleDelete(){
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'This is a SweetAlert2 alert.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if(result.isConfirmed){
+        Swal.fire({
+          title: "Delete Successfully",
+          icon: "success",
+        })
+      }
+    })
   }
 }
