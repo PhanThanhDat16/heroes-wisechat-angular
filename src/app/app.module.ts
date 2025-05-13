@@ -9,6 +9,7 @@ import { DetailModule } from './detail/detail.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { SharedPipeModule } from './pipes/sharedPipe.module';
 import { ModalCreateModule } from './modal-create/modal-create.module';
+import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 
 @NgModule({
   declarations: [
@@ -22,7 +23,8 @@ import { ModalCreateModule } from './modal-create/modal-create.module';
     DetailModule,
     DashboardModule,
     SharedPipeModule,
-    ModalCreateModule
+    ModalCreateModule,
+    SweetAlert2Module.forRoot()
   ],
   providers: [],
   bootstrap: [AppComponent]
