@@ -1,0 +1,119 @@
+<div class="form-register shadow-lg mx-auto p-4 rounded-3">
+  <span class="text-center w-100 d-inline-block fw-bold mb-4 fs-3"
+    >Register</span
+  >
+  <form
+    action=""
+    class="text-center wrapper-form"
+    [formGroup]="formRegister"
+    (ngSubmit)="handleSubmit()"
+  >
+    <div class="mb-3 text-start">
+      <label for="" class="form-label">Username:</label>
+      <input
+        [ngClass]="
+          formRegister.get('username')?.invalid &&
+          (formRegister.get('username')?.touched ||
+            formRegister.get('username')?.dirty)
+            ? 'border-red'
+            : ''
+        "
+        class="form-control p-input"
+        type="username"
+        name="username"
+        formControlName="username"
+      />
+      <p
+        class="form-text text-danger"
+        *ngIf="
+          formRegister.get('username')?.invalid &&
+          (formRegister.get('username')?.touched ||
+            formRegister.get('username')?.dirty)
+        "
+      >
+        Username is required
+      </p>
+    </div>
+
+    <div class="text-start mb-3">
+      <label for="" class="form-label">Email:</label>
+      <input
+        [ngClass]="
+          formRegister.get('email')?.invalid &&
+          (formRegister.get('email')?.touched ||
+            formRegister.get('email')?.dirty)
+            ? 'border-red'
+            : ''
+        "
+        class="form-control p-input"
+        type="eemail"
+        name="email"
+        formControlName="email"
+      />
+      <p
+        class="form-text text-danger"
+        *ngIf="
+          formRegister.get('email')?.invalid &&
+          formRegister.get('email')?.hasError('required') &&
+          (formRegister.get('email')?.touched ||
+            formRegister.get('email')?.dirty)
+        "
+      >
+        Email is required
+      </p>
+      <p
+        class="form-text text-danger"
+        *ngIf="
+          formRegister.get('email')?.invalid &&
+          formRegister.get('email')?.hasError('pattern') &&
+          !formRegister.get('email')?.hasError('required') &&
+          (formRegister.get('email')?.touched ||
+            formRegister.get('email')?.dirty)
+        "
+      >
+        Invalid email format
+      </p>
+    </div>
+
+    <div class="mb-3 text-start">
+      <label for="" class="form-label">Password:</label>
+      <input
+        [ngClass]="
+          formRegister.get('password')?.invalid &&
+          (formRegister.get('password')?.touched ||
+            formRegister.get('password')?.dirty)
+            ? 'border-red'
+            : ''
+        "
+        class="form-control p-input"
+        type="password"
+        name="password"
+        formControlName="password"
+      />
+      <p
+        class="form-text text-danger"
+        *ngIf="
+          formRegister.get('password')?.invalid &&
+          (formRegister.get('password')?.touched ||
+            formRegister.get('password')?.dirty)
+        "
+      >
+        Password is required
+      </p>
+    </div>
+
+    <div class="text-start mb-3 fs-6 question">
+        Already have an account?
+        <a routerLink="/login" class="text-start fw-bold"> Sign in</a>
+    </div>
+
+    <button
+      type="submit"
+      [disabled]="formRegister.invalid"
+      class="btn mx-auto btn-primary d-flex justify-content-center align-items-center"
+    >
+      <span>Register</span>
+      <!-- <div class="spinner"></div> -->
+    </button>
+  </form>
+</div>

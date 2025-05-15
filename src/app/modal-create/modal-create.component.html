@@ -4,7 +4,7 @@
 		<button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
 	</div>
 	<div class="modal-body">
-		<app-create></app-create>	
+		<app-create [modalRef]="modal"></app-create>	
 	</div>
 </ng-template>
 

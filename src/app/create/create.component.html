@@ -57,16 +57,18 @@
       <p
         class="form-text text-danger"
         *ngIf="
-          formCreate.get('mail')?.invalid && formCreate.get('mail')?.hasError('required') &&
+          formCreate.get('mail')?.invalid &&
+          formCreate.get('mail')?.hasError('required') &&
           (formCreate.get('mail')?.touched || formCreate.get('mail')?.dirty)
         "
       >
-        Mail is required
+        Email is required
       </p>
       <p
         class="form-text text-danger"
         *ngIf="
-          formCreate.get('mail')?.invalid && formCreate.get('mail')?.hasError('pattern') &&
+          formCreate.get('mail')?.invalid &&
+          formCreate.get('mail')?.hasError('pattern') &&
           !formCreate.get('mail')?.hasError('required') &&
           (formCreate.get('mail')?.touched || formCreate.get('mail')?.dirty)
         "
@@ -126,11 +128,12 @@
     </div>
 
     <button
-      [disabled]="formCreate.invalid"
+      [disabled]="formCreate.invalid || isLoading"
       type="submit"
-      class="btn btn-primary"
+      class="btn mx-auto btn-primary d-flex justify-content-center align-items-center"
     >
-      Create
+      <span *ngIf="!isLoading">Create</span>
+      <div *ngIf="isLoading" class="spinner"></div>
     </button>
   </form>
 </div>

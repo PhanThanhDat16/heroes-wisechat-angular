@@ -1,19 +1,19 @@
-<a
-    [routerLink]="['/detail', hero.id]"
-    class="d-flex flex-column rounded fs-5 bg-secondary text-white flex-fill overflow-hidden text-center dashboardHero-item"
->
-    <img
-    src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=2074&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-    class="dashboardHero-img"
-    alt=""
-    />
-    <div class="d-flex flex-column p-2">
-        <span class="fw-bold">{{ hero.name }}</span>
-        <div class="d-flex mt-2 justify-content-between">
-            <span class="fs-6">age: {{ hero.age }}</span>
-            <span class="fs-6">{{ hero.gender }}</span>
-        </div>
-        <span class="text-start mb-2 fs-6">Email: {{ hero.mail }}</span>
-        <span class="text-start mb-2 fs-6">Address: {{ hero.address }}</span>
+<a [routerLink]="['/detail', hero._id]" class="d-flex flex-column rounded fs-5 border flex-fill overflow-hidden text-center cardHero-item p-2 text-primary-2 position-relative">
+  <input *ngIf="showCheckbox" type="checkbox" class="position-absolute hero-checkbox" (click)="$event.stopPropagation()" [checked]="checked" (change)="onCheckboxChange($event)">
+  <img
+    src="https://images.unsplash.com/photo-1728577740843-5f29c7586afe?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+    class="cardHero-img mx-auto"
+  />
+  
+  <div class="d-flex flex-column gap-2">
+    <span class="fw-bold border-bottom p-2 text-secondary">
+      {{hero.name}}
+    </span>
+    <div class="d-flex mt-2 justify-content-center">
+      <span class="fs-6">age: {{ hero.age }}</span>
+      <span class="fs-6">, {{ hero.gender }}</span>
     </div>
+    <span class="text-center fs-6 text-twoLine">{{ hero.mail }}</span>
+    <span class="text-center fs-6">{{ hero.address }}</span>
+  </div>
 </a>

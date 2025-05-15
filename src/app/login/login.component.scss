@@ -1,0 +1,18 @@
+.form-login{
+    width: 450px;
+}
+
+:host {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.p-input{
+    padding: 10px !important;
+}
+
+.question{
+    font-size: 15px !important;
+}

@@ -1,4 +1,4 @@
-@import 'ngx-toastr/toastr';
+@import "ngx-toastr/toastr";
 
 *,
 *:before,
@@ -17,7 +17,7 @@ video {
   display: block;
   max-width: 100%;
 }
-a{
+a {
   text-decoration: none;
 }
 input,
@@ -39,33 +39,83 @@ body {
   line-height: 1;
 }
 
-.main{
+.spinner {
+  border: 2px solid #e7e7e7;
+  border-top: 2px solid transparent;
+  width: 20px;
+  height: 20px;
+  border-radius: 100%;
+  animation: spin 0.8s linear infinite;
+}
+
+.mx-auto {
+  margin: 0 auto;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.main {
   max-width: 1000px;
   margin: 0 auto;
   padding: 20px;
 }
 
-.pointer{
+.pointer {
   cursor: pointer;
 }
 
-.text-primary-1{
+.text-primary-1 {
   color: #336699;
 }
 
-.text-primary-2{
+.text-black {
+  color: black;
+}
+
+.text-white {
+  color: white;
+}
+
+.text-primary-2 {
   color: #404f61;
 }
 
-.bg-primary-1{
+.bg-primary-1 {
   background-color: #e7e8e7;
 }
 
-.bg-primary-2{
+.bg-primary-2 {
   background-color: #404f61;
 }
 
-.p-20{
+.p-20 {
   padding: 20px;
 }
 
+.border-red {
+  border: 1px solid red;
+}
+
+.outline-none {
+  outline: none;
+}
+
+.shadow-lg {
+  box-shadow: 0 0 20px 0px rgba(0, 0, 0, 0.25);
+}
+
+.text-twoLine {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

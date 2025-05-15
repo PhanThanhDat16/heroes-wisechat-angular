@@ -1,4 +1,8 @@
 .dashboardHero {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+
   &-item {
     cursor: pointer;
     transition: all 0.2s ease-in-out;

@@ -1,12 +1,8 @@
-<main class="main">
-  <p class="fw-bold fs-1 text-primary-1">Tour of Heroes</p>
-  <div class="d-flex gap-4 p-2">
-      <a routerLink="" class="d-flex align-items-center text-dark fs-5 bg-primary-1 rounded px-2 py-2 pointer">{{"dashboard" | capitalizeWords}}</a>
-      <a routerLink="/heroes" class="d-flex align-items-center text-dark fs-5 bg-primary-1 rounded px-2 py-2 pointer">{{"heroes" | capitalizeWords}}</a>
-  
-      <modal-create>Create Heroes</modal-create>  
-      
-  </div>
-
-  <router-outlet />
-</main>
+<router-outlet></router-outlet>
+  <lib-toastify-toast-container
+    [pauseOnHover]="false"
+    [transition]="'bounce'"
+    [iconLibrary]="'material'"
+    [autoClose]="2500"
+  >
+  </lib-toastify-toast-container>

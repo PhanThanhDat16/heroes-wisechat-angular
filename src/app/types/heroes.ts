@@ -5,6 +5,8 @@ export interface IHero{
     mail: string,
     age: number,
     address: string
+    userId: string
+    _id?: string
 }
 
 export interface IHeroUpdate{
@@ -12,5 +14,6 @@ export interface IHeroUpdate{
     gender: string,
     mail: string,
     age: number,
-    address: string
+    address: string,
+    userId?: string
 }

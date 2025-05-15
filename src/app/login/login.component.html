@@ -1,0 +1,92 @@
+<div class="form-login shadow-lg p-4 rounded-3">
+  <span class="text-center w-100 d-inline-block fw-bold mb-4 fs-3">Login</span>
+  <form
+    action=""
+    class="text-center wrapper-form"
+    [formGroup]="formLogin"
+    (ngSubmit)="handleSubmit()"
+  >
+    <div class="text-start mb-3">
+      <label for="" class="form-label">Email:</label>
+      <input
+        [ngClass]="
+          formLogin.get('email')?.invalid &&
+          (formLogin.get('email')?.touched || formLogin.get('email')?.dirty)
+            ? 'border-red'
+            : ''
+        "
+        class="form-control p-input"
+        type="eemail"
+        name="email"
+        formControlName="email"
+      />
+      <p
+        class="form-text text-danger"
+        *ngIf="
+          formLogin.get('email')?.invalid &&
+          formLogin.get('email')?.hasError('required') &&
+          (formLogin.get('email')?.touched || formLogin.get('email')?.dirty)
+        "
+      >
+        Email is required
+      </p>
+      <p
+        class="form-text text-danger"
+        *ngIf="
+          formLogin.get('email')?.invalid &&
+          formLogin.get('email')?.hasError('pattern') &&
+          !formLogin.get('email')?.hasError('required') &&
+          (formLogin.get('email')?.touched || formLogin.get('email')?.dirty)
+        "
+      >
+        Invalid email format
+      </p>
+    </div>
+
+    <div class="mb-3 text-start">
+      <label for="" class="form-label">Password:</label>
+      <input
+        [ngClass]="
+          formLogin.get('password')?.invalid &&
+          (formLogin.get('password')?.touched ||
+            formLogin.get('password')?.dirty)
+            ? 'border-red'
+            : ''
+        "
+        class="form-control p-input"
+        type="password"
+        name="password"
+        formControlName="password"
+      />
+      <p
+        class="form-text text-danger"
+        *ngIf="
+          formLogin.get('password')?.invalid &&
+          (formLogin.get('password')?.touched ||
+            formLogin.get('password')?.dirty)
+        "
+      >
+        Password is required
+      </p>
+    </div>
+
+    <div class="text-start mb-4 fs-6 question">
+      Don't have an account?
+      <a routerLink="/register" class="text-start fw-bold"> Sign up</a>
+    </div>
+
+    <button
+      type="submit"
+      class="btn mx-auto btn-primary d-flex justify-content-center align-items-center"
+      [disabled]="formLogin.invalid"
+    >
+      <ng-container *ngIf="!isLoading; else loading">
+        <span>Login</span>
+      </ng-container>
+      <ng-template #loading>
+        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+        <span>Logging in...</span>
+      </ng-template>
+    </button>
+  </form>
+</div>
