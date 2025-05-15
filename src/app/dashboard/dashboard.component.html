@@ -1,8 +1,8 @@
 <div class="mt-2">
   <h2 class="text-center fs-4 mb-2">{{ "top heroes" | capitalizeWords }}</h2>
-  <div class="d-flex gap-2 p-2">
-      <div *ngFor="let hero of heroes">
-          <app-hero-card [hero]="hero"></app-hero-card> 
-      </div>
+  <div class="dashboardHero p-3">
+    <div *ngFor="let hero of heroes">
+      <app-hero-card [hero]="hero" [showCheckbox]="false"></app-hero-card>
+    </div>
   </div>
 </div>

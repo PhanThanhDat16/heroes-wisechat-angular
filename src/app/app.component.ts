@@ -1,5 +1,4 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { test } from './list-hero';
 
 @Component({
   selector: 'app-root',
@@ -7,10 +6,8 @@ import { test } from './list-hero';
   styleUrl: './app.component.scss',
   encapsulation: ViewEncapsulation.None
 })
-export class AppComponent implements OnInit {
+export class AppComponent {
   title = 'my-app';
 
-  ngOnInit(): void {
-    localStorage.setItem('heroes', JSON.stringify(test))
-  }
+  
 }
