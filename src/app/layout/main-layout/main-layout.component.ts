@@ -11,29 +11,36 @@ import { UserService } from '../../service/user.service';
   styleUrl: './main-layout.component.scss',
 })
 export class MainLayoutComponent implements OnInit, OnDestroy {
-
-  username: string = 'login'
+  username: string = 'login';
 
   constructor(
     private store: Store,
+    private router: Router,
     private userService: UserService,
-    private router: Router
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
-      this.userService.getProfile().subscribe({
-        next: (data) => this.username = data.data.username
-      })
+    this.userService.getProfile().subscribe();
+    this.userService.user$.subscribe({
+      next: (data) => (this.username = data.username),
+    });
   }
 
-  handleLogout(){
-    this.store.dispatch(logout())
-    this.router.navigate(["/login"])
+  handleLogout() {
+    this.store.dispatch(logout());
+    this.router.navigate(['/login']);
+  }
+
+  handleNavigateProfile() {
+    this.router.navigate(['/profile']);
+  }
+
+  handleNavigateTag() {
+    this.router.navigate(['/tag']);
   }
 
   ngOnDestroy(): void {
     this.store.dispatch(loadHeroesSuccess({ heroes: [] }));
   }
-
- 
 }

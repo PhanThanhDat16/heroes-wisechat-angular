@@ -30,7 +30,7 @@ export class HeroEffects {
     this.action$.pipe(
       ofType(loadHeroes),
       switchMap(() =>
-        this.heroService.getHeroesService().pipe(
+        this.heroService.getHeroesByUserIdService().pipe(
           map((heroes) => loadHeroesSuccess({ heroes })),
           catchError(({ error }) => {
             this.toastService.error(error.message);

@@ -1,0 +1,202 @@
+<div class="detail-hero">
+  <h2 class="text-center fs-4">{{ "detail hero" | capitalizeWords }}</h2>
+  <p class="fw-bold fs-5 text-center mt-3">
+    <span class="fw-normal fw-bold">{{ id }}</span>
+  </p>
+  <div class="container">
+    <div class="row">
+      <div class="info-column d-flex flex-column gap-2 col-md-6">
+        <p class="fw-bold fs-5">
+          Name:
+          <span class="fw-normal">{{ formDetail.get("name")?.value }}</span>
+        </p>
+        <p class="fw-bold fs-5">
+          Gender:
+          <span class="fw-normal">{{ formDetail.get("gender")?.value }}</span>
+        </p>
+        <p class="fw-bold fs-5">
+          Mail:
+          <span class="fw-normal">{{ formDetail.get("mail")?.value }}</span>
+        </p>
+        <p class="fw-bold fs-5">
+          Age:
+          <span class="fw-normal">{{ formDetail.get("age")?.value }}</span>
+        </p>
+        <p class="fw-bold fs-5">
+          Address:
+          <span class="fw-normal">{{ formDetail.get("address")?.value }}</span>
+        </p>
+
+        <ng-container *ngIf="tags.length > 0">
+          <div class="d-flex flex-wrap">
+            <div
+              *ngFor="let tag of hero.tags; let i = index"
+              class="tag-item d-flex align-items-center gap-1"
+              [ngStyle]="{
+                'background-color':
+                  colorPalette[i % colorPalette.length].background,
+                color: colorPalette[i % colorPalette.length].color
+              }"
+            >
+              <i class="fa-regular fa-star"></i>
+              <span>{{ tag }}</span>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+
+      <ng-container *ngIf="!isLoading && checkUserId">
+        <form
+          class="wrapper-form text-center col-md-6"
+          (ngSubmit)="handleSubmit()"
+          [formGroup]="formDetail"
+        >
+          <div class="mb-3 text-start">
+            <label class="form-label">Name:</label>
+            <input
+              class="form-control"
+              [ngClass]="{
+                'border-red':
+                  formDetail.get('name')?.invalid &&
+                  (formDetail.get('name')?.touched ||
+                    formDetail.get('name')?.dirty)
+              }"
+              type="text"
+              formControlName="name"
+            />
+            <p
+              class="form-text text-danger"
+              *ngIf="
+                formDetail.get('name')?.invalid &&
+                (formDetail.get('name')?.touched ||
+                  formDetail.get('name')?.dirty)
+              "
+            >
+              Name is required
+            </p>
+          </div>
+
+          <div class="text-start mb-3">
+            <label class="form-label">Gender:</label>
+            <div class="d-flex">
+              <label class="me-3">
+                <input type="radio" formControlName="gender" value="male" />
+                Male
+              </label>
+              <label>
+                <input type="radio" formControlName="gender" value="female" />
+                Female
+              </label>
+            </div>
+          </div>
+
+          <div class="text-start mb-3">
+            <label class="form-label">Mail:</label>
+            <input
+              class="form-control"
+              [ngClass]="{
+                'border-red':
+                  formDetail.get('mail')?.invalid &&
+                  (formDetail.get('mail')?.touched ||
+                    formDetail.get('mail')?.dirty)
+              }"
+              type="email"
+              formControlName="mail"
+            />
+            <p
+              class="form-text text-danger"
+              *ngIf="
+                formDetail.get('mail')?.invalid &&
+                formDetail.get('mail')?.hasError('required') &&
+                (formDetail.get('mail')?.touched ||
+                  formDetail.get('mail')?.dirty)
+              "
+            >
+              Mail is required
+            </p>
+            <p
+              class="form-text text-danger"
+              *ngIf="
+                formDetail.get('mail')?.invalid &&
+                formDetail.get('mail')?.hasError('pattern') &&
+                !formDetail.get('mail')?.hasError('required') &&
+                (formDetail.get('mail')?.touched ||
+                  formDetail.get('mail')?.dirty)
+              "
+            >
+              Invalid email format
+            </p>
+          </div>
+
+          <div class="text-start mb-3">
+            <label class="form-label">Age:</label>
+            <input
+              class="form-control"
+              [ngClass]="{
+                'border-red':
+                  formDetail.get('age')?.invalid &&
+                  (formDetail.get('age')?.touched ||
+                    formDetail.get('age')?.dirty)
+              }"
+              type="number"
+              formControlName="age"
+            />
+            <p
+              class="form-text text-danger"
+              *ngIf="
+                formDetail.get('age')?.invalid &&
+                (formDetail.get('age')?.touched || formDetail.get('age')?.dirty)
+              "
+            >
+              Age is required
+            </p>
+          </div>
+
+          <div class="text-start mb-3">
+            <label class="form-label">Address:</label>
+            <input
+              class="form-control"
+              [ngClass]="{
+                'border-red':
+                  formDetail.get('address')?.invalid &&
+                  (formDetail.get('address')?.touched ||
+                    formDetail.get('address')?.dirty)
+              }"
+              type="text"
+              formControlName="address"
+            />
+            <p
+              class="form-text text-danger"
+              *ngIf="
+                formDetail.get('address')?.invalid &&
+                (formDetail.get('address')?.touched ||
+                  formDetail.get('address')?.dirty)
+              "
+            >
+              Address is required
+            </p>
+          </div>
+
+          <div class="d-flex gap-3 justify-content-center">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              (click)="handleDelete()"
+              [disabled]="formDetail.invalid"
+            >
+              Delete
+            </button>
+            <button
+              type="submit"
+              class="btn btn-primary d-flex justify-content-center align-items-center"
+              [disabled]="formDetail.invalid || isLoading"
+            >
+              <span *ngIf="!isLoading">Update</span>
+              <div *ngIf="isLoading" class="spinner"></div>
+            </button>
+          </div>
+        </form>
+      </ng-container>
+    </div>
+  </div>
+</div>

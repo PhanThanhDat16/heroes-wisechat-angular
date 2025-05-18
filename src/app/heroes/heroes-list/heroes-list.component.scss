@@ -1,0 +1,25 @@
+.heroes {
+  &-wrapper {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+  }
+
+  &-item {
+    cursor: pointer;
+    transition: 0.2s ease-in-out;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  &-img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+  }
+}
+
+.label{
+  color: #86009d;
+}

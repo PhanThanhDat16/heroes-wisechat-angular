@@ -7,6 +7,7 @@ export interface IHero{
     address: string
     userId: string
     _id?: string
+    tags?: string[]
 }
 
 export interface IHeroUpdate{
@@ -16,4 +17,5 @@ export interface IHeroUpdate{
     age: number,
     address: string,
     userId?: string
+    tags?: string[]
 }

@@ -70,13 +70,27 @@ export class HeroService {
   // }
 
   private URL = 'http://localhost:3000/api/heroes';
+  private URL2 = 'http://localhost:3000/api';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  getHeroesService(): Observable<IHero[]> {
+  getHeroesByUserIdService(): Observable<IHero[]> {
     const userId = localStorage.getItem('userId');
     return this.http
-      .get<{ message: string; data: IHero[] }>(`${this.URL}/user/${userId}`, {
+      .get<{ message: string; data: IHero[] }>(
+        `${this.URL2}/users/${userId}/heroes`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.authService.getAccessToken()}`,
+          },
+        }
+      )
+      .pipe(map((res) => res.data));
+  }
+
+  getHeroesService(): Observable<IHero[]> {
+    return this.http
+      .get<{ message: string; data: IHero[] }>(this.URL, {
         headers: {
           Authorization: `Bearer ${this.authService.getAccessToken()}`,
         },
@@ -123,9 +137,28 @@ export class HeroService {
   deleteManyHeroesService(
     listHeroes: string[]
   ): Observable<{ message: string; deletedCount: number }> {
-    return this.http.request<{ message: string; deletedCount: number }>('delete', `${this.URL}`, {
-      body: listHeroes,
-      headers: { Authorization: `Bearer ${this.authService.getAccessToken()}` },
+    const userId = localStorage.getItem('userId');
+    return this.http.delete<{ message: string; deletedCount: number }>(
+      `${this.URL2}/users/${userId}/heroes`,
+      {
+        body: listHeroes,
+        headers: {
+          Authorization: `Bearer ${this.authService.getAccessToken()}`,
+        },
+      }
+    );
+  }
+
+  addTagsToMultipleHeroes(heroIds: string[], userId: string , tags: string[]) {
+    return this.http.put(`${this.URL2}/users/${userId}/heroes/tags`, { heroIds, tags });
+  }
+
+  deleteTagsToMultipleHeroes(heroIds: string[], userId: string , tags: string[]) {
+    return this.http.delete(`${this.URL2}/users/${userId}/heroes/tags`, {
+      body: { heroIds, tags },
+      headers: {
+        Authorization: `Bearer ${this.authService.getAccessToken()}`,
+      },
     });
   }
 }

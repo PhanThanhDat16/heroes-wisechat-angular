@@ -1,0 +1,29 @@
+<div class="mt-2">
+  <h2 class="text-center fs-4 mb-2">{{ "top heroes" | capitalizeWords }}</h2>
+
+  <div *ngIf="isLoading" class="text-center py-4">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+
+  <div
+    *ngIf="!isLoading && heroes.length === 0"
+    class="empty-state-container text-center"
+  >
+    <div class="empty-icon-wrapper">
+      <i class="fa-brands fa-odysee empty-icon display-1"></i>
+    </div>
+    <p class="empty-message">No heroes found. Please Create Hero.</p>
+  </div>
+
+  <div *ngIf="!isLoading && heroes.length > 0" class="dashboardHero p-3">
+    <div *ngFor="let hero of heroes">
+      <app-hero-card
+        [hero]="hero"
+        [navigateDetail]="false"
+        [showCheckbox]="false"
+      ></app-hero-card>
+    </div>
+  </div>
+</div>

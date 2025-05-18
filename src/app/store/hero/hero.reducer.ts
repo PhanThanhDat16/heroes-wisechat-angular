@@ -20,14 +20,12 @@ export const heroReducer = createReducer(
   initialState,
 
   on(loadHeroes, (state) => ({ ...state, loading: true })),
-  on(loadHeroesSuccess, (state, { heroes }) => {
-    return ({
+  on(loadHeroesSuccess, (state, { heroes }) => ({
     ...state,
     heroes,
     loading: false,
     error: null,
-  })
-  }),
+  })),
   on(loadHeroesFailure, (state, { error }) => ({
     ...state,
     loading: false,

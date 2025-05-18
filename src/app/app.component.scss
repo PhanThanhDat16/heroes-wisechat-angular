@@ -83,6 +83,10 @@ body {
   color: white;
 }
 
+.text-gray {
+  color: #b9b8b8;
+}
+
 .text-primary-2 {
   color: #404f61;
 }
@@ -109,6 +113,37 @@ body {
 
 .shadow-lg {
   box-shadow: 0 0 20px 0px rgba(0, 0, 0, 0.25);
+}
+
+.cursor-point {
+  cursor: pointer;
+}
+
+.empty-state-container {
+  padding: 60px 20px;
+  color: #6c757d;
+
+  .empty-icon-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #f8f9fa;
+    border-radius: 50%;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 20px auto;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .empty-icon {
+    font-size: 150px;
+    color: #0d6efd;
+  }
+
+  .empty-message {
+    font-size: 1.25rem;
+    font-weight: 500;
+  }
 }
 
 .text-twoLine {

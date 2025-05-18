@@ -19,12 +19,16 @@
           aria-labelledby="userDropdown"
           class="dropdown-menu-end p-0 overflow-hidden"
         >
-          <button ngbDropdownItem>
-            <i class="fa-solid fa-address-card p-2"></i>
+          <button ngbDropdownItem (click)="handleNavigateProfile()" class="d-flex gap-2 align-items-center">
+            <i class="fa-solid fa-address-card px-1 py-2"></i>
             <span>Profile</span>
           </button>
-          <button ngbDropdownItem (click)="handleLogout()">
-            <i class="fa-solid fa-arrow-right-from-bracket p-2"></i>
+          <button ngbDropdownItem (click)="handleNavigateTag()" class="d-flex gap-2 align-items-center">
+            <i class="fa-solid fa-ribbon px-1 py-2"></i>
+            <span>Tags</span>
+          </button>
+          <button ngbDropdownItem (click)="handleLogout()" class="d-flex gap-2 align-items-center">
+            <i class="fa-solid fa-arrow-right-from-bracket px-1 py-2"></i>
             <span>Logout</span>
           </button>
         </div>
