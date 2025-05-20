@@ -1,29 +1,29 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { AuthLayoutComponent } from './layout/auth-layout/auth-layout.component';
-import { AuthGuard } from './gaurd/auth.guard';
+import { authGuard } from './core/guard/auth.guard';
+import { AppComponent } from './app.component';
 
 export const routes: Routes = [
   {
     path: '',
-    component: MainLayoutComponent,
-    canActivate: [AuthGuard],
+    component: AppComponent,
+    canActivate: [authGuard],
     children: [
       {
         path: '',
         loadChildren: () =>
-          import('./heroes/heroes.module').then((m) => m.HeroesModule),
+          import('./features/heroes/heroes.module').then((m) => m.HeroesModule),
       },
       {
         path: '',
         loadChildren: () =>
-          import('./profile/profile.module').then((m) => m.ProfileModule),
+          import('./features/profile/profile.module').then((m) => m.ProfileModule),
       },
       {
         path: '',
         loadChildren: () =>
-          import('./tags/tags.module').then((m) => m.TagModule),
+          import('./features/tags/tags.module').then((m) => m.TagModule),
       },
     ],
   },
@@ -34,7 +34,7 @@ export const routes: Routes = [
       {
         path: '',
         loadChildren: () =>
-          import('./auth/auth.module').then((m) => m.AuthModule),
+          import('./features/auth/auth.module').then((m) => m.AuthModule),
       },
     ],
   },

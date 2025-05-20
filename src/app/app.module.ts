@@ -4,8 +4,8 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
-import { ModalCreateModule } from './heroes/modal-create/modal-create.module';
-import { SharedPipeModule } from './pipes/sharedPipe.module';
+// import { ModalCreateModule } from './heroes/modal-create/modal-create.module';
+// import { SharedPipeModule } from './pipes/sharedPipe.module';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { HttpClientModule } from '@angular/common/http';
 import { StoreModule } from '@ngrx/store';
@@ -14,22 +14,22 @@ import { HeroEffects } from './store/hero/hero.effects';
 import { AngularToastifyModule, ToastService } from 'angular-toastify';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { reducer } from './store';
-import { MainLayoutComponent } from './layout/main-layout/main-layout.component';
 import { AuthLayoutComponent } from './layout/auth-layout/auth-layout.component';
 import { RouterModule } from '@angular/router';
+import { coreModule } from './core/core.module';
+import { SharedModule } from './shared/shared.module';
 
 @NgModule({
   declarations: [
     AppComponent,
-    MainLayoutComponent,
     AuthLayoutComponent,
   ],
   imports: [
+    coreModule,
+    SharedModule,
     BrowserModule,
     AppRoutingModule,
     NgbModule,
-    SharedPipeModule,
-    ModalCreateModule,
     HttpClientModule,
     AngularToastifyModule,
     SweetAlert2Module.forRoot(),

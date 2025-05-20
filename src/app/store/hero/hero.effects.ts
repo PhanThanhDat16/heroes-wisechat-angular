@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { HeroService } from '../../service/heroes.service';
+import { HeroService } from '../../api/heroes.service';
 import {
   createHero,
   createHeroFailure,
