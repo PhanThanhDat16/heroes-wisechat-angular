@@ -1,0 +1,77 @@
+<div class="container my-5 p-4 bg-light rounded-4 shadow">
+  <h2 class="text-center mb-4 text-primary fw-semibold">Manage Tags</h2>
+
+  <div *ngIf="!isLoading && tags.length > 0" class="text-center mb-4">
+    <button
+      class="btn btn-outline-danger px-4 py-2 rounded-pill shadow-sm"
+      (click)="handleDeleteAll()"
+    >
+      <i class="fa-regular fa-trash-can me-2"></i>
+      Delete All
+    </button>
+  </div>
+
+  <div class="row g-4 align-items-start">
+    <div class="col-lg-7">
+      <div
+        *ngIf="!isLoading && tags.length > 0"
+        class="d-flex flex-wrap gap-3 justify-content-start"
+      >
+        <div
+          *ngFor="let tag of tags; let i = index"
+          class="tag-item d-flex align-items-center gap-2 px-3 py-2 rounded-pill shadow-sm position-relative cursor-point"
+          [ngStyle]="{
+            'background-color': tag.backgroundColor,
+            'color': tag.color
+          }"
+        >
+          <i class="fa-solid fa-tag"></i>
+          <span>{{ tag.name }}</span>
+          <i
+            class="fa-solid fa-xmark ms-auto"
+            role="button"
+            (click)="handleDeleteTag(tag._id!)"
+          ></i>
+        </div>
+      </div>
+
+      <div *ngIf="isLoading" class="text-center py-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden"></span>
+        </div>
+      </div>
+
+      <div *ngIf="!isLoading && tags.length === 0" class="text-center">
+        <div class="empty-icon-wrapper mx-auto mb-3">
+          <i class="fa-brands fa-odysee empty-icon display-1"></i>
+        </div>
+        <p class="empty-message fs-5 text-muted">
+          No tags found. Start by creating a new one!
+        </p>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body">
+          <label class="form-label fw-semibold">Tag Name:</label>
+          <input
+            type="text"
+            class="form-control py-2 mb-3 rounded-3"
+            placeholder="Enter tag name"
+            [(ngModel)]="nametag"
+          />
+          <button
+            type="submit"
+            class="btn btn-primary w-100 py-2 rounded-pill shadow-sm"
+            [disabled]="nametag.trim() === ''"
+            (click)="handleCreateTag()"
+          >
+            <i class="fa-solid fa-plus me-2"></i>
+            Create Tag
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

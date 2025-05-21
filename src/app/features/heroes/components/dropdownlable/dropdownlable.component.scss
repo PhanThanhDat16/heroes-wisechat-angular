@@ -1,0 +1,46 @@
+.label{
+  color: #86009d;
+}
+
+.dropdown-toggle::after{
+  display: none;
+}
+
+.dropdown-menu{
+  width: 300px;
+  max-height: 200px;
+  padding: 0;
+  overflow-y: scroll;
+}
+
+.dropdown-menu::-webkit-scrollbar {
+  width: 6px;
+  border-radius: 8px;
+}
+
+.dropdown-menu::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 8px;
+
+}
+
+.dropdown-menu::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 8px;
+
+}
+
+.list-tags{
+  background-color: #f7f7f7;
+}
+
+.container-tags{
+  min-height: 50px;
+}
+
+.tag-item{
+  width: max-content;
+  padding: 8px 10px;
+  background-color: #86009d;
+  border-radius: 8px;
+}

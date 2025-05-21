@@ -1,0 +1,106 @@
+<div class="p-2 mt-4">
+  <div class="d-flex gap-4">
+    <img
+      src="https://images.unsplash.com/photo-1728577740843-5f29c7586afe?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      class="rounded avatar"
+      alt=""
+    />
+    <div class="d-flex flex-column gap-2 col p-20">
+      <button routerLink="/tag" class="btn btn-primary mb-3" style="width: max-content;">See Tag</button>
+
+      <p class="fw-bold fs-5">
+        Email:
+        <span class="fw-normal">
+          {{ formProfile.get("email")?.value }}
+        </span>
+      </p>
+      <p class="fw-bold fs-5">
+        UserName:
+        <span class="fw-normal">
+          {{ formProfile.get("username")?.value }}
+        </span>
+      </p>
+    </div>
+  </div>
+  <div>
+    <form (ngSubmit)="handleSubmit()" [formGroup]="formProfile" class="mt-4">
+      <div class="form-floating mb-3">
+        <input
+          type="email"
+          class="form-control w-100"
+          id="floatingInput"
+          placeholder="name@example.com"
+          formControlName="email"
+          [ngClass]="
+            formProfile.get('email')?.invalid &&
+            (formProfile.get('email')?.touched ||
+              formProfile.get('email')?.dirty)
+              ? 'border-red'
+              : ''
+          "
+        />
+        <label for="floatingInput">Email address</label>
+
+        <p
+          class="form-text text-danger"
+          *ngIf="
+            formProfile.get('email')?.invalid &&
+            formProfile.get('email')?.hasError('required') &&
+            (formProfile.get('email')?.touched ||
+              formProfile.get('email')?.dirty)
+          "
+        >
+          Email is required
+        </p>
+        <p
+          class="form-text text-danger"
+          *ngIf="
+            formProfile.get('email')?.invalid &&
+            formProfile.get('email')?.hasError('pattern') &&
+            !formProfile.get('email')?.hasError('required') &&
+            (formProfile.get('email')?.touched ||
+              formProfile.get('email')?.dirty)
+          "
+        >
+          Invalid email format
+        </p>
+      </div>
+      <div class="form-floating">
+        <input
+          type="text"
+          class="form-control"
+          id="floatingUserName"
+          placeholder="UserName"
+          formControlName="username"
+          [ngClass]="
+            formProfile.get('username')?.invalid &&
+            (formProfile.get('username')?.touched ||
+              formProfile.get('username')?.dirty)
+              ? 'border-red'
+              : ''
+          "
+        />
+        <label for="floatingUserName">UserName</label>
+        <p
+          class="form-text text-danger"
+          *ngIf="
+            formProfile.get('username')?.invalid &&
+            (formProfile.get('username')?.touched ||
+              formProfile.get('username')?.dirty)
+          "
+        >
+          UserName is required
+        </p>
+      </div>
+      <button
+        [disabled]="formProfile.invalid"
+        type="submit"
+        class="btn mx-auto py-2 px-4 btn-primary d-flex mt-4 justify-content-center align-items-center"
+      >
+        Update
+        <!-- <span *ngIf="!isLoading">Update</span> -->
+        <!-- <div *ngIf="isLoading" class="spinner"></div> -->
+      </button>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,24 @@
+.dashboardHero {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+
+  &-item {
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+      opacity: 0.75;
+      transform: translateY(-5px);
+    }
+  }
+
+  &-img {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+  }
+}
+
+
+
