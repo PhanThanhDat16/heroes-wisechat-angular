@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
-import { IHero, IHeroUpdate } from '../types/heroes';
 import { HttpClient } from '@angular/common/http';
-import { AuthService } from '../core/services/auth.service';
+import { AuthService } from './auth.service';
+import { IHero, IHeroUpdate } from '../model/heroes';
 
 @Injectable({
   providedIn: 'root',
@@ -149,16 +149,16 @@ export class HeroService {
     );
   }
 
-  addTagsToMultipleHeroes(heroIds: string[], userId: string , tags: string[]) {
-    return this.http.put(`${this.URL2}/users/${userId}/heroes/tags`, { heroIds, tags });
-  }
+  // addTagsToMultipleHeroes(heroIds: string[], userId: string , tags: ITag[]) {
+  //   return this.http.put(`${this.URL2}/users/${userId}/heroes/tags`, { heroIds, tags });
+  // }
 
-  deleteTagsToMultipleHeroes(heroIds: string[], userId: string , tags: string[]) {
-    return this.http.delete(`${this.URL2}/users/${userId}/heroes/tags`, {
-      body: { heroIds, tags },
-      headers: {
-        Authorization: `Bearer ${this.authService.getAccessToken()}`,
-      },
-    });
-  }
+  // deleteTagsToMultipleHeroes(heroIds: string[], userId: string , tags: ITag[]) {
+  //   return this.http.delete(`${this.URL2}/users/${userId}/heroes/tags`, {
+  //     body: { heroIds, tags },
+  //     headers: {
+  //       Authorization: `Bearer ${this.authService.getAccessToken()}`,
+  //     },
+  //   });
+  // }
 }

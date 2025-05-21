@@ -1,9 +1,9 @@
-import { createHero } from './../../../../store/hero/hero.actions';
 import { Component, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Store } from '@ngrx/store';
-import { IHeroUpdate } from '../../../../types/heroes';
+import { IHeroUpdate } from '../../../../core/model/heroes';
+import { createHero } from '../../../../core/store/hero/hero.actions';
 
 @Component({
   selector: 'app-create',

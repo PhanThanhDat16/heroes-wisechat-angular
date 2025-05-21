@@ -7,10 +7,26 @@ import { ModalCreateComponent } from '../features/heroes/components/modal-create
 import { CreateComponent } from '../features/heroes/components/create/create.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { FormatDatePipe } from './pipes/date.pipe';
+import { HeaderComponent } from './components/header/header.component';
+import { NgbDropdown, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
-  declarations: [CapitalizeWordsPipe, FormatDatePipe, SpinnerComponent, ModalCreateComponent, CreateComponent],
-  imports: [RouterModule, CommonModule, ReactiveFormsModule],
-  exports: [CapitalizeWordsPipe, FormatDatePipe, SpinnerComponent, ModalCreateComponent, CreateComponent],
+  declarations: [
+    CapitalizeWordsPipe,
+    FormatDatePipe,
+    SpinnerComponent,
+    ModalCreateComponent,
+    CreateComponent,
+    HeaderComponent,
+  ],
+  imports: [RouterModule, CommonModule, ReactiveFormsModule, NgbDropdown, NgbModule],
+  exports: [
+    CapitalizeWordsPipe,
+    FormatDatePipe,
+    SpinnerComponent,
+    ModalCreateComponent,
+    CreateComponent,
+    HeaderComponent,
+  ],
 })
 export class SharedModule {}

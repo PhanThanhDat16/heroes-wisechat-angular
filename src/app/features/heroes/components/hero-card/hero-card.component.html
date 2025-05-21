@@ -1,5 +1,7 @@
+<!-- [routerLink]="navigateDetail === true ? ['/heroes', hero._id] : null" -->
 <div
-  [routerLink]="navigateDetail === true ? ['/heroes', hero._id] : null"
+  [routerLink]="['/heroes', hero._id]"
+
   class="card shadow-sm rounded-4 p-3 position-relative border-0 h-100 text-center text-primary-2 cardHero-item cursor-point"
 >
   <input
@@ -18,8 +20,13 @@
   />
 
   <div class="card-body p-2 d-flex flex-column gap-2">
-    <h5 class="card-title fw-semibold border-bottom pb-2 text-secondary">
-      {{ hero.name }}
+    <h5 class="card-title mb-0 fw-semibold border-bottom pb-2 text-secondary">
+        {{ hero.name }}
+    </h5>
+    <h5 class="fs-6 small owner fw-bold border-bottom pb-1 text-secondary">
+      <span [ngClass]="isLoading ? 'skeleton' : '' ">
+        {{ owner | capitalizeWords }}
+      </span>
     </h5>
     <div class="d-flex justify-content-center gap-1 small text-muted">
       <span>Age: {{ hero.age }}</span>
@@ -33,11 +40,11 @@
         *ngFor="let tag of hero.tags; let i = index"
         class="tag-item"
         [ngStyle]="{
-          'background-color': colorPalette[i % colorPalette.length].background,
-          color: colorPalette[i % colorPalette.length].color
+          'background-color': tag.backgroundColor,
+          color: tag.color
         }"
       >
-        {{ tag }}
+        {{ tag.name }}
       </span>
     </div>
   </div>

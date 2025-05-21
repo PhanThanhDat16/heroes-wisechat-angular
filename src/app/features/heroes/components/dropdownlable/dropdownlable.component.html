@@ -18,13 +18,12 @@
             *ngFor="let tag of selectedTags; let i = index"
             class="tag d-flex gap-2 align-items-center py-2 px-3 rounded-pill cursor-point"
             [ngStyle]="{
-              'background-color':
-                colorPalette[i % colorPalette.length].background,
-              color: colorPalette[i % colorPalette.length].color
+              'background-color': tag.backgroundColor,
+              color: tag.color
             }"
           >
             <i class="fa-solid fa-tag"></i>
-            <span class="cursor-point">{{ tag }}</span>
+            <span class="cursor-point">{{ tag.name }}</span>
             <span (click)="handleDeleteTag(tag)">
               <i class="fa-solid fa-xmark"></i>
             </span>
@@ -40,13 +39,12 @@
             class="mb-2 d-flex gap-1 tag-item cursor-point rounded-pill"
             (click)="handleAddTag(tag)"
             [ngStyle]="{
-              'background-color':
-                colorPalette[i % colorPalette.length].background,
-              color: colorPalette[i % colorPalette.length].color
+              'background-color': tag.backgroundColor,
+              color: tag.color
             }"
           >
             <i class="fa-solid fa-tag"></i>
-            <span class="cursor-point">{{ tag }}</span>
+            <span class="cursor-point">{{ tag.name }}</span>
           </div>
         </div>
       </div>

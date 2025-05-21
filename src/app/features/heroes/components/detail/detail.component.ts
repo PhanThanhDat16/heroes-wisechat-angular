@@ -10,11 +10,11 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { IHero, IHeroUpdate } from '../../../../types/heroes';
-import { colorPalette } from '../../../../constant/color-palette.constant';
-import { HeroService } from '../../../../api/heroes.service';
-import { UserService } from '../../../../api/user.service';
-import { deleteHero, updateHero } from '../../../../store/hero/hero.actions';
+import { IHero, IHeroUpdate } from '../../../../core/model/heroes';
+import { ITag } from '../../../../core/model/tag';
+import { HeroService } from '../../../../core/services/heroes.service';
+import { UserService } from '../../../../core/services/user.service';
+import { deleteHero, updateHero } from '../../../../core/store/hero/hero.actions';
 
 @Component({
   selector: 'app-detail',
@@ -28,8 +28,8 @@ export class DetailComponent implements OnInit, OnDestroy {
   checkUserId: boolean = true;
   isLoading = false;
   username: string = '';
-  tags: string[] = [];
-  colorPalette = colorPalette;
+  tags: ITag[] = [];
+  createdAt: string = ''
 
   formDetail = new FormGroup({
     name: new FormControl('', Validators.required),
@@ -112,6 +112,7 @@ export class DetailComponent implements OnInit, OnDestroy {
       this.isLoading = true;
       this.trackSub = this.heroService.getHeroDetailService(this.id).subscribe({
         next: (data) => {
+          this.createdAt = data.createdAt ?? ''
           this.checkUserId = data.userId === userId;
           this.hero = data;
           this.tags = this.hero.tags ?? [];

@@ -26,6 +26,10 @@
           Address:
           <span class="fw-normal">{{ formDetail.get("address")?.value }}</span>
         </p>
+        <p class="fw-bold fs-5">
+          CreatedAt:
+          <span class="fw-normal">{{ createdAt | formatDate }}</span>
+        </p>
 
         <ng-container *ngIf="tags.length > 0">
           <div class="d-flex flex-wrap">
@@ -33,13 +37,12 @@
               *ngFor="let tag of hero.tags; let i = index"
               class="tag-item d-flex align-items-center gap-1"
               [ngStyle]="{
-                'background-color':
-                  colorPalette[i % colorPalette.length].background,
-                color: colorPalette[i % colorPalette.length].color
+                'background-color': tag.backgroundColor,
+                color: tag.color
               }"
             >
               <i class="fa-regular fa-star"></i>
-              <span>{{ tag }}</span>
+              <span>{{ tag.name }}</span>
             </div>
           </div>
         </ng-container>

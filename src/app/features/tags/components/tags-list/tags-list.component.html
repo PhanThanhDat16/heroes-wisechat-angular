@@ -21,17 +21,16 @@
           *ngFor="let tag of tags; let i = index"
           class="tag-item d-flex align-items-center gap-2 px-3 py-2 rounded-pill shadow-sm position-relative cursor-point"
           [ngStyle]="{
-            'background-color':
-              colorPalette[i % colorPalette.length].background,
-            color: colorPalette[i % colorPalette.length].color
+            'background-color': tag.backgroundColor,
+            'color': tag.color
           }"
         >
           <i class="fa-solid fa-tag"></i>
-          <span>{{ tag }}</span>
+          <span>{{ tag.name }}</span>
           <i
             class="fa-solid fa-xmark ms-auto"
             role="button"
-            (click)="handleDeleteTag(tag)"
+            (click)="handleDeleteTag(tag._id!)"
           ></i>
         </div>
       </div>

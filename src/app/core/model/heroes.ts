@@ -1,3 +1,5 @@
+import { ITag } from "./tag"
+
 export interface IHero{
     id: number,
     name: string,
@@ -7,7 +9,8 @@ export interface IHero{
     address: string
     userId: string
     _id?: string
-    tags?: string[]
+    tags?: ITag[]
+    createdAt? : string
 }
 
 export interface IHeroUpdate{
@@ -17,5 +20,5 @@ export interface IHeroUpdate{
     age: number,
     address: string,
     userId?: string
-    tags?: string[]
+    tags?: ITag[]
 }

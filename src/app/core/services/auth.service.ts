@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs';
-import { IAuth } from '../../types/auth';
+import { IAuth } from '../model/auth';
 
 @Injectable({
   providedIn: 'root',
@@ -22,9 +22,24 @@ export class AuthService {
     return accessToken;
   }
 
-  refreshToken(resfreshToken: string) {
+  getRefreshToken(){
+    const refreshToken = localStorage.getItem('refreshToken');
+    return refreshToken;
+  }
+
+  verifyAccessToken(accessToken: string){
+    return this.http.post<any>(`${this.URL}/access-token`, {accessToken})
+  }
+
+  refreshToken(refreshToken: string) {
     return this.http
-      .post<any>(`${this.URL}/refresh-token`, { resfreshToken })
+      .post<any>(`${this.URL}/refresh-token`, { refreshToken })
       .pipe(map((data) => data.data));
+  }
+
+  logout() {
+    const refreshToken = localStorage.getItem('refreshToken')
+    localStorage.clear()
+    return this.http.post<any>(`${this.URL}/logout` , { refreshToken })
   }
 }

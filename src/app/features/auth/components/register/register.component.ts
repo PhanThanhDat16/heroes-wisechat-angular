@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ToastService } from 'angular-toastify';
 import { Router } from '@angular/router';
-import { UserService } from '../../../../api/user.service';
-import { IRegister } from '../../../../types/user';
+import { IRegister } from '../../../../core/model/user';
+import { UserService } from '../../../../core/services/user.service';
 
 @Component({
   selector: 'app-register',

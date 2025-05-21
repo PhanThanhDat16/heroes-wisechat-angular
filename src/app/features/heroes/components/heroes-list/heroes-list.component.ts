@@ -4,11 +4,12 @@ import { Store } from '@ngrx/store';
 import Swal from 'sweetalert2';
 import { DropdownlableComponent } from '../dropdownlable/dropdownlable.component';
 import { ToastService } from 'angular-toastify';
-import { IHero } from '../../../../types/heroes';
-import { HeroService } from '../../../../api/heroes.service';
-import { UserService } from '../../../../api/user.service';
-import { loadHeroes } from '../../../../store/hero/hero.actions';
-import { selectAllHeroes } from '../../../../store/hero/hero.selectors';
+import { IHero } from '../../../../core/model/heroes';
+import { ITag } from '../../../../core/model/tag';
+import { HeroService } from '../../../../core/services/heroes.service';
+import { TagService } from '../../../../core/services/tag.service';
+import { loadHeroes } from '../../../../core/store/hero/hero.actions';
+import { selectAllHeroes } from '../../../../core/store/hero/hero.selectors';
 
 @Component({
   selector: 'app-heroes-list',
@@ -20,13 +21,13 @@ export class HeroesListComponent implements OnInit, OnDestroy {
   trackSub: Subscription;
   selectedHeroIds: string[] = [];
   selectAll: boolean = false;
-  tags: string[];
+  tags: ITag[];
   isLoading: boolean = false;
   @ViewChild('dropdownComponent') dropdownComponent: DropdownlableComponent;
 
   constructor(
     private heroService: HeroService,
-    private userService: UserService,
+    private tagService: TagService,
     private store: Store,
     private toastService: ToastService
   ) {}
@@ -35,7 +36,6 @@ export class HeroesListComponent implements OnInit, OnDestroy {
     this.store.dispatch(loadHeroes());
     this.trackSub = this.store.select(selectAllHeroes).subscribe({
       next: (data) => {
-        // console.log(data)
         this.isLoading = data.loading;
         this.heroes = data.heroes;
       },
@@ -43,7 +43,7 @@ export class HeroesListComponent implements OnInit, OnDestroy {
 
     const userId = localStorage.getItem('userId');
     if (userId) {
-      this.userService.getTagsByUser(userId).subscribe({
+      this.tagService.getTagsByUser(userId).subscribe({
         next: (data) => (this.tags = data),
       });
     }
@@ -100,13 +100,13 @@ export class HeroesListComponent implements OnInit, OnDestroy {
     });
   }
 
-  handleAddTagsToSelectedHeroes(tags: string[]) {
+  handleAddTagsToSelectedHeroes(tags: ITag[]) {
     if (this.selectedHeroIds.length === 0 || tags.length === 0) return;
 
     const userId = localStorage.getItem('userId');
     if (!userId) return;
 
-    this.heroService
+    this.tagService
       .addTagsToMultipleHeroes(this.selectedHeroIds, userId, tags)
       .subscribe({
         next: () => {
@@ -127,11 +127,13 @@ export class HeroesListComponent implements OnInit, OnDestroy {
     ) {
       return;
     }
+
     const tagsToRemove =
-      this.dropdownComponent.allSelectedTags.length !== 0
-        ? this.dropdownComponent.allSelectedTags
-        : this.dropdownComponent.selectedTags;
-    this.heroService
+      this.dropdownComponent.selectedTags.length !== 0
+        ? this.dropdownComponent.selectedTags
+        : this.dropdownComponent.allSelectedTags;
+
+    this.tagService
       .deleteTagsToMultipleHeroes(this.selectedHeroIds, userId, tagsToRemove)
       .subscribe({
         next: () => {

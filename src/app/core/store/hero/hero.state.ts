@@ -1,4 +1,4 @@
-import { IHero } from '../../types/heroes';
+import { IHero } from "../../model/heroes";
 
 export interface IHeroesState {
   heroes: IHero[];

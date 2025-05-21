@@ -1,8 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { IHero } from '../../../../types/heroes';
-import { HeroService } from '../../../../api/heroes.service';
+import { IHero } from '../../../../core/model/heroes';
+import { HeroService } from '../../../../core/services/heroes.service';
 
 @Component({
   selector: 'app-dashboard',

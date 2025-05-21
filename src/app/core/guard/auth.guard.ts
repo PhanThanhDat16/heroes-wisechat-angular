@@ -8,8 +8,22 @@ export const authGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   const accessToken = authService.getAccessToken();
-
-  return accessToken ? true : router.parseUrl('/login');
+  
+  if(accessToken){
+     authService.verifyAccessToken(accessToken).subscribe({
+      next: (data) => {
+        console.log(data)
+        return true
+      },
+      error: (error) => {
+        console.log(error)
+        return router.parseUrl('/login')
+      }
+     })
+  }else{
+    return router.parseUrl('/login')
+  }
+  return true
 };
 
 

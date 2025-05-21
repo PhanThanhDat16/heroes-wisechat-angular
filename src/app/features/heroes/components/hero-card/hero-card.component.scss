@@ -1,5 +1,18 @@
-.card{
+.card {
   box-shadow: 0 0 9px 0px rgba(0, 0, 0, 0.17) !important;
+}
+
+.owner {
+  font-size: 14px !important;
+  font-style: italic;
+}
+
+.skeleton {
+  height: 8px;
+  width: 50%;
+  display: inline-block;
+  border-radius: 10px;
+  background-color: rgba(209, 209, 209, 0.932);
 }
 
 .cardHero {
@@ -37,4 +50,3 @@
   font-size: 10px;
   margin: 2.5px;
 }
-

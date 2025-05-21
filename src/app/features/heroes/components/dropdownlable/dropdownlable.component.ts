@@ -7,10 +7,11 @@ import {
 } from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { colorPalette } from '../../../../constant/color-palette.constant';
-import { HeroService } from '../../../../api/heroes.service';
-import { loadHeroes } from '../../../../store/hero/hero.actions';
-import { IHero } from '../../../../types/heroes';
+import { IHero } from '../../../../core/model/heroes';
+import { ITag } from '../../../../core/model/tag';
+import { HeroService } from '../../../../core/services/heroes.service';
+import { TagService } from '../../../../core/services/tag.service';
+import { loadHeroes } from '../../../../core/store/hero/hero.actions';
 
 @Component({
   selector: 'app-dropdownlable',
@@ -18,35 +19,39 @@ import { IHero } from '../../../../types/heroes';
   styleUrl: './dropdownlable.component.scss',
 })
 export class DropdownlableComponent implements OnChanges {
-  selectedTags: string[] = [];
-  allSelectedTags: string[] = [];
-  allTags: string[] = [];
-  @Input() tags: string[];
+  selectedTags: ITag[] = [];
+  allSelectedTags: ITag[] = [];
+  allTags: ITag[] = [];
+  @Input() tags: ITag[];
   @Input() selectedHeroIds: string[];
   @Input() heroSelectLengt: number;
-  @Output() tagsSelected = new EventEmitter<string[]>();
+  @Output() tagsSelected = new EventEmitter<ITag[]>();
 
-  colorPalette = colorPalette;
+  constructor(
+    private heroSerivce: HeroService,
+    private store: Store,
+    private tagService: TagService
+  ) {}
 
-  constructor(private heroSerivce: HeroService, private store: Store) {}
-
-  handleAddTag(tag: string) {
+  handleAddTag(tag: ITag) {
     const userId = localStorage.getItem('userId');
     if (!this.selectedTags.includes(tag) && userId) {
       this.selectedTags.push(tag);
-      this.tags = this.tags.filter((t) => t !== tag);
+      this.tags = this.tags.filter((t) => t._id !== tag._id);
       this.tagsSelected.emit(this.selectedTags);
     }
   }
 
-  handleDeleteTag(tag: string) {
+  handleDeleteTag(tag: ITag) {
     const userId = localStorage.getItem('userId');
     if (!userId || this.selectedHeroIds.length === 0) return;
-    this.heroSerivce
+    this.tagService
       .deleteTagsToMultipleHeroes(this.selectedHeroIds, userId, [tag])
       .subscribe({
         next: () => {
-          this.selectedTags = this.selectedTags.filter((t) => t !== tag);
+          this.selectedTags = this.selectedTags.filter(
+            (t) => t._id !== tag._id
+          );
           this.tags.unshift(tag);
           this.tagsSelected.emit(this.selectedTags);
           this.store.dispatch(loadHeroes());
@@ -67,17 +72,32 @@ export class DropdownlableComponent implements OnChanges {
       );
 
       forkJoin(heroRequests).subscribe((heroes: IHero[]) => {
-        const tagsArray = heroes.map((h) => h.tags || []);
+        const tagsArray: ITag[][] = heroes.map((h) =>
+          (h.tags || []).filter(
+            (tag): tag is ITag => typeof tag === 'object' && tag !== null
+          )
+        );
 
-        const allTagsSet = new Set<string>();
-        tagsArray.forEach((tags) => tags.forEach((tag) => allTagsSet.add(tag)));
-        this.allSelectedTags = Array.from(allTagsSet);
-        let commonTags: string[] = tagsArray[0];
+        const tagMap = new Map<string, ITag>();
+        tagsArray.forEach((tags) => {
+          tags.forEach((tag) => {
+            if (tag._id && !tagMap.has(tag._id)) {
+              tagMap.set(tag._id, tag);
+            }
+          });
+        });
+        this.allSelectedTags = Array.from(tagMap.values());
+        let commonTags = tagsArray[0];
         for (let i = 1; i < tagsArray.length; i++) {
-          commonTags = commonTags.filter((tag) => tagsArray[i].includes(tag));
+          const tagIds = new Set(tagsArray[i].map((t) => t._id));
+          commonTags = commonTags.filter(
+            (tag) => tag._id && tagIds.has(tag._id)
+          );
         }
+
         this.selectedTags = commonTags;
-        this.tags = this.allTags.filter((tag) => !commonTags.includes(tag));
+        const commonTagIds = new Set(commonTags.map((t) => t._id));
+        this.tags = this.allTags.filter((tag) => !commonTagIds.has(tag._id));
       });
     } else {
       this.selectedTags = [];

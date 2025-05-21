@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
-import { UserService } from '../../../api/user.service';
-import { logout } from '../../../store/hero/hero.actions';
+import { UserService } from '../../../core/services/user.service';
+import { logout } from '../../../core/store/hero/hero.actions';
 
 @Component({
   selector: 'app-header',

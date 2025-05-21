@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { HeroService } from '../../api/heroes.service';
 import {
   createHero,
   createHeroFailure,
@@ -15,8 +14,9 @@ import {
   updateHeroSuccess,
 } from './hero.actions';
 import { catchError, map, mergeMap, of, switchMap, tap } from 'rxjs';
-import { IHeroUpdate } from '../../types/heroes';
 import { ToastService } from 'angular-toastify';
+import { HeroService } from '../../services/heroes.service';
+import { IHeroUpdate } from '../../model/heroes';
 
 @Injectable()
 export class HeroEffects {

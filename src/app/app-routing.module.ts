@@ -1,13 +1,13 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AuthLayoutComponent } from './layout/auth-layout/auth-layout.component';
+import { AuthLayoutComponent } from './features/layout/auth-layout/auth-layout.component';
 import { authGuard } from './core/guard/auth.guard';
-import { AppComponent } from './app.component';
+import { MainLayoutComponent } from './features/layout/main-layout/main-layout.component';
 
 export const routes: Routes = [
   {
     path: '',
-    component: AppComponent,
+    component: MainLayoutComponent,
     canActivate: [authGuard],
     children: [
       {

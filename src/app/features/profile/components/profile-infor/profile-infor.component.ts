@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ToastService } from 'angular-toastify';
-import { UserService } from '../../../../api/user.service';
-import { IUser } from '../../../../types/user';
+import { IUser } from '../../../../core/model/user';
+import { UserService } from '../../../../core/services/user.service';
 
 @Component({
   selector: 'app-profile-infor',

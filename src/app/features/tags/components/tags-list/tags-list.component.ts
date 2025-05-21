@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ToastService } from 'angular-toastify';
-import { UserService } from '../../../../api/user.service';
-import { colorPalette } from '../../../../constant/color-palette.constant';
+import { ITag } from '../../../../core/model/tag';
+import { TagService } from '../../../../core/services/tag.service';
 
 @Component({
   selector: 'app-tags-list',
@@ -9,43 +9,47 @@ import { colorPalette } from '../../../../constant/color-palette.constant';
   styleUrl: './tags-list.component.scss',
 })
 export class TagsListComponent implements OnInit {
-  tags: string[] = [];
+  tags: ITag[] = [];
   nametag: string = '';
   isLoading: boolean = false;
-  colorPalette = colorPalette
-  
-  constructor(private userService: UserService, private toastService: ToastService) {}
+
+  constructor(
+    private tagService: TagService,
+    private toastService: ToastService
+  ) {}
 
   handleCreateTag() {
     const userId = localStorage.getItem('userId');
     if (userId) {
-      this.userService.createTagByUser(userId, this.nametag).subscribe({
+      this.tagService.createTagByUser(userId, this.nametag).subscribe({
         next: (data) => {
-          this.nametag = ""
-          return this.tags = data.tags
+          this.nametag = '';
+          this.tags.push(data);
         },
-        error: (error) => this.toastService.error(error.error.message)
+        error: (error) => this.toastService.error(error.error.message),
       });
     }
   }
 
-  handleDeleteTag(tag: string) {
+  handleDeleteTag(tagId: string) {
     const userId = localStorage.getItem('userId');
     if (userId) {
-      this.userService.deleteTageByUser(userId, tag).subscribe({
+      this.tagService.deleteTageByUser(userId, tagId).subscribe({
         next: (data) => {
-          this.tags = this.tags.filter((t) => t!==tag)
+          this.tags = this.tags.filter((t) => t._id !== tagId);
+          this.toastService.success('Delete successfull')
         },
       });
     }
   }
 
-  handleDeleteAll(){
+  handleDeleteAll() {
     const userId = localStorage.getItem('userId');
     if (userId) {
-      this.userService.deleteAllTagByUser(userId, this.tags).subscribe({
+      this.tagService.deleteAllTagByUser(userId).subscribe({
         next: (data) => {
           this.tags = []
+          this.toastService.success('Delete all successfull')
         },
       });
     }
@@ -53,12 +57,12 @@ export class TagsListComponent implements OnInit {
 
   ngOnInit(): void {
     const userId = localStorage.getItem('userId');
-    this.isLoading = true
+    this.isLoading = true;
     if (userId) {
-      this.userService.getTagsByUser(userId).subscribe({
+      this.tagService.getTagsByUser(userId).subscribe({
         next: (data) => {
-          this.tags = data
-          this.isLoading = false
+          this.tags = data;
+          this.isLoading = false;
         },
       });
     }
