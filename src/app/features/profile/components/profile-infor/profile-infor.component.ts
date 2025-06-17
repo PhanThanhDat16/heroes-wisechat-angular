@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ToastService } from 'angular-toastify';
-import { IUser } from '../../../../core/model/user';
+import { IUser } from '../../../auth/model/user';
 import { UserService } from '../../../../core/services/user.service';
 
 @Component({

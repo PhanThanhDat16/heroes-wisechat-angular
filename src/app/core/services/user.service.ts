@@ -1,7 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, map, Observable } from 'rxjs';
-import { IRegister, IUser } from '../model/user';
+import { IRegister, IUser } from '../../features/auth/model/user';
 import { AuthService } from './auth.service';
 
 @Injectable({
@@ -57,6 +57,21 @@ export class UserService {
     return this.http
       .get<any>(`${this.URL}/${id}`, {
         headers: { authorization: `Bearer ${accessToken}` },
+      })
+      .pipe(map((res) => res.data));
+  }
+
+  getAllUser(search?: string) {
+    let params = new HttpParams();
+    if (search && search.trim() !== '') {
+      params = params.set('search', search);
+    }
+    return this.http
+      .get<any>(`${this.URL}`, {
+        params,
+        headers: {
+          authorization: `Bearer ${this.authService.getAccessToken()}`,
+        },
       })
       .pipe(map((res) => res.data));
   }

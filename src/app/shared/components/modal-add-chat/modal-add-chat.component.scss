@@ -1,0 +1,25 @@
+::ng-deep .modal-dialog {
+  max-width: 660px !important;
+  .modal-content {
+    overflow-y: auto;
+    height: 800px;
+    &::-webkit-scrollbar {
+      width: 6px;
+      border-radius: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #888;
+      border-radius: 8px;
+    }
+  }
+}
+
+.modal-header {
+  border: 0;
+}

@@ -7,11 +7,11 @@ import {
 } from '@angular/core';
 import { forkJoin } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { IHero } from '../../../../core/model/heroes';
-import { ITag } from '../../../../core/model/tag';
-import { HeroService } from '../../../../core/services/heroes.service';
-import { TagService } from '../../../../core/services/tag.service';
+import { ITag } from '../../../tags/model/tag';
+import { HeroService } from '../../service/heroes.service';
 import { loadHeroes } from '../../../../core/store/hero/hero.actions';
+import { TagService } from '../../../tags/service/tag.service';
+import { IHero } from '../../model/heroes';
 
 @Component({
   selector: 'app-dropdownlable',
@@ -26,6 +26,7 @@ export class DropdownlableComponent implements OnChanges {
   @Input() selectedHeroIds: string[];
   @Input() heroSelectLengt: number;
   @Output() tagsSelected = new EventEmitter<ITag[]>();
+  availableTags: ITag[] = [];
 
   constructor(
     private heroSerivce: HeroService,
@@ -46,7 +47,9 @@ export class DropdownlableComponent implements OnChanges {
     const userId = localStorage.getItem('userId');
     if (!userId || this.selectedHeroIds.length === 0) return;
     this.tagService
-      .deleteTagsToMultipleHeroes(this.selectedHeroIds, userId, [tag])
+      .deleteTagsToMultipleHeroes(this.selectedHeroIds, userId, [
+        tag._id as string,
+      ])
       .subscribe({
         next: () => {
           this.selectedTags = this.selectedTags.filter(
@@ -74,7 +77,7 @@ export class DropdownlableComponent implements OnChanges {
       forkJoin(heroRequests).subscribe((heroes: IHero[]) => {
         const tagsArray: ITag[][] = heroes.map((h) =>
           (h.tags || []).filter(
-            (tag): tag is ITag => typeof tag === 'object' && tag !== null
+            (tag)=> typeof tag === 'object' && tag !== null
           )
         );
 
@@ -87,6 +90,7 @@ export class DropdownlableComponent implements OnChanges {
           });
         });
         this.allSelectedTags = Array.from(tagMap.values());
+
         let commonTags = tagsArray[0];
         for (let i = 1; i < tagsArray.length; i++) {
           const tagIds = new Set(tagsArray[i].map((t) => t._id));

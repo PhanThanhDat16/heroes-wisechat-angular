@@ -1,0 +1,59 @@
+<div class="py-4 wrapper-chat border-top-1 m-0 d-flex flex-column">
+  <div class="row flex-fill overflow-hidden">
+    <div class="col-4 d-flex flex-column overflow-hidden">
+      <div class="p-2">
+        <div class="d-flex card-search align-items-center border rounded gap-2">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input
+            type="text"
+            class="border-0 flex-fill"
+            placeholder="Search user..."
+          />
+        </div>
+      </div>
+
+      <app-create-group
+        (newDataGroupEmitter)="onResetDataGroup($event)"
+      ></app-create-group>
+
+      <div class="flex-fill overflow-auto scroll-y" style="height: 670px">
+        <ng-container *ngIf="data.length > 0">
+          <div *ngFor="let item of data">
+            <app-group-item [itemGroup]="item"></app-group-item>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="col-8 rounded position-relative d-flex flex-column">
+      <ng-container *ngIf="data.length === 0">
+        <i
+          class="fa-solid fa-layer-group text-center my-5"
+          style="color: #74c0fc; font-size: 260px"
+        ></i>
+        <span class="text-center text-primary-m fs-3 fw-bold"
+          >There are not group yet</span
+        >
+      </ng-container>
+
+      <ng-container *ngIf="data.length > 0">
+        <router-outlet></router-outlet>
+      </ng-container>
+
+      <ng-container
+        *ngIf="
+          data.length > 0 &&
+          (checkLinkDetail === undefined || checkLinkDetail === null)
+        "
+      >
+        <div class="text-center d-flex flex-column gap-4">
+          <i
+            class="fa-regular fa-message"
+            style="color: #74c0fc; font-size: 310px; margin-top: 70px"
+          ></i>
+          <span class="fs-1 fw-bold text-primary-m">Conversation</span>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>

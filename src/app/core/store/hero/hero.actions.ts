@@ -1,5 +1,5 @@
 import { createAction, props } from '@ngrx/store';
-import { IHero } from '../../model/heroes';
+import { IHero } from '../../../features/heroes/model/heroes';
 
 export const loadHeroes = createAction(
   '[Hero] Load Heroes'

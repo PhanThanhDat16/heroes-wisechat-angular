@@ -1,0 +1,105 @@
+<div class="d-flex align-items-center justify-content-between px-2 py-4">
+  <span class="fs-5 fw-bold" style="color: #757575">Chats</span>
+  <app-modal-add-chat (stepEmitter)="onResetStep($event)">
+    <span
+      modal-btn
+      class="cursor-point rounded fs-6 small btn-create"
+      style="background-color: #d5e8d4"
+    >
+      <i class="fa-solid fa-plus cursor-point" style="color: #82b366"></i>
+    </span>
+    <div modal-header>
+      <h4 class="modal-title" id="modal-basic-title text-primary-m">
+        New Group
+      </h4>
+    </div>
+    <button
+      *ngIf="step === 1"
+      modal-header-action
+      class="modal-title btn-next"
+      id="modal-basic-title"
+      [ngClass]="listAddUser.length >= 1 ? 'btn-next-access fw-bold' : ''"
+      (click)="handlNext()"
+    >
+      Next
+    </button>
+    <button
+      *ngIf="step === 2"
+      modal-header-action
+      class="modal-title btn-next"
+      id="modal-basic-title"
+      [ngClass]="listAddUser.length >= 1 ? 'btn-next-access fw-bold' : ''"
+      (click)="handleCreate()"
+    >
+      Create
+    </button>
+    <div modal-body class="text-primary-m">
+      <div
+        *ngIf="step === 1"
+        class="d-flex card-search align-items-center mb-4 p-10 border rounded gap-2"
+      >
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input
+          type="text"
+          class="border-0 flex-fill"
+          placeholder="Search user..."
+          [formControl]="nameUser"
+        />
+      </div>
+
+      <div *ngIf="step === 2"  class="card-search  mb-4 p-10 border rounded">
+        <input
+        type="text"
+        class="border-0 w-100"
+        placeholder="Enter name group"
+        [(ngModel)]="nameGroup"
+      />
+      </div>
+
+      <div
+        *ngIf="listAddUser.length > 0"
+        class="d-flex gap-4 mb-3 p-10 scroll-x"
+      >
+        <ng-container *ngFor="let user of listAddUser">
+          <div
+            class="d-flex flex-column align-items-center gap-2 flex-shrink-0"
+          >
+            <img
+              src="https://images.unsplash.com/photo-1631913290783-490324506193?q=80"
+              alt=""
+              class="card-avatar"
+            />
+            <span class="fw-bold">{{ user.username }}</span>
+          </div>
+        </ng-container>
+      </div>
+
+      <ng-container *ngIf="step === 1">
+        <span class="fw-bold">Users</span>
+        <div class="d-flex flex-column gap-2 mt-2">
+          <ng-container *ngFor="let user of users">
+            <label
+              class="custom-checkbox-wrapper d-flex align-items-center justify-content-between py-2 px-3"
+            >
+              <div class="d-flex align-items-center gap-2">
+                <img
+                  src="https://images.unsplash.com/photo-1631913290783-490324506193?q=80"
+                  alt=""
+                  class="card-avatar"
+                />
+                <span class="fw-bold">{{ user.username }}</span>
+              </div>
+              <input
+                #userCheckbox
+                type="checkbox"
+                class="custom-checkbox"
+                (click)="user._id && handleAddUser(user, $event)"
+              />
+              <span class="checkmark"></span>
+            </label>
+          </ng-container>
+        </div>
+      </ng-container>
+    </div>
+  </app-modal-add-chat>
+</div>

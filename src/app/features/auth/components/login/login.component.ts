@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastService } from 'angular-toastify';
 import { AuthService } from '../../../../core/services/auth.service';
-import { IAuth } from '../../../../core/model/auth';
+import { IAuth } from '../../model/auth';
 
 @Component({
   selector: 'app-login',
@@ -36,6 +36,7 @@ export class LoginComponent implements OnInit {
     this.authService.loginService(this.formLogin.value as IAuth).subscribe({
       next: (data) => {
         localStorage.setItem('userId', data._id);
+        localStorage.setItem('username', data.username);
         localStorage.setItem('accessToken', data.accessToken);
         localStorage.setItem('refreshToken', data.refreshToken);
         this.toastService.success('Login successfully');

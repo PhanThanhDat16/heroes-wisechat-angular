@@ -1,0 +1,206 @@
+.card {
+  &-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+    position: relative;
+  }
+}
+
+.avatar-online {
+  position: relative;
+}
+
+.avatar-online::after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  right: 10px;
+  width: 14px;
+  height: 14px;
+  background-color: #28a745;
+  border: 2px solid white;
+  border-radius: 50%;
+}
+
+.message {
+  width: 100% !important;
+  max-width: none !important;
+  padding: 8px 12px;
+  max-width: 60%;
+  border-radius: 10px;
+  word-break: break-word;
+
+  &-item {
+    max-width: 410px;
+  }
+}
+
+.bg-customer {
+  background-color: #f2f2f2 !important;
+}
+
+.text {
+  &-hour {
+    font-size: 10px;
+    color: #9dabb7;
+  }
+
+  &-react {
+    display: none !important;
+  }
+
+  &-content {
+    padding: 15px;
+    border-radius: 22px;
+    cursor: pointer;
+  }
+
+  &-name {
+    font-size: 13px;
+    margin-left: 6px;
+    color: #ccc;
+  }
+
+  &-wrapper {
+    &:hover .text-react {
+      position: relative;
+      display: flex !important;
+      color: #ccc;
+    }
+  }
+}
+
+
+.my-message {
+  background-color: #dcf8c6;
+  align-self: flex-end;
+  text-align: right;
+}
+
+.other-message {
+  background-color: #f1f0f0;
+  align-self: flex-start;
+  text-align: left;
+}
+
+.f-row-reverse {
+  flex-direction: row-reverse;
+}
+
+.f-row {
+  flex-direction: row;
+}
+
+.file-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  max-width: 320px;
+  transition: box-shadow 0.2s ease;
+  position: relative;
+  cursor: pointer;
+
+  &:hover {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+  }
+
+  &:hover .download-btn {
+    opacity: 1 !important;
+  }
+}
+
+.file-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-icon {
+  font-size: 26px;
+  color: #fff;
+}
+
+.bg-word {
+  overflow: hidden;
+  img {
+    object-fit: cover;
+  }
+}
+
+.bg-excel {
+  overflow: hidden;
+  img {
+    object-fit: cover;
+  }
+}
+
+.file-info {
+  flex: 1;
+  overflow: hidden;
+}
+
+.file-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: #333;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-meta {
+  font-size: 13px;
+  color: #888;
+}
+
+.download-btn {
+  font-size: 13px;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #cccccce8;
+  color: #0029ff;
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  &:hover {
+    color: #0a58ca;
+  }
+}
+
+.reply{
+  &-text{
+    // position: absolute;
+    // color: black;
+    background-color: #cccc;
+    padding: 20px;
+    border-radius: 22px;
+    // padding: 0 10px;
+    // top: -100%;
+    // min-width: 193px;
+    // z-index: -1;
+    // right: 0;
+    // padding-top: 10px;
+    // padding-bottom: 20px;
+  }
+}
+
+
+
+
+

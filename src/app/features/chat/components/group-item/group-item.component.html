@@ -1,0 +1,41 @@
+<div
+  [routerLink]="['/messages', itemGroup._id]"
+  class="px-4 py-3 cursor-point d-flex align-items-center card-notRead"
+>
+  <div
+    class="card-avatar-wrapper position-relative"
+    [class.online-indicator]="userOnlineGroup.length > 1"
+  >
+    <img
+      src="https://images.unsplash.com/photo-1740252117013-4fb21771e7ca?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      alt=""
+      class="card-avatar"
+    />
+  </div>
+  <div class="flex-fill">
+    <div class="d-flex justify-content-between align-items-center">
+      <h5 class="card-title fs-6 fw-bold mb-2">{{ itemGroup.name }}</h5>
+      <span class="text-primary-chat card-time">
+        {{
+          itemGroup.lastMessage?.createdAt ?? itemGroup.createdAt
+            ? (itemGroup.lastMessage?.createdAt ?? itemGroup.createdAt
+              | smartDate)
+            : ""
+        }}
+      </span>
+    </div>
+    <p
+      class="card-text fs-6 d-inline-block text-truncate"
+      style="max-width: 273px"
+    >
+      {{
+        itemGroup.lastMessage && itemGroup.lastMessage.senderName
+          ? itemGroup.lastMessage.senderId === userId
+            ? "You: "
+            : itemGroup.lastMessage.senderName + ": "
+          : ""
+      }}
+      {{ itemGroup.lastMessage?.content ?? itemGroup.lastMessage ?? "" }}
+    </p>
+  </div>
+</div>

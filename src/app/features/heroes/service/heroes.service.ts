@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { AuthService } from './auth.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { IHero, IHeroUpdate } from '../model/heroes';
 
 @Injectable({
@@ -89,6 +89,7 @@ export class HeroService {
   }
 
   getHeroesService(): Observable<IHero[]> {
+    const userId = localStorage.getItem('userId');
     return this.http
       .get<{ message: string; data: IHero[] }>(this.URL, {
         headers: {
@@ -148,17 +149,4 @@ export class HeroService {
       }
     );
   }
-
-  // addTagsToMultipleHeroes(heroIds: string[], userId: string , tags: ITag[]) {
-  //   return this.http.put(`${this.URL2}/users/${userId}/heroes/tags`, { heroIds, tags });
-  // }
-
-  // deleteTagsToMultipleHeroes(heroIds: string[], userId: string , tags: ITag[]) {
-  //   return this.http.delete(`${this.URL2}/users/${userId}/heroes/tags`, {
-  //     body: { heroIds, tags },
-  //     headers: {
-  //       Authorization: `Bearer ${this.authService.getAccessToken()}`,
-  //     },
-  //   });
-  // }
 }

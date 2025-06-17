@@ -1,9 +1,10 @@
-<div class="mt-2">
-  <h2 class="text-center fs-4 mb-2">{{ "my heroes" | capitalizeWords }}</h2>
+<div class="p-3">
+  <modal-create>Create Heroes</modal-create>
+  <h2 class="text-center fs-4 mb-2 pt-2">{{ "my heroes" | capitalizeWords }}</h2>
 
   <div
     *ngIf="selectedHeroIds.length > 0"
-    class="d-flex justify-content-between gap-4 align-items-center px-3 mt-3"
+    class="d-flex justify-content-between gap-4 align-items-center px-3 my-3"
   >
     <div class="d-flex gap-5">
       <label class="fs-6 text-gray align-items-center fw-bold d-flex gap-2">
@@ -65,7 +66,7 @@
 
   <div
     *ngIf="heroes.length > 0"
-    class="heroes-list p-3 d-flex flex-column gap-3"
+    class="heroes-list d-flex flex-column gap-3"
   >
     <div class="heroes-wrapper">
       <div *ngFor="let hero of heroes">

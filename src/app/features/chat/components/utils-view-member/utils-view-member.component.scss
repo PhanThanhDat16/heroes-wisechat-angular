@@ -1,0 +1,68 @@
+.card-avatar {
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user {
+  &-item {
+    padding: 6px 0;
+  }
+  &-name {
+    font-weight: 600;
+    font-size: 18px;
+  }
+  &-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  &-role {
+    color: #a9a9a9;
+    font-size: 13px;
+  }
+}
+
+.tag-item {
+  align-items: center;
+  gap: 0.5rem;
+  width: max-content;
+  background: #e9f5ff;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.875rem;
+  color: #007bff;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+#groupDropDown {
+  &::after {
+    display: none;
+  }
+}
+
+.step-2 {
+  &-avatar {
+    img {
+      border-radius: 50%;
+      width: 250px;
+      height: 250px;
+      object-fit: cover;
+    }
+  }
+
+  &-title {
+    font-size: 25px;
+    font-weight: 700;
+  }
+
+  &-wrapper {
+    max-width: 50%;
+    margin: 0 auto;
+    font-size: 20px;
+  }
+}

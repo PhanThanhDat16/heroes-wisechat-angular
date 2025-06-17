@@ -1,0 +1,183 @@
+<div
+  class="py-3 px-4 shadow rounded d-flex align-items-center justify-content-between"
+>
+  <div class="d-flex flex-column align-items-start gap-2">
+    <span class="fs-5 fw-medium">{{ groupData?.name }}</span>
+    <span class="d-flex align-items-center gap-1">
+      <span
+        [ngClass]="
+          userOnlineGroup.length > 0 ? 'status-online' : 'status-offline'
+        "
+      ></span>
+      <span class="fw-6 fs-7 text-primary-chat">{{
+        userOnlineGroup.length > 0 ? "Online" : "Offline"
+      }}</span>
+    </span>
+  </div>
+  <span class="cursor-point d-flex gap-4 align-items-center">
+    <div
+      ngbDropdown
+      class="d-flex gap-2 align-items-center groupdropdown-wrapper"
+      #dropdown="ngbDropdown"
+    >
+      <span
+        class="fw-bold pointer d-flex align-items-center gap-1"
+        id="groupDropDown"
+        ngbDropdownToggle
+      >
+        <i class="fa-solid fa-ellipsis" style="color: #d1d1d1"></i>
+      </span>
+      <div
+        ngbDropdownMenu
+        aria-labelledby="groupDropDown"
+        class="dropdown-menu-end p-0 overflow-hidden"
+      >
+        <app-utils-view-member ngbDropdownItem></app-utils-view-member>
+        <app-utils-rename-group ngbDropdownItem></app-utils-rename-group>
+        <button ngbDropdownItem class="d-flex gap-2 align-items-center">
+          <i class="px-1 py-2 fa-solid fa-magnifying-glass"></i>
+          <span>Find Message</span>
+        </button>
+        <button ngbDropdownItem class="d-flex gap-2 align-items-center">
+          <i class="px-1 py-2 fa-solid fa-tags"></i>
+          <span>Add Tag</span>
+        </button>
+        <button ngbDropdownItem class="d-flex gap-2 align-items-center">
+          <i class="px-1 py-2 fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Leave Group</span>
+        </button>
+      </div>
+    </div>
+  </span>
+</div>
+
+<div
+  #scrollableChatRef
+  [ngClass]="uploaded ? 'chat-box-img' : 'chat-box'"
+  class="scroll-y flex-grow-1 my-3"
+>
+  <div *ngIf="isLoadingMessages" class="text-center py-4">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden"></span>
+    </div>
+  </div>
+
+  <app-chat-message (replyEmitter)="handleReply($event)" [messagesGroup]="messagesGroup"></app-chat-message>
+
+  <ng-container
+    *ngIf="
+      checkMessageGroup && messagesGroup.length === 0 && !isLoadingMessages
+    "
+  >
+    <div class="d-flex flex-column align-items-center gap-5 mt-5">
+      <i class="fa-solid fa-users" style="color: #8b95a7; font-size: 180px"></i>
+      <div class="d-flex nmessage-wrapper gap-5">
+        <div class="d-flex flex-column gap-3 align-items-center">
+          <span class="shadow nmessage-icon">
+            <i class="fa-solid fa-eye" style="color: #8b95a7"></i>
+          </span>
+          <span class="nmessage-content">View Member</span>
+        </div>
+        <div class="d-flex flex-column gap-3 align-items-center">
+          <span class="shadow nmessage-icon">
+            <i class="fa-solid fa-user-plus" style="color: #8b95a7"></i>
+          </span>
+          <span class="nmessage-content">Add Member</span>
+        </div>
+      </div>
+      <span class="nmessage-title">
+        {{
+          userId === groupData?.ownerId
+            ? "You Created Group"
+            : user?.username + " Created Group"
+        }}
+      </span>
+    </div>
+  </ng-container>
+</div>
+
+<ng-container *ngIf="uploaded">
+  <div class="uploaded-images-preview mb-2 px-3">
+    <div class="d-flex flex-nowrap gap-2 overflow-auto">
+      <div class="image-item position-relative rounded shadow-sm">
+        <ng-container [ngSwitch]="getFileType(uploaded.mimetype)">
+          <img
+            *ngSwitchCase="'image'"
+            [src]="uploaded.url"
+            [alt]="uploaded.originalname"
+            class="preview-img"
+          />
+
+          <img
+            *ngSwitchCase="'excel'"
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTroU91FLk1e5CTmveZCstER9A-qLpJGNtZvA&s"
+            alt="Excel file"
+            class="preview-img"
+          />
+
+          <img
+            *ngSwitchCase="'word'"
+            src="https://thehanoichamomile.com/wp-content/uploads/2019/06/12-121390_new-microsoft-word-icon.jpg"
+            alt="Word file"
+            class="preview-img"
+          />
+
+          <div
+            *ngSwitchDefault
+            class="w-100 h-100 d-flex justify-content-center align-items-center bg-light text-secondary"
+          >
+            File
+          </div>
+        </ng-container>
+
+        <div class="image-filename">
+          {{ uploaded.originalname }}
+        </div>
+
+        <button
+          type="button"
+          (click)="removeImage()"
+          class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 py-0 px-2"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>
+
+
+
+<div *ngIf="replyToMessage" class="position-absolute reply">
+  <span class="position-absolute reply-close" (click)="this.replyToMessage = null">
+    <i class="fa-solid fa-xmark"></i>
+  </span>
+  <span class="text-truncate d-block" style="width: 97%;">{{replyToMessage.content}}</span>
+</div>
+
+<div class="input-message px-3 bg-white mt-auto">
+  <div class="d-flex gap-3 align-items-center form-control me-2 py-3">
+    <label for="file-upload" class="mb-0 cursor-pointer">
+      <input
+        type="file"
+        id="file-upload"
+        hidden
+        (change)="handleChooseFileAndImage($event)"
+      />
+      <i class="fa-solid fa-paperclip"></i>
+    </label>
+
+    <input
+      placeholder="Type message..."
+      class="border-0 flex-fill"
+      [(ngModel)]="messageInput"
+    />
+
+    <button (click)="handleSendMessage()">
+      <i
+        class="fa-solid fa-paper-plane fs-5 btn-send"
+        style="color: #1b93ee"
+      ></i>
+    </button>
+  </div>
+</div>

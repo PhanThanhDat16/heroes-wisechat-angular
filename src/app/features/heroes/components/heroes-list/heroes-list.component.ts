@@ -1,15 +1,15 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { forkJoin, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import Swal from 'sweetalert2';
 import { DropdownlableComponent } from '../dropdownlable/dropdownlable.component';
 import { ToastService } from 'angular-toastify';
-import { IHero } from '../../../../core/model/heroes';
-import { ITag } from '../../../../core/model/tag';
-import { HeroService } from '../../../../core/services/heroes.service';
-import { TagService } from '../../../../core/services/tag.service';
+import { ITag } from '../../../tags/model/tag';
+import { HeroService } from '../../service/heroes.service';
 import { loadHeroes } from '../../../../core/store/hero/hero.actions';
 import { selectAllHeroes } from '../../../../core/store/hero/hero.selectors';
+import { TagService } from '../../../tags/service/tag.service';
+import { IHero } from '../../model/heroes';
 
 @Component({
   selector: 'app-heroes-list',
@@ -100,22 +100,58 @@ export class HeroesListComponent implements OnInit, OnDestroy {
     });
   }
 
+  // handleAddTagsToSelectedHeroes(tags: ITag[]) {
+  //   if (this.selectedHeroIds.length === 0 || tags.length === 0) return;
+
+  //   const userId = localStorage.getItem('userId');
+  //   if (!userId) return;
+
+  //   const result = tags.map((tag) => tag._id);
+
+  //   this.tagService
+  //     .addTagsToMultipleHeroes(this.selectedHeroIds, userId, result as string[])
+  //     .subscribe({
+  //       next: () => {
+  //         this.store.dispatch(loadHeroes());
+  //       },
+  //       error: (error) => {
+  //         console.error(error);
+  //       },
+  //     });
+  // }
+
   handleAddTagsToSelectedHeroes(tags: ITag[]) {
     if (this.selectedHeroIds.length === 0 || tags.length === 0) return;
 
     const userId = localStorage.getItem('userId');
     if (!userId) return;
 
-    this.tagService
-      .addTagsToMultipleHeroes(this.selectedHeroIds, userId, tags)
-      .subscribe({
-        next: () => {
-          this.store.dispatch(loadHeroes());
-        },
-        error: (error) => {
-          console.error(error);
-        },
+    forkJoin(
+      this.selectedHeroIds.map((id) =>
+        this.heroService.getHeroDetailService(id)
+      )
+    ).subscribe((heroes: IHero[]) => {
+      const tagIdsToAdd = tags.map((tag) => tag._id);
+
+      const updateRequests = heroes.map((hero) => {
+        const currentTagIds = (hero.tags || []).map((tag) => tag._id);
+
+        const newTagIds = Array.from(
+          new Set([...currentTagIds, ...tagIdsToAdd])
+        );
+
+        return this.tagService.addTagsToMultipleHeroes(
+          [hero._id as string],
+          userId,
+          newTagIds as string[]
+        );
       });
+
+      forkJoin(updateRequests).subscribe({
+        next: () => this.store.dispatch(loadHeroes()),
+        error: (error) => console.error(error),
+      });
+    });
   }
 
   handleRemoveAllTag() {
@@ -128,13 +164,33 @@ export class HeroesListComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const tagsToRemove =
-      this.dropdownComponent.selectedTags.length !== 0
-        ? this.dropdownComponent.selectedTags
-        : this.dropdownComponent.allSelectedTags;
+    // const tagsToRemove =
+    //   this.dropdownComponent.selectedTags.length !== 0
+    //     ? this.dropdownComponent.selectedTags
+    //     : this.dropdownComponent.allSelectedTags;
+
+    const resultCommon = [
+      ...this.dropdownComponent.selectedTags,
+      ...this.dropdownComponent.allSelectedTags,
+    ];
+    const seen = new Set();
+    const tagsToRemove = resultCommon.filter((item) => {
+      const id = item._id;
+      if (seen.has(id)) {
+        return false;
+      }
+      seen.add(id);
+      return true;
+    });
+
+    const result = tagsToRemove.map((tag) => tag._id);
 
     this.tagService
-      .deleteTagsToMultipleHeroes(this.selectedHeroIds, userId, tagsToRemove)
+      .deleteTagsToMultipleHeroes(
+        this.selectedHeroIds,
+        userId,
+        result as string[]
+      )
       .subscribe({
         next: () => {
           this.selectedHeroIds = [];
