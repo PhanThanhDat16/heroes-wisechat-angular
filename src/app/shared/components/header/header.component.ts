@@ -30,6 +30,7 @@ export class HeaderComponent implements OnInit {
   }
 
   handleLogout() {
+    // check
     this.socketService.disconnectSocket();
     this.store.dispatch(logout());
     this.router.navigate(['/login']);

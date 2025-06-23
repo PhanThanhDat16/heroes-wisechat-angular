@@ -1,4 +1,4 @@
-import { IUser } from "../../auth/model/user";
+import { IUser } from '../../auth/model/user';
 
 export interface IGroupMessage {
   _id: string;
@@ -6,7 +6,7 @@ export interface IGroupMessage {
   ownerId: string;
   createdAt: string;
   lastMessage: {
-    createdAt: string
+    createdAt: string;
     content: string;
     senderId: string;
     senderName: string;
@@ -23,7 +23,8 @@ export interface IGroup {
   _id?: string;
   name?: string;
   ownerId: string;
-  user?: IUser
+  user?: IUser;
+  members?: string[];
   createdAt: string;
   updatedAt: string;
 }

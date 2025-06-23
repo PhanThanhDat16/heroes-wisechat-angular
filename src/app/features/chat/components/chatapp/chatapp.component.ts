@@ -1,9 +1,12 @@
 import { Component, DoCheck, OnInit } from '@angular/core';
-import { IGroupMessage } from '../../model/group';
+import { IGroupMessage } from '../../../group/model/group';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs';
 import { SocketIOService } from '../../../../core/services/socket.service';
-import { GroupService } from '../../service/group.service';
+import { Store } from '@ngrx/store';
+import { loadGroup, loadGroupSuccess } from '../../../../core/store/group/group.actions';
+import { selectGroups } from '../../../../core/store/group/group.selector';
+import { Actions, ofType } from '@ngrx/effects';
 
 @Component({
   selector: 'app-chatapp',
@@ -15,7 +18,8 @@ export class ChatappComponent implements OnInit {
   checkLinkDetail: string | undefined = undefined;
 
   constructor(
-    private groupService: GroupService,
+    private store: Store,
+    private action$ : Actions,
     private route: ActivatedRoute,
     private router: Router,
     private socketService: SocketIOService
@@ -24,11 +28,17 @@ export class ChatappComponent implements OnInit {
   ngOnInit(): void {
     const userId = localStorage.getItem('userId');
     if (userId) {
-      this.groupService.getGroupsByUser(userId).subscribe({
-        next: (data) => {
-          this.socketService.sendUserOnline(userId);
-          this.data = data;
-        },
+      this.store.select(selectGroups).subscribe((groups) => {
+        this.data = groups;
+      });
+
+      this.socketService.listenNewGroup().subscribe((group: any) => {
+        this.store.dispatch(loadGroup({ userId }));
+        this.action$.pipe(
+          ofType(loadGroupSuccess)
+        ).subscribe(() => { 
+          this.socketService.joinGroup([group._id]);
+        })
       });
     }
 
@@ -43,13 +53,5 @@ export class ChatappComponent implements OnInit {
     if (id) {
       this.checkLinkDetail = id;
     }
-  }
-
-  onResetDataGroup(data: { message: string; data: any }) {
-    const newData = {
-      ...data.data,
-      lastMessage: 'New group',
-    };
-    this.data.push(newData);
   }
 }

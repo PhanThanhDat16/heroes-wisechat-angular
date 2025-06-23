@@ -32,7 +32,7 @@ export class MessageService {
           replyToContent,
           replyToSenderName,
           replyToType,
-          type
+          type,
         },
         {
           headers: {
@@ -67,12 +67,33 @@ export class MessageService {
 
   deleteMessageForEveryone(messageId: string) {
     return this.http
-      .delete<any>(`${this.URL}/groups/messages/${messageId}`, {
+      .delete<any>(`${this.URL}/groups/message/${messageId}`, {
         headers: {
           authorization: `Bearer ${this.authService.getAccessToken()}`,
         },
       })
       .pipe(map((res) => res.data));
+  }
+
+  deleteMessageForMe(messageId: string, userId: string) {
+    return this.http
+      .put<any>(`${this.URL}/groups/users/${userId}/message/${messageId}`, {
+        headers: {
+          authorization: `Bearer ${this.authService.getAccessToken()}`,
+        },
+      })
+      .pipe(map((res) => res.data));
+  }
+
+  updateIsReadMessage(messageId: string, userId: string) {
+    return this.http.put<any>(
+      `${this.URL}/groups/users/${userId}/message/${messageId}/read`,
+      {
+        headers: {
+          authorization: `Bearer ${this.authService.getAccessToken()}`,
+        },
+      }
+    );
   }
 
   uploadFiles(files: File[]) {
@@ -81,6 +102,8 @@ export class MessageService {
       formData.append('content', file);
     });
 
-    return this.http.post<any>(`${this.URL}/upload`, formData).pipe(map(res => res.data))
+    return this.http
+      .post<any>(`${this.URL}/upload`, formData)
+      .pipe(map((res) => res.data));
   }
 }

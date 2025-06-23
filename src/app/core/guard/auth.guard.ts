@@ -10,7 +10,6 @@ export const authGuard: CanActivateFn = () => {
   if (accessToken) {
     authService.verifyAccessToken(accessToken).subscribe({
       next: (data) => {
-        console.log(data);
         return true;
       },
       error: (error) => {

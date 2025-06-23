@@ -12,6 +12,7 @@ import { ModalAddChatComponent } from './components/modal-add-chat/modal-add-cha
 import { ModalUtilsChatComponent } from './components/modal-utils-chat/modal-utils-chat.component';
 import { SmartDatePipe } from './pipes/smartDate.pipe';
 import { FormatTimePipe } from './pipes/getTimeStamp.pipe';
+import { ModalUtilsMessageComponent } from './components/modal-utils-message/modal-utils-message.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { FormatTimePipe } from './pipes/getTimeStamp.pipe';
     HeaderComponent,
     ModalAddChatComponent,
     ModalUtilsChatComponent,
+    ModalUtilsMessageComponent,
   ],
   imports: [RouterModule, CommonModule, ReactiveFormsModule, NgbDropdown, NgbModule],
   exports: [
@@ -36,6 +38,7 @@ import { FormatTimePipe } from './pipes/getTimeStamp.pipe';
     HeaderComponent,
     ModalAddChatComponent,
     ModalUtilsChatComponent,
+    ModalUtilsMessageComponent,
   ],
 })
 export class SharedModule {}

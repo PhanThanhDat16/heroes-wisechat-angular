@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Socket, io } from 'socket.io-client';
 import { IEditGroup } from '../model/socket';
+import { IGroup } from '../../features/group/model/group';
 
 @Injectable({
   providedIn: 'root',
@@ -15,12 +16,12 @@ export class SocketIOService {
   constructor() {
     this.socket = io(this.URL_SOCKET);
 
-    this.socket.on('connect', () => {
-      const userId = localStorage.getItem('userId');
-      if (userId) {
-        this.sendUserOnline(userId);
-      }
-    });
+    // this.socket.on('connect', () => {
+    //   const userId = localStorage.getItem('userId');
+    //   if (userId) {
+    //     this.sendUserOnline(userId);
+    //   }
+    // });
 
     this.socket.on('updateOnlineUsers', (users: string[]) => {
       this.onlineUsersSubject.next(users);
@@ -30,6 +31,18 @@ export class SocketIOService {
   joinGroup(listGroupId: string[]) {
     listGroupId.map((groupId) => {
       this.socket.emit('joinGroup', { groupId });
+    });
+  }
+
+  sendNewGroup(group: IGroup) {
+    this.socket.emit('newGroup', group);
+  }
+
+  listenNewGroup() {
+    return new Observable<IGroup>((observer) => {
+      this.socket.on('newGroup', (group: IGroup) => {
+        observer.next(group);
+      });
     });
   }
 
@@ -88,6 +101,25 @@ export class SocketIOService {
       };
     });
   }
+
+
+  deleteMessage(messageId: string, groupId: string) {
+    this.socket.emit('deleteMessage', { messageId, groupId });
+  }
+
+ receiveDeleteMessage(): Observable<any> {
+    return new Observable((observer) => {
+      this.socket.on('deleteMessage', (data) => {
+        observer.next(data);
+      });
+
+      return () => {
+        this.socket.off('deleteMessage');
+      };
+    });
+  }
+
+  
 
   disconnectSocket() {
     this.socket.disconnect();

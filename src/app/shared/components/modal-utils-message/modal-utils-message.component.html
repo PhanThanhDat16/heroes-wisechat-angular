@@ -1,0 +1,19 @@
+<ng-template #content let-modal>
+  <div class="d-flex justify-content-between align-items-center w-100" style="padding: 15px 20px;">
+    <ng-content select="[modal-header]"></ng-content>
+    <button
+      type="button"
+      class="btn-close"
+      aria-label="Close"
+      (click)="modal.dismiss('Cross click')"
+    ></button>
+  </div>
+
+  <div class="modal-body p-0">
+    <ng-content select="[modal-body]"></ng-content>
+  </div>
+</ng-template>
+
+<span class="w-100" (click)="open(content)">
+  <ng-content select="[modal-btn]"></ng-content>
+</span>

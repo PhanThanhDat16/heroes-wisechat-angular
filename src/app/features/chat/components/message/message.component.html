@@ -1,0 +1,304 @@
+<div *ngFor="let msg of messagesGroup; let index = index">
+  <div
+    *ngIf="getDateAndTimeStamp(msg, index) !== null && !checkDeleteForMe(msg)"
+    class="text-center py-3"
+    style="color: #ccc"
+  >
+    {{ getDateAndTimeStamp(msg, index) | smartDate }}
+  </div>
+
+  <div
+    *ngIf="!checkDeleteForMe(msg)"
+    class="message mb-2 d-flex position-relative"
+    [ngClass]="
+      msg.senderId === userId ? 'justify-content-end' : 'justify-content-start'
+    "
+  >
+    <div
+      class="d-flex align-items-center"
+      [ngClass]="{ 'justify-content-end': msg.senderId === userId }"
+    >
+      <div
+        *ngIf="msg.senderId !== userId"
+        [ngClass]="onlineUserIds.includes(msg.senderId) ? 'avatar-online' : ''"
+      >
+        <img
+          class="card-avatar"
+          src="https://images.unsplash.com/photo-1728887823143-d92d2ebbb53a?q=80&w=2080..."
+          alt=""
+        />
+      </div>
+
+      <div class="d-flex flex-column gap-1 flex-fill">
+        <span *ngIf="msg.senderId !== userId" class="text-name">{{
+          msg.senderName | capitalizeWords
+        }}</span>
+        <div
+          [ngClass]="msg.senderId !== userId ? 'f-row' : 'f-row-reverse'"
+          class="text-wrapper d-flex align-items-center gap-3"
+        >
+          <div placement="top" [ngbTooltip]="msg.createdAt | formatTime">
+            <!-- Text -->
+            <p
+              *ngIf="msg.type === 'text' && !msg.replyToMessageId"
+              [ngClass]="{
+                'bg-primary text-white align-self-end': msg.senderId === userId,
+                'bg-customer text-dark align-self-start':
+                  msg.senderId !== userId
+              }"
+              class="mb-0 text-message fs-6 text-content message-item"
+            >
+              {{ msg.content }}
+            </p>
+
+            <div
+              *ngIf="msg.replyToType === 'text' && msg.replyToMessageId"
+              [ngClass]="{
+                'align-items-end': msg.senderId === userId,
+                'align-items-start': msg.senderId !== userId
+              }"
+              class="d-flex flex-column mb-2 position-relative"
+            >
+              <span class="reply-text message-item">{{
+                msg.replyToContent
+              }}</span>
+
+              <p
+                [ngClass]="{
+                  'bg-primary text-white': msg.senderId === userId,
+                  'bg-customer text-dark': msg.senderId !== userId
+                }"
+                *ngIf="msg.replyToType === 'text'"
+                class="mb-0 text-message fs-6 text-content message-item overlay-content"
+              >
+                {{ msg.content }}
+              </p>
+            </div>
+
+            <!-- Img -->
+            <img
+              *ngIf="msg.type === 'image' && !msg.replyToMessageId"
+              [src]="msg.content"
+              class="img-fluid rounded cursor-pointer message-item"
+              style="max-width: 300px; height: auto"
+              alt="Image"
+              (click)="selectedImageUrl = msg.content"
+            />
+
+            <div
+              *ngIf="msg.replyToType === 'image' && msg.replyToMessageId"
+              [ngClass]="{
+                'align-items-end': msg.senderId === userId,
+                'align-items-start': msg.senderId !== userId
+              }"
+              class="d-flex flex-column mb-2"
+            >
+              <img
+                [src]="msg.replyToContent"
+                class="img-fluid rounded reply-text cursor-pointer message-item"
+                style="max-width: 300px; height: auto"
+                alt="Image"
+                (click)="selectedImageUrl = msg.content"
+              />
+              <p
+                [ngClass]="{
+                  'bg-primary text-white': msg.senderId === userId,
+                  'bg-customer text-dark': msg.senderId !== userId
+                }"
+                *ngIf="msg.replyToType === 'image'"
+                class="mb-0 text-message fs-6 text-content message-item"
+              >
+                {{ msg.content }}
+              </p>
+            </div>
+
+            <!-- Word -->
+            <div
+              *ngIf="msg.type === 'word' && !msg.replyToMessageId"
+              class="file-card"
+            >
+              <div class="file-icon-wrapper bg-word">
+                <img
+                  src="https://thehanoichamomile.com/wp-content/uploads/2019/06/12-121390_new-microsoft-word-icon.jpg"
+                  alt=""
+                />
+              </div>
+              <div class="file-info">
+                <div class="file-name">{{ extractFileName(msg.content) }}</div>
+                <div class="file-meta">Word Document</div>
+              </div>
+              <a
+                class="download-btn"
+                [href]="msg.content"
+                download
+                target="_blank"
+                ngbTooltip="Download"
+              >
+                <i class="fa-solid fa-arrow-down"></i>
+              </a>
+            </div>
+
+            <div
+              *ngIf="msg.replyToType === 'word' && msg.replyToMessageId"
+              [ngClass]="{
+                'align-items-end': msg.senderId === userId,
+                'align-items-start': msg.senderId !== userId
+              }"
+              class="d-flex flex-column mb-2"
+            >
+              <span class="reply-text message-item">{{
+                msg.replyToContent
+              }}</span>
+
+              <div class="file-card">
+                <div class="file-icon-wrapper bg-word">
+                  <img
+                    src="https://thehanoichamomile.com/wp-content/uploads/2019/06/12-121390_new-microsoft-word-icon.jpg"
+                    alt=""
+                  />
+                </div>
+                <div class="file-info">
+                  <div class="file-name">
+                    {{ extractFileName(msg.replyToContent) }}
+                  </div>
+                  <div class="file-meta">Word Document</div>
+                </div>
+                <a
+                  class="download-btn"
+                  [href]="msg.content"
+                  download
+                  target="_blank"
+                  ngbTooltip="Download"
+                >
+                  <i class="fa-solid fa-arrow-down"></i>
+                </a>
+              </div>
+              <p
+                [ngClass]="{
+                  'bg-primary text-white': msg.senderId === userId,
+                  'bg-customer text-dark': msg.senderId !== userId
+                }"
+                *ngIf="msg.replyToType === 'word'"
+                class="mb-0 text-message fs-6 text-content message-item"
+              >
+                {{ msg.content }}
+              </p>
+            </div>
+
+            <!-- Excel -->
+            <div
+              *ngIf="msg.type === 'excel' && !msg.replyToMessageId"
+              class="file-card"
+            >
+              <div class="file-icon-wrapper bg-excel">
+                <img
+                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTroU91FLk1e5CTmveZCstER9A-qLpJGNtZvA&s"
+                  alt=""
+                />
+              </div>
+              <div class="file-info">
+                <div class="file-name">{{ extractFileName(msg.content) }}</div>
+                <div class="file-meta">Excel Spreadsheet</div>
+              </div>
+              <a
+                class="download-btn"
+                [href]="msg.content"
+                download
+                target="_blank"
+                ngbTooltip="Download"
+              >
+                <i class="fa-solid fa-arrow-down"></i>
+              </a>
+            </div>
+
+            <div
+              *ngIf="msg.replyToType === 'excel' && msg.replyToMessageId"
+              [ngClass]="{
+                'align-items-end': msg.senderId === userId,
+                'align-items-start': msg.senderId !== userId
+              }"
+              class="d-flex flex-column mb-2"
+            >
+              <div class="file-card">
+                <div class="file-icon-wrapper bg-excel">
+                  <img
+                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTroU91FLk1e5CTmveZCstER9A-qLpJGNtZvA&s"
+                    alt=""
+                  />
+                </div>
+                <div class="file-info">
+                  <div class="file-name">
+                    {{ extractFileName(msg.replyToContent) }}
+                  </div>
+                  <div class="file-meta">Excel Spreadsheet</div>
+                </div>
+              </div>
+
+              <p
+                [ngClass]="{
+                  'bg-primary text-white': msg.senderId === userId,
+                  'bg-customer text-dark': msg.senderId !== userId
+                }"
+                *ngIf="msg.replyToType === 'excel'"
+                class="mb-0 text-message fs-6 text-content message-item"
+              >
+                {{ msg.content }}
+              </p>
+            </div>
+          </div>
+
+          <div
+            [ngClass]="msg.senderId !== userId ? 'f-row' : 'f-row-reverse'"
+            class="text-react d-flex gap-3"
+          >
+            <span
+              class="cursor-point"
+              (click)="handleReply(msg)"
+              style="padding: 5px"
+            >
+              <i class="fa-solid fa-share"></i>
+            </span>
+            <span class="cursor-point" style="padding: 5px">
+              <i class="fa-solid fa-face-smile"></i>
+            </span>
+            <span
+              class="cursor-point item-option position-relative"
+              style="padding: 5px"
+            >
+              <i class="fa-solid fa-ellipsis-vertical"></i>
+              <div class="position-absolute item-option-child">
+                <span class="item-option-children text-primary-m">
+                  <i
+                    class="fa-solid fa-pen"
+                    style="font-size: 13px; margin-right: 4px"
+                  ></i>
+                  Edit
+                </span>
+                <app-utils-message-delete
+                  *ngIf="msg"
+                  class="item-option-children"
+                  [message]="msg"
+                ></app-utils-message-delete>
+              </div>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div
+  *ngIf="selectedImageUrl"
+  class="position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center bg-dark bg-opacity-75"
+  style="z-index: 1050"
+  (click)="selectedImageUrl = null"
+>
+  <img
+    [src]="selectedImageUrl"
+    class="img-fluid rounded shadow"
+    style="max-height: 90vh; max-width: 90vw"
+    alt="Large Image"
+    (click)="$event.stopPropagation()"
+  />
+</div>

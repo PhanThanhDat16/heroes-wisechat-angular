@@ -111,6 +111,14 @@ body {
   color: #336699;
 }
 
+.align-items-end{
+  align-items: end;
+}
+
+.align-items-start{
+  align-items: start;
+}
+
 .text-black {
   color: black;
 }
@@ -256,18 +264,7 @@ body {
   }
 
   .custom-checkbox:checked + .checkmark {
-    background-color: #001aff;
-    border-color: #1012c0;
-  }
-
-  .custom-checkbox:checked + .checkmark::after {
-    content: "";
-    position: absolute;
-    top: 5px;
-    left: 5px;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: white;
+    background-color: #001aff8c;
+    border-color: #1012c059;
   }
 }

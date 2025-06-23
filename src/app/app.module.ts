@@ -17,6 +17,8 @@ import { reducer } from './core/store';
 import { HeroEffects } from './core/store/hero/hero.effects';
 import { CheckTokenInterceptor } from './core/interceptors/checkToken.interceptor';
 import { LayoutModule } from './features/layout/layout.module';
+import { GroupEffects } from './core/store/group/group.effects';
+import { messageEffects } from './core/store/message/message.effects';
 
 @NgModule({
   declarations: [AppComponent],
@@ -31,7 +33,7 @@ import { LayoutModule } from './features/layout/layout.module';
     SweetAlert2Module.forRoot(),
     RouterModule.forRoot([]),
     StoreModule.forRoot(reducer),
-    EffectsModule.forRoot([HeroEffects]),
+    EffectsModule.forRoot([HeroEffects, GroupEffects, messageEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: !isDevMode() }),
   ],
   providers: [

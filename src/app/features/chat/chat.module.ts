@@ -3,29 +3,27 @@ import { ChatRoutingModule } from './chat-routing.module';
 import { CommonModule } from '@angular/common';
 import { ChatappComponent } from './components/chatapp/chatapp.component';
 import { SharedModule } from '../../shared/shared.module';
-import { CreateGroupComponent } from './components/create-group/create-group.component';
 import { ChatMessageComponent } from './components/chat-message/chat-message.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { GroupItemComponent } from './components/group-item/group-item.component';
-import { GroupDetailComponent } from './components/group-detail/group-detail.component';
 import { NgbDropdown, NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
-import { UtilsViewMemberComponent } from './components/utils-view-member/utils-view-member.component';
-import { UtilsRenameGroupComponent } from './components/utils-rename-group/utils-rename-group.component';
-import { UtilsFindMessageGroupComponent } from './components/utils-find-message-group/utils-find-message-group.component';
-import { UtilsAddTagGroupComponent } from './components/utils-add-tag-group/utils-add-tag-group.component';
-// import { ScrollingModule } from '@angular/cdk/scrolling';
+import { GroupModule } from '../group/group.module';
+import { GroupItemComponent } from './components/group-item/group-item.component';
+import { CreateGroupComponent } from './components/create-group/create-group.component';
+import { GroupDetailComponent } from './components/group-detail/group-detail.component';
+import { MessageComponent } from './components/message/message.component';
+import { ChatInputComponent } from './components/chat-input/chat-input.component';
+import { UtilsMessageDeleteComponent } from './components/utils-message-delete/utils-message-delete.component';
 
 @NgModule({
   declarations: [
     ChatappComponent,
     GroupItemComponent,
+    GroupDetailComponent,
     CreateGroupComponent,
     ChatMessageComponent,
-    GroupDetailComponent,
-    UtilsViewMemberComponent,
-    UtilsRenameGroupComponent,
-    UtilsFindMessageGroupComponent,
-    UtilsAddTagGroupComponent,
+    MessageComponent,
+    ChatInputComponent,
+    UtilsMessageDeleteComponent,
   ],
   imports: [
     ChatRoutingModule,
@@ -35,7 +33,15 @@ import { UtilsAddTagGroupComponent } from './components/utils-add-tag-group/util
     NgbDropdown,
     NgbDropdownModule,
     ReactiveFormsModule,
-    NgbTooltipModule
+    NgbTooltipModule,
+    GroupModule
   ],
+  exports: [
+    ChatappComponent,
+    GroupItemComponent,
+    GroupDetailComponent,
+    CreateGroupComponent,
+    ChatMessageComponent,
+  ]
 })
 export class ChatModule {}

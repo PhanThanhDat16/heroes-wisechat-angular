@@ -1,9 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { AuthService } from '../../../core/services/auth.service';
-import { IGroup, IGroupCreate, IGroupMessage } from '../model/group';
 import { map } from 'rxjs';
 import { IUser } from '../../auth/model/user';
+import { IGroup, IGroupCreate, IGroupMessage } from '../model/group';
 
 @Injectable({
   providedIn: 'root',
@@ -13,11 +13,11 @@ export class GroupService {
   constructor(private http: HttpClient, private authService: AuthService) {}
 
   createGroup(data: IGroupCreate) {
-    return this.http.post(`${this.URL}/groups`, data, {
+    return this.http.post<{ message: string; data: any }>(`${this.URL}/groups`, data, {
       headers: {
         Authorization: `Bearer ${this.authService.getAccessToken()}`,
       },
-    });
+    }).pipe(map((res) => res.data));
   }
 
   getGroupsByUser(userId: string) {
@@ -61,11 +61,12 @@ export class GroupService {
       .pipe(map((res) => res.data));
   }
 
-  updateGroup(groupId, data: { name: string }) {
+  updateGroup(groupId, name: string ) {
+
     return this.http
       .put<{ message: string; data: any }>(
         `${this.URL}/groups/${groupId}`,
-        data,
+        {name},
         {
           headers: {
             Authorization: `Bearer ${this.authService.getAccessToken()}`,

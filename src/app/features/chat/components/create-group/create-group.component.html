@@ -47,13 +47,13 @@
         />
       </div>
 
-      <div *ngIf="step === 2"  class="card-search  mb-4 p-10 border rounded">
+      <div *ngIf="step === 2" class="card-search mb-4 p-10 border rounded">
         <input
-        type="text"
-        class="border-0 w-100"
-        placeholder="Enter name group"
-        [(ngModel)]="nameGroup"
-      />
+          type="text"
+          class="border-0 w-100"
+          placeholder="Enter name group"
+          [(ngModel)]="nameGroup"
+        />
       </div>
 
       <div
@@ -93,9 +93,12 @@
                 #userCheckbox
                 type="checkbox"
                 class="custom-checkbox"
-                (click)="user._id && handleAddUser(user, $event)"
+                [checked]="isUserSelected(user._id)"
+                (change)="handleAddUser(user, $event)"
               />
-              <span class="checkmark"></span>
+              <span class="checkmark">
+                <i class="fa-solid fa-check check-icon"></i>
+              </span>
             </label>
           </ng-container>
         </div>
