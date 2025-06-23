@@ -10,20 +10,22 @@ import { StoreModule } from '@ngrx/store';
 import { EffectsModule } from '@ngrx/effects';
 import { AngularToastifyModule, ToastService } from 'angular-toastify';
 import { StoreDevtoolsModule } from '@ngrx/store-devtools';
-import { AuthLayoutComponent } from './features/layout/auth-layout/auth-layout.component';
 import { RouterModule } from '@angular/router';
 import { coreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
-import { MainLayoutComponent } from './features/layout/main-layout/main-layout.component';
 import { reducer } from './core/store';
 import { HeroEffects } from './core/store/hero/hero.effects';
 import { CheckTokenInterceptor } from './core/interceptors/checkToken.interceptor';
+import { LayoutModule } from './features/layout/layout.module';
+import { GroupEffects } from './core/store/group/group.effects';
+import { messageEffects } from './core/store/message/message.effects';
 
 @NgModule({
-  declarations: [AppComponent, AuthLayoutComponent, MainLayoutComponent],
+  declarations: [AppComponent],
   imports: [
     coreModule,
     SharedModule,
+    LayoutModule,
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
@@ -31,7 +33,7 @@ import { CheckTokenInterceptor } from './core/interceptors/checkToken.intercepto
     SweetAlert2Module.forRoot(),
     RouterModule.forRoot([]),
     StoreModule.forRoot(reducer),
-    EffectsModule.forRoot([HeroEffects]),
+    EffectsModule.forRoot([HeroEffects, GroupEffects, messageEffects]),
     StoreDevtoolsModule.instrument({ maxAge: 25, logOnly: !isDevMode() }),
   ],
   providers: [

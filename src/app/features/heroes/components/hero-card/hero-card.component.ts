@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { IHero } from '../../../../core/model/heroes';
 import { UserService } from '../../../../core/services/user.service';
+import { IHero } from '../../model/heroes';
 
 @Component({
   selector: 'app-hero-card',
@@ -27,12 +27,6 @@ export class HeroCardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.isLoading = true;
-    this.userService.getUserDetail(this.hero.userId as string).subscribe({
-      next: (data) => {
-        this.owner = data.username;
-        this.isLoading = false;
-      },
-    });
+    this.owner = this.hero.userInfo?.username as string;
   }
 }

@@ -1,0 +1,23 @@
+<app-modal-utils-chat>
+  <button modal-btn class="d-flex gap-2 align-items-center">
+    <i class="px-1 py-2 fa-solid fa-pen"></i>
+    <span>Rename</span>
+  </button>
+  <h2 modal-header>Rename Group</h2>
+  <div modal-body>
+    <span class="mb-3 fw-medium" style="display: inline-block; font-size: 20px"
+      >Name</span
+    >
+    <input
+      class="form-control"
+      type="text"
+      name="name"
+      style="padding: 12px"
+      placeholder="Enter name group..."
+      [formControl]="nameGroup"
+    />
+    <div class="text-end">
+      <button class="btn btn-primary mt-3" (click)="handlRenameGroup()">Rename</button>
+    </div>
+  </div>
+</app-modal-utils-chat>

@@ -1,0 +1,42 @@
+<app-modal-utils-message>
+  <span modal-btn class="text-primary-m">
+    <i class="fa-solid fa-trash" style="font-size: 14px; margin-right: 4px;"></i>
+    Delete
+  </span>
+
+  <h2 modal-header>Are you sure?</h2>
+
+  <div modal-body>
+    <div class="delete-wrapper" (click)="handleDeleteForMe()">
+      <div class="d-flex align-items-center justify-content-between delete-item">
+        <div class="d-flex align-items-center gap-3">
+          <span class="delete-item-icon">
+            <i class="fa-solid fa-trash-can"></i>
+          </span>
+          <h4 class="mb-0 delete-item-title">Delete For You</h4>
+        </div>
+        <i class="fa-regular fa-hand-pointer delete-item-iPointer"></i>
+      </div>
+      <p class="delete-item-content">
+         When you delete this message. It will be deleted on your side. Other
+        members in the chat still can see it
+      </p>
+    </div>
+
+    <div *ngIf="message.senderId === userId"  class="delete-wrapper" (click)="handleDeleteEveryone()">
+      <div class="d-flex align-items-center justify-content-between delete-item">
+        <div class="d-flex align-items-center gap-3">
+          <span class="delete-item-icon">
+            <i class="fa-solid fa-trash-can"></i>
+          </span>
+          <h4 class="mb-0 delete-item-title">Delete For Everyone</h4>
+        </div>
+        <i class="fa-regular fa-hand-pointer delete-item-iPointer"></i>
+      </div>
+      <p class="delete-item-content">
+       When you delete this message. This message will be deleted in the chat
+        and everyone will no longer see this message
+      </p>
+    </div>
+  </div>
+</app-modal-utils-message>

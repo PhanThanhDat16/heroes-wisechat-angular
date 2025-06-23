@@ -1,4 +1,5 @@
-import { ITag } from "./tag"
+import { IUser } from "../../auth/model/user"
+import { ITag } from "../../tags/model/tag"
 
 export interface IHero{
     id: number,
@@ -11,6 +12,7 @@ export interface IHero{
     _id?: string
     tags?: ITag[]
     createdAt? : string
+    userInfo?: IUser
 }
 
 export interface IHeroUpdate{

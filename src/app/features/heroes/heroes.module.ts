@@ -10,6 +10,7 @@ import { DetailComponent } from './components/detail/detail.component';
 import { HeroesListComponent } from './components/heroes-list/heroes-list.component';
 import { DropdownlableComponent } from './components/dropdownlable/dropdownlable.component';
 import { HeroCardComponent } from './components/hero-card/hero-card.component';
+import { ModalCreateComponent } from './components/modal-create/modal-create.component';
 
 @NgModule({
   declarations: [
@@ -18,6 +19,7 @@ import { HeroCardComponent } from './components/hero-card/hero-card.component';
     HeroesListComponent,
     DropdownlableComponent,
     HeroCardComponent,
+    ModalCreateComponent,
   ],
   imports: [
     CommonModule,

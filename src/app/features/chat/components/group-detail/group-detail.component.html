@@ -1,0 +1,69 @@
+<div
+  class="py-3 px-4 border rounded d-flex align-items-center justify-content-between"
+>
+  <div class="d-flex flex-column align-items-start gap-2">
+    <span class="fs-5 fw-medium">{{ groupData?.name }}</span>
+    <span class="d-flex align-items-center gap-1">
+      <span
+        [ngClass]="
+          userOnlineGroup.length > 0 ? 'status-online' : 'status-offline'
+        "
+      ></span>
+      <span class="fw-6 fs-7 text-primary-chat">{{
+        userOnlineGroup.length > 0 ? "Online" : "Offline"
+      }}</span>
+    </span>
+  </div>
+  <span class="cursor-point d-flex gap-4 align-items-center">
+    <div
+      ngbDropdown
+      class="d-flex gap-2 align-items-center groupdropdown-wrapper"
+      #dropdown="ngbDropdown"
+    >
+      <span
+        class="fw-bold pointer d-flex align-items-center gap-1"
+        id="groupDropDown"
+        ngbDropdownToggle
+      >
+        <i class="fa-solid fa-ellipsis" style="color: #d1d1d1"></i>
+      </span>
+      <div
+        ngbDropdownMenu
+        aria-labelledby="groupDropDown"
+        class="dropdown-menu-end p-0 overflow-hidden"
+      >
+        <app-utils-view-member ngbDropdownItem></app-utils-view-member>
+        <app-utils-rename-group ngbDropdownItem></app-utils-rename-group>
+      </div>
+    </div>
+  </span>
+</div>
+
+<app-chat-message [checkMessageGroup]="checkMessageGroup"></app-chat-message>
+
+<app-chat-input></app-chat-input>
+
+<!-- <button ngbDropdownItem class="d-flex gap-2 align-items-center">
+          <i class="px-1 py-2 fa-solid fa-magnifying-glass"></i>
+          <span>Find Message</span>
+        </button>
+        <button ngbDropdownItem class="d-flex gap-2 align-items-center">
+          <i class="px-1 py-2 fa-solid fa-tags"></i>
+          <span>Add Tag</span>
+        </button>
+        <button ngbDropdownItem class="d-flex gap-2 align-items-center">
+          <i class="px-1 py-2 fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Leave Group</span>
+        </button> -->
+
+<!-- <app-chat-message
+  [messagesGroup]="messagesGroup"
+  [isLoadingMessages]="isLoadingMessages"
+  [checkMessageGroup]="checkMessageGroup"
+  [uploaded]="uploaded"
+  [groupData]="groupData"
+  [user]="user"
+  [userId]="userId"
+  (scrollTop)="loadMoreMessages()"
+  (replyEmitter)="handleReply($event)"
+></app-chat-message> -->

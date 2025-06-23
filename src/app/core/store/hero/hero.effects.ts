@@ -5,18 +5,18 @@ import {
   createHeroFailure,
   deleteHero,
   deleteHeroFailure,
-  deleteHeroSuccess,
+  // deleteHeroSuccess,
   loadHeroes,
   loadHeroesFailure,
   loadHeroesSuccess,
   updateHero,
   updateHeroFailure,
-  updateHeroSuccess,
+  // updateHeroSuccess,
 } from './hero.actions';
 import { catchError, map, mergeMap, of, switchMap, tap } from 'rxjs';
 import { ToastService } from 'angular-toastify';
-import { HeroService } from '../../services/heroes.service';
-import { IHeroUpdate } from '../../model/heroes';
+import { HeroService } from '../../../features/heroes/service/heroes.service';
+import { IHeroUpdate } from '../../../features/heroes/model/heroes';
 
 @Injectable()
 export class HeroEffects {

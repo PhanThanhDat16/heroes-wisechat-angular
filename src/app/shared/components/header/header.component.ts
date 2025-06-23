@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { UserService } from '../../../core/services/user.service';
 import { logout } from '../../../core/store/hero/hero.actions';
+import { SocketIOService } from '../../../core/services/socket.service';
 
 @Component({
   selector: 'app-header',
@@ -15,7 +16,8 @@ export class HeaderComponent implements OnInit {
   constructor(
     private store: Store,
     private router: Router,
-    private userService: UserService
+    private userService: UserService,
+    private socketService: SocketIOService
   ) {}
 
   ngOnInit(): void {
@@ -28,6 +30,8 @@ export class HeaderComponent implements OnInit {
   }
 
   handleLogout() {
+    // check
+    this.socketService.disconnectSocket();
     this.store.dispatch(logout());
     this.router.navigate(['/login']);
   }

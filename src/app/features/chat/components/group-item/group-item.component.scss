@@ -1,0 +1,40 @@
+.card {
+  &-avatar-wrapper {
+    margin-right: 10px;
+
+    &.online-indicator::after {
+      content: "";
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background-color: #28a745;
+      border: 2px solid #fff;
+      bottom: 0;
+      right: 0;
+    }
+  }
+
+  &-avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  &-time {
+    font-size: 14px;
+  }
+
+  &-notRead {
+    background-color: #edf4fc;
+  }
+
+  &-title {
+    color: #3c434a;
+  }
+
+  &-text {
+    color: #a2b1bf;
+  }
+}

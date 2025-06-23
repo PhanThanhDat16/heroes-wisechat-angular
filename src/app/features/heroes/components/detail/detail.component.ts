@@ -3,18 +3,16 @@ import {
   OnChanges,
   OnDestroy,
   OnInit,
-  SimpleChanges,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { IHero, IHeroUpdate } from '../../../../core/model/heroes';
-import { ITag } from '../../../../core/model/tag';
-import { HeroService } from '../../../../core/services/heroes.service';
-import { UserService } from '../../../../core/services/user.service';
+import { ITag } from '../../../tags/model/tag';
+import { HeroService } from '../../service/heroes.service';
 import { deleteHero, updateHero } from '../../../../core/store/hero/hero.actions';
+import { IHero, IHeroUpdate } from '../../model/heroes';
 
 @Component({
   selector: 'app-detail',
@@ -48,7 +46,6 @@ export class DetailComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private heroService: HeroService,
-    private userService: UserService,
     private router: Router,
     private store: Store
   ) {
@@ -107,12 +104,12 @@ export class DetailComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     const userId = localStorage.getItem('userId');
-
     if (userId) {
       this.isLoading = true;
       this.trackSub = this.heroService.getHeroDetailService(this.id).subscribe({
         next: (data) => {
           this.createdAt = data.createdAt ?? ''
+          console.log
           this.checkUserId = data.userId === userId;
           this.hero = data;
           this.tags = this.hero.tags ?? [];

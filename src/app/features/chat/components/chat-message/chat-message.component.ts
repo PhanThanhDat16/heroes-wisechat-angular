@@ -1,0 +1,172 @@
+import {
+  Component,
+  Input,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+  OnInit,
+  AfterViewChecked,
+  OnDestroy,
+} from '@angular/core';
+import { IMessageGroup } from '../../model/message';
+import { IGroup } from '../../../group/model/group';
+import { IUser } from '../../../auth/model/user';
+import { debounceTime, fromEvent, Subscription } from 'rxjs';
+import { Store } from '@ngrx/store';
+import { selectGroupDetail } from '../../../../core/store/group/group.selector';
+import {
+  selectMessage,
+  selectUploadedFiles,
+} from '../../../../core/store/message/message.selector';
+import { SocketIOService } from '../../../../core/services/socket.service';
+import { MessageService } from '../../service/message.service';
+import { loadMessage } from '../../../../core/store/message/message.actions';
+
+@Component({
+  selector: 'app-chat-message',
+  templateUrl: './chat-message.component.html',
+  styleUrls: ['./chat-message.component.scss'],
+})
+export class ChatMessageComponent
+  implements AfterViewInit, OnInit, AfterViewChecked, OnDestroy
+{
+  // check again
+  @Input() checkMessageGroup;
+
+  @ViewChild('scrollableChatRef') scrollableChatRef: ElementRef;
+  groupData: IGroup;
+  messagesGroup: IMessageGroup[] = [];
+  user: IUser;
+  userId = localStorage.getItem('userId');
+  messageSub: Subscription;
+  currentPage = 1;
+  hasMoreMessages = true;
+  isLoadingMessages = false;
+  shouldScrollToBottom = false;
+  uploaded: { url?: string; originalname?: string; mimetype?: string } | null =
+    null;
+
+  constructor(
+    private store: Store,
+    private socketService: SocketIOService,
+    private messageService: MessageService
+  ) {}
+
+  ngOnInit(): void {
+    this.store.select(selectGroupDetail).subscribe((groupDetail) => {
+      if (groupDetail) {
+        this.groupData = groupDetail;
+        this.user = groupDetail.user as IUser;
+        this.messagesGroup = [];
+        this.currentPage = 1;
+        this.hasMoreMessages = true;
+        this.isLoadingMessages = false;
+      }
+    });
+
+
+    this.store.select(selectMessage).subscribe((message) => {
+      if (message) {
+        // console.log('message', message.senderId);
+        this.messagesGroup = message.senderId;
+        this.shouldScrollToBottom = true;
+      }
+    });
+    
+    this.store.select(selectUploadedFiles).subscribe((data) => {
+      this.uploaded = data;
+    });
+
+    if (this.messageSub) {
+      this.messageSub.unsubscribe();
+    }
+    this.messageSub = this.socketService
+      .receiveMessage()
+      .subscribe((message) => {
+        if (this.userId !== message.senderId && this.groupData?._id === message.groupId) {
+          // check
+          // this.messagesGroup = [...this.messagesGroup, message];
+          this.store.dispatch(loadMessage({ groupId: this.groupData?._id, page: this.currentPage, limit: 10 }));
+
+        }
+        this.shouldScrollToBottom = true;
+      });
+
+    this.socketService.receiveDeleteMessage().subscribe((data) => {
+      this.messagesGroup = this.messagesGroup.filter(
+        (msg) => msg._id !== data.messageId
+      );
+      this.currentPage = 1;
+      this.hasMoreMessages = true;
+      this.isLoadingMessages = false;
+      this.shouldScrollToBottom = true;
+    });
+  }
+
+  ngAfterViewInit(): void {
+    const scrollElement = this.scrollableChatRef?.nativeElement;
+    if (!scrollElement) return;
+    fromEvent(scrollElement, 'scroll')
+      .pipe(debounceTime(300))
+      .subscribe(() => this.onScroll());
+  }
+
+  ngAfterViewChecked(): void {
+    if (this.shouldScrollToBottom) {
+      this.scrollToBottom();
+      this.shouldScrollToBottom = false;
+    }
+  }
+
+  onScroll(): void {
+    if (this.isLoadingMessages || !this.hasMoreMessages) return;
+    const scrollElement = this.scrollableChatRef?.nativeElement;
+    if (scrollElement && scrollElement.scrollTop === 0) {
+      this.loadMoreMessages();
+    }
+  }
+
+  loadMoreMessages(): void {
+    if (!this.groupData?._id) return;
+    const scrollElement = this.scrollableChatRef?.nativeElement;
+    if (!scrollElement) return;
+    const prevScrollHeight = scrollElement.scrollHeight;
+    this.isLoadingMessages = true;
+    this.messageService
+      .getMessageByGroupService(this.groupData._id, this.currentPage + 1, 10)
+      .subscribe({
+        next: (data) => {
+          if (!data.senderId || data.senderId.length === 0) {
+            this.hasMoreMessages = false;
+            this.isLoadingMessages = false;
+            return;
+          }
+          this.messagesGroup = [...data.senderId, ...this.messagesGroup];
+          this.currentPage++;
+          setTimeout(() => {
+            const newScrollHeight = scrollElement.scrollHeight;
+            scrollElement.scrollTop = newScrollHeight - prevScrollHeight;
+            this.isLoadingMessages = false;
+          }, 0);
+        },
+        error: () => {
+          this.isLoadingMessages = false;
+        },
+      });
+  }
+
+  scrollToBottom(): void {
+    const scrollElement = this.scrollableChatRef?.nativeElement;
+    if (scrollElement) {
+      scrollElement.scrollTop = scrollElement.scrollHeight;
+    }
+  }
+
+  getScrollElement(): ElementRef {
+    return this.scrollableChatRef;
+  }
+
+  ngOnDestroy(): void {
+    this.messageSub.unsubscribe();
+  }
+}

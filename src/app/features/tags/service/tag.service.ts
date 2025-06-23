@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs';
-import { AuthService } from './auth.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { ITag } from '../model/tag';
 
 @Injectable({
@@ -54,11 +54,11 @@ export class TagService {
       .pipe(map((res) => res.data));
   }
 
-  addTagsToMultipleHeroes(heroIds: string[], userId: string , tags: ITag[]) {
+  addTagsToMultipleHeroes(heroIds: string[], userId: string , tags: string[]) {
     return this.http.put(`${this.URL}/${userId}/heroes/tags`, { heroIds, tags });
   }
 
-  deleteTagsToMultipleHeroes(heroIds: string[], userId: string , tags: ITag[]) {
+  deleteTagsToMultipleHeroes(heroIds: string[], userId: string , tags: string[]) {
     return this.http.delete(`${this.URL}/${userId}/heroes/tags`, {
       body: { heroIds, tags },
       headers: {

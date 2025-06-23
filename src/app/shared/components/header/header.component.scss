@@ -1,0 +1,6 @@
+.text-hover:hover{
+    transition: all 0.3s ease-in-out;
+    &:hover {
+        color: rgb(34, 126, 145) !important;
+    }
+}

@@ -1,0 +1,44 @@
+:host {
+  flex: 1;
+}
+
+.chat-box {
+  max-height: 636px;
+  overflow-y: auto;
+}
+
+.chat-box-img {
+  max-height: 508px;
+  overflow-y: auto;
+}
+
+.nmessage {
+  &-content,
+  &-title {
+    color: #a2b1bf;
+  }
+
+  &-title {
+    font-weight: bold;
+    font-size: 20px;
+  }
+
+  &-wrapper div {
+    &:first-child {
+      margin-right: 50px;
+    }
+    &:last-child {
+      margin-left: 50px;
+    }
+  }
+
+  &-icon {
+    cursor: pointer;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}

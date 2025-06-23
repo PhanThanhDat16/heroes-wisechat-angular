@@ -25,6 +25,11 @@ export const routes: Routes = [
         loadChildren: () =>
           import('./features/tags/tags.module').then((m) => m.TagModule),
       },
+      {
+        path: '',
+        loadChildren: () =>
+          import('./features/chat/chat.module').then((m) => m.ChatModule),
+      }
     ],
   },
   {

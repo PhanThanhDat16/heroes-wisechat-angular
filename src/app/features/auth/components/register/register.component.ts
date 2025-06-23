@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ToastService } from 'angular-toastify';
 import { Router } from '@angular/router';
-import { IRegister } from '../../../../core/model/user';
+import { IRegister } from '../../model/user';
 import { UserService } from '../../../../core/services/user.service';
 
 @Component({

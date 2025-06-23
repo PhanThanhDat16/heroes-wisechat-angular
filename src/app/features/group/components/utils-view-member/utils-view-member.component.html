@@ -1,0 +1,149 @@
+<app-modal-utils-chat (stepEmitter)="onResetStep($event)">
+  <button modal-btn class="d-flex gap-2 align-items-center">
+    <i class="px-1 py-2 fa-solid fa-users-viewfinder"></i>
+    <span>Member</span>
+  </button>
+  <h2 *ngIf="step === 1" modal-header>Member</h2>
+  <div *ngIf="step === 1" modal-body>
+    <div
+      class="d-flex card-search align-items-center mb-4 border rounded gap-2"
+      style="padding: 15px"
+    >
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input
+        type="text"
+        class="border-0 flex-fill"
+        placeholder="Search user..."
+        [formControl]="nameUser"
+      />
+    </div>
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-outline-primary">Add member</button>
+    </div>
+    <div class="d-flex flex-column gap-3 mt-2">
+      <ng-container *ngFor="let user of listUserByGroup">
+        <div class="d-flex align-items-center user-item">
+          <img
+            src="https://images.unsplash.com/photo-1631913290783-490324506193?q=80"
+            alt=""
+            class="card-avatar"
+          />
+          <div class="user-info ms-2">
+            <div class="d-flex flex-column gap-2">
+              <span class="user-name"
+                >{{ user.username | capitalizeWords }}
+                <span class="user-role">{{
+                  groupData && groupData.ownerId === user._id
+                    ? "( Admin )"
+                    : "( Member )"
+                }}</span>
+              </span>
+              <span class="d-flex align-items-center gap-1">
+                <span
+                  [ngClass]="
+                    userOnlineGroup.includes(user._id)
+                      ? 'status-online'
+                      : 'status-offline'
+                  "
+                ></span>
+                <span class="fw-6 fs-7 text-primary-chat">{{
+                  userOnlineGroup.includes(user._id) ? "Online" : "Offline"
+                }}</span>
+              </span>
+            </div>
+
+            <div
+              ngbDropdown
+              class="d-flex gap-2 align-items-center groupdropdown-wrapper"
+              #dropdown="ngbDropdown"
+            >
+              <span
+                class="fw-bold pointer d-flex align-items-center gap-1"
+                id="groupDropDown"
+                ngbDropdownToggle
+              >
+                <i class="fa-solid fa-ellipsis" style="color: #d1d1d1"></i>
+              </span>
+              <div
+                ngbDropdownMenu
+                aria-labelledby="groupDropDown"
+                class="dropdown-menu-end p-0 overflow-hidden"
+              >
+                <button
+                  ngbDropdownItem
+                  class="d-flex gap-2 align-items-center"
+                  (click)="handleViewProfile(user._id)"
+                >
+                  <i class="fa-regular fa-address-card px-1 py-2"></i>
+                  <span>View Profile</span>
+                </button>
+                <ng-container
+                  *ngIf="
+                    groupData &&
+                    groupData.ownerId === userId &&
+                    groupData.ownerId !== user._id
+                  "
+                >
+                  <button
+                    ngbDropdownItem
+                    class="d-flex gap-2 align-items-center"
+                  >
+                    <i class="fa-regular fa-trash-can px-1 py-2"></i>
+                    <span>Delete User</span>
+                  </button>
+                </ng-container>
+              </div>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <h2 *ngIf="step === 2" modal-header class="header-info">Infomation Member</h2>
+  <div *ngIf="step === 2 && user" modal-body class="h-100 d-flex flex-column">
+    <div class="d-flex justify-content-center step-2-avatar">
+      <img
+        src="https://plus.unsplash.com/premium_photo-1671656349218-5218444643d8?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+        alt=""
+      />
+    </div>
+    <div class="text-center py-3 step-2-title">{{ user.username }}</div>
+
+    <ng-container *ngIf="user.tags.length > 0">
+      <div class="py-3" style="max-width: 50%; margin: 0 auto">
+        <div class="d-flex flex-wrap">
+          <div
+            *ngFor="let tag of user.tags; let i = index"
+            class="tag-item d-flex align-items-center gap-1"
+            [ngStyle]="{
+              'background-color': tag.backgroundColor,
+              color: tag.color
+            }"
+          >
+            <i class="fa-regular fa-star"></i>
+            <span>{{ tag.name }}</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <div class="step-2-wrapper">
+      <div class="d-flex gap-2 align-items-center mb-2">
+        <span class="fw-bold">Email: </span>
+        <span class="step-2-email">{{ user.email }}</span>
+      </div>
+      <div class="d-flex gap-2 align-items-center">
+        <span class="fw-bold">Username: </span>
+        <span class="step-2-username">{{ user.username }}</span>
+      </div>
+    </div>
+
+    <div class="text-end mt-auto">
+      <button class="btn btn-primary " (click)="handleBackView()">
+        <i class="fa-solid fa-arrow-left"></i> 
+        <span style="margin-left: 12px;">Back</span>
+      </button>
+    </div>
+  </div>
+</app-modal-utils-chat>

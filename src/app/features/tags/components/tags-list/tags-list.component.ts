@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ToastService } from 'angular-toastify';
-import { ITag } from '../../../../core/model/tag';
-import { TagService } from '../../../../core/services/tag.service';
+import { ITag } from '../../model/tag';
+import { TagService } from '../../service/tag.service';
 
 @Component({
   selector: 'app-tags-list',
