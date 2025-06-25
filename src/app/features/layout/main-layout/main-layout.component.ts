@@ -21,9 +21,10 @@ export class MainLayoutComponent implements OnDestroy, OnInit {
     //   console.log('Message received in Chatapp:', message);
     // });
 
-     const userId = localStorage.getItem('userId');
-      
-      if (userId) {
+    const userId = localStorage.getItem('userId');
+
+    if (userId) {
+      this.socketService.connect();
       this.socketService.sendUserOnline(userId);
       this.store.dispatch(loadGroup({ userId }));
       this.trackSub = this.store.select(selectGroups).subscribe({
@@ -33,8 +34,8 @@ export class MainLayoutComponent implements OnDestroy, OnInit {
           this.socketService.joinGroup(listGroupId);
         },
         error: (error) => {
-          console.log(error)
-        }
+          console.log(error);
+        },
       });
     }
   }

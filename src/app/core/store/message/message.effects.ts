@@ -16,6 +16,12 @@ import {
   loadMessage,
   loadMessageFailure,
   loadMessageSuccess,
+  updateEditMessage,
+  updateEditMessageFailure,
+  updateEditMessageSuccess,
+  updateIsRead,
+  updateIsReadFailure,
+  updateIsReadSuccess,
   uploadFiles,
   uploadFilesFailure,
   uploadFilesSuccess,
@@ -27,9 +33,8 @@ export class messageEffects {
   constructor(
     private action$: Actions,
     private messageService: MessageService,
-    private socketService: SocketIOService
-  ) // private toastService: ToastService,
-  {}
+    private socketService: SocketIOService // private toastService: ToastService,
+  ) {}
 
   loadMessage$ = createEffect(() =>
     this.action$.pipe(
@@ -74,7 +79,9 @@ export class messageEffects {
             )
             .pipe(
               tap((data) => {
+                // console.log('Message created:', data);
                 this.socketService.sendMessage(
+                  data._id,
                   senderId,
                   senderName,
                   data.content,
@@ -98,6 +105,9 @@ export class messageEffects {
       ofType(deleteMessageEveryone),
       mergeMap(({ messageId }) =>
         this.messageService.deleteMessageForEveryone(messageId).pipe(
+          tap((data) =>
+            this.socketService.deleteMessage(data)
+          ),
           map((data) => deleteMessageEveryoneSuccess({ messages: data })),
           catchError(({ error }) => of(deleteMessageEveryoneFailure({ error })))
         )
@@ -110,8 +120,39 @@ export class messageEffects {
       ofType(deleteMessageForMe),
       switchMap(({ messageId, userId }) =>
         this.messageService.deleteMessageForMe(messageId, userId).pipe(
+          tap((data) => {
+            console.log('Delete message for me:', data);
+            this.socketService.deleteMessageForMe(data);
+          }),
           map((data) => deleteMessageForMeSuccess({ message: data })),
           catchError(({ error }) => of(deleteMessageForMeFailure({ error })))
+        )
+      )
+    )
+  );
+
+  updateEditMessage$ = createEffect(() =>
+    this.action$.pipe(
+      ofType(updateEditMessage),
+      mergeMap(({ messageId, data }) =>
+        this.messageService.updateEditMEssage(messageId, data).pipe(
+          tap((message) => {
+            this.socketService.editMessage(message);
+          }),
+          map((message) => updateEditMessageSuccess({ message })),
+          catchError(({ error }) => of(updateEditMessageFailure({ error })))
+        )
+      )
+    )
+  );
+
+  updateIsRead$ = createEffect(() =>
+    this.action$.pipe(
+      ofType(updateIsRead),
+      switchMap(({ groupId, userId }) =>
+        this.messageService.updateIsReadMessage(groupId, userId).pipe(
+          map((message) => updateIsReadSuccess({ message })),
+          catchError(({ error }) => of(updateIsReadFailure({ error })))
         )
       )
     )

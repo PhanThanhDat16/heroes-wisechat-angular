@@ -62,8 +62,8 @@ body {
 }
 
 .main {
-  max-width: 1300px;
-  margin: 0 auto;
+  // max-width: 1300px;
+  // margin: 0 auto;
   min-height: 100vh;
 }
 
@@ -111,11 +111,11 @@ body {
   color: #336699;
 }
 
-.align-items-end{
+.align-items-end {
   align-items: end;
 }
 
-.align-items-start{
+.align-items-start {
   align-items: start;
 }
 
@@ -215,11 +215,11 @@ body {
   text-overflow: ellipsis;
 }
 
-.pointer-none{
+.pointer-none {
   pointer-events: none;
 }
 
-.max-content{
+.max-content {
   width: max-content;
 }
 

@@ -5,7 +5,7 @@ import { IGroup } from '../../../group/model/group';
 import { Store } from '@ngrx/store';
 import { loadGroupDetail } from '../../../../core/store/group/group.actions';
 import { selectGroupDetail } from '../../../../core/store/group/group.selector';
-import { loadMessage } from '../../../../core/store/message/message.actions';
+import { loadMessage, updateIsRead } from '../../../../core/store/message/message.actions';
 import { selectMembersGroup } from '../../../../core/store/message/message.selector';
 import { IUser } from '../../../auth/model/user';
 
@@ -60,6 +60,14 @@ export class GroupDetailComponent implements OnInit {
         };
       }
     });
+
+
+    // this.socketService.receiveMessage().subscribe((message) => {
+    //   const route = this.route.snapshot.params['id'];
+    //   // if (message.groupId === route) {
+    //   //   // this.store.dispatch(updateIsRead({groupId: message.groupId, userId: message.senderId}));
+    //   // }
+    // });
   }
 
   // ngOnDestroy(): void {

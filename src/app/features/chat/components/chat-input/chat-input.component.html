@@ -60,9 +60,14 @@
   }}</span>
 </div>
 
-<div class="input-message px-3 bg-white mt-auto">
+<div class="input-message position-relative px-3 bg-white mt-auto">
+  <div *ngIf="editToMessage" class="position-absolute edit-message">
+    <span>Edit Message</span>
+    <span class="edit-close" (click)="handleCloseEdit()"><i class="fa-solid fa-xmark"></i></span>
+  </div>
+
   <div class="d-flex gap-3 align-items-center form-control me-2 py-3">
-    <label for="file-upload" class="mb-0 cursor-pointer">
+    <label for="file-upload" class="mb-0 cursor-pointer" *ngIf="!editToMessage">
       <input
         type="file"
         id="file-upload"

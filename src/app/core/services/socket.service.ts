@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Socket, io } from 'socket.io-client';
 import { IEditGroup } from '../model/socket';
 import { IGroup } from '../../features/group/model/group';
+import { IMessageGroup } from '../../features/chat/model/message';
 
 @Injectable({
   providedIn: 'root',
@@ -14,18 +15,21 @@ export class SocketIOService {
   public onlineUser$ = this.onlineUsersSubject.asObservable();
 
   constructor() {
-    this.socket = io(this.URL_SOCKET);
+    this.initSocket();
+  }
 
-    // this.socket.on('connect', () => {
-    //   const userId = localStorage.getItem('userId');
-    //   if (userId) {
-    //     this.sendUserOnline(userId);
-    //   }
-    // });
+  initSocket() {
+    this.socket = io(this.URL_SOCKET);
 
     this.socket.on('updateOnlineUsers', (users: string[]) => {
       this.onlineUsersSubject.next(users);
     });
+  }
+
+  connect() {
+    if (!this.socket.connected) {
+      this.socket.connect();
+    }
   }
 
   joinGroup(listGroupId: string[]) {
@@ -47,7 +51,7 @@ export class SocketIOService {
   }
 
   sendUserOnline(userId: string) {
-    this.socket.emit('userOnline', userId);
+    this.socket.emit('userOnline', { userId });
   }
 
   sendUpdateEditGroup({ senderId, senderName, name, groupId }: IEditGroup) {
@@ -67,6 +71,7 @@ export class SocketIOService {
   }
 
   sendMessage(
+    _id: string,
     senderId: string,
     senderName: string,
     message: string,
@@ -78,6 +83,7 @@ export class SocketIOService {
     type: string
   ) {
     this.socket.emit('sendMessage', {
+      _id,
       senderId,
       senderName,
       content: message,
@@ -102,12 +108,11 @@ export class SocketIOService {
     });
   }
 
-
-  deleteMessage(messageId: string, groupId: string) {
-    this.socket.emit('deleteMessage', { messageId, groupId });
+  deleteMessage(data) {
+    this.socket.emit('deleteMessage', data);
   }
 
- receiveDeleteMessage(): Observable<any> {
+  receiveDeleteMessage(): Observable<any> {
     return new Observable((observer) => {
       this.socket.on('deleteMessage', (data) => {
         observer.next(data);
@@ -119,7 +124,36 @@ export class SocketIOService {
     });
   }
 
-  
+  deleteMessageForMe(data) {
+    this.socket.emit('deleteMessageForMe', data);
+  }
+
+  receiveDeleteMessageForMe(): Observable<any> {
+    return new Observable((observer) => {
+      this.socket.on('deleteMessageForMe', (data) => {
+        observer.next(data);
+      });
+      return () => {
+        this.socket.off('deleteMessageForMe');
+      };
+    });
+  }
+
+
+  editMessage(data: IMessageGroup) {
+    this.socket.emit('editMessage', data);
+  }
+
+  receiveEditMessage(): Observable<any> {
+    return new Observable((observer) => {
+      this.socket.on('editMessage', (data) => {
+        observer.next(data);
+      });
+      return () => {
+        this.socket.off('editMessage');
+      };
+    });
+  }
 
   disconnectSocket() {
     this.socket.disconnect();

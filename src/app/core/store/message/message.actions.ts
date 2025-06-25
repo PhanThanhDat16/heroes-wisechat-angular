@@ -18,6 +18,7 @@ export const loadMessageFailure = createAction(
   props<{ error: any }>()
 );
 
+
 export const createMessage = createAction(
   '[Message] Create Message',
   props<{
@@ -85,11 +86,11 @@ export const updateEditMessage = createAction(
   '[Message] Update Edit Message',
   props<{ messageId: string; data: { content: string } }>()
 )
-export const updateGroupMessageSuccess = createAction(
+export const updateEditMessageSuccess = createAction(
   '[Message] Update Group Message Success',
   props<{ message: IMessageGroup }>()
 )
-export const updateGroupMessageFailure = createAction(
+export const updateEditMessageFailure = createAction(
   '[Message] Update Group Message Failure',
   props<{ error: any }>()
 );

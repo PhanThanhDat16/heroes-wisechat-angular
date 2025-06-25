@@ -23,6 +23,15 @@ export class MessageComponent implements OnInit {
     this.socketService.onlineUser$.subscribe((userIds) => {
       this.onlineUserIds = userIds;
     });
+
+    this.socketService.receiveEditMessage().subscribe((data) => {
+      this.messagesGroup = this.messagesGroup.map((msg) => {
+        if (msg._id === data._id) {
+          return data;
+        }
+        return msg;
+      });
+    })
   }
 
   getDateAndTimeStamp(currentMsg: IMessageGroup, index: number): string | null {
@@ -41,6 +50,10 @@ export class MessageComponent implements OnInit {
 
   handleReply(msg) {
     this.messageShareService.sendReplyMessage(msg);
+  }
+
+  handleEdit(msg) {
+    this.messageShareService.sendEditMessage(msg);
   }
 
   extractFileName(url: string): string {

@@ -11,7 +11,7 @@ import {
 import { IMessageGroup } from '../../model/message';
 import { IGroup } from '../../../group/model/group';
 import { IUser } from '../../../auth/model/user';
-import { debounceTime, fromEvent, Subscription } from 'rxjs';
+import { debounceTime, fromEvent, Subscription, take } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { selectGroupDetail } from '../../../../core/store/group/group.selector';
 import {
@@ -20,7 +20,13 @@ import {
 } from '../../../../core/store/message/message.selector';
 import { SocketIOService } from '../../../../core/services/socket.service';
 import { MessageService } from '../../service/message.service';
-import { loadMessage } from '../../../../core/store/message/message.actions';
+import {
+  createMessageSuccess,
+  deleteMessageEveryoneSuccess,
+  deleteMessageForMeSuccess,
+  loadMessage,
+  updateIsRead,
+} from '../../../../core/store/message/message.actions';
 
 @Component({
   selector: 'app-chat-message',
@@ -49,7 +55,7 @@ export class ChatMessageComponent
   constructor(
     private store: Store,
     private socketService: SocketIOService,
-    private messageService: MessageService
+    private messageService: MessageService,
   ) {}
 
   ngOnInit(): void {
@@ -63,16 +69,12 @@ export class ChatMessageComponent
         this.isLoadingMessages = false;
       }
     });
-
-
     this.store.select(selectMessage).subscribe((message) => {
       if (message) {
-        // console.log('message', message.senderId);
         this.messagesGroup = message.senderId;
         this.shouldScrollToBottom = true;
       }
     });
-    
     this.store.select(selectUploadedFiles).subscribe((data) => {
       this.uploaded = data;
     });
@@ -80,22 +82,35 @@ export class ChatMessageComponent
     if (this.messageSub) {
       this.messageSub.unsubscribe();
     }
-    this.messageSub = this.socketService
-      .receiveMessage()
-      .subscribe((message) => {
-        if (this.userId !== message.senderId && this.groupData?._id === message.groupId) {
-          // check
-          // this.messagesGroup = [...this.messagesGroup, message];
-          this.store.dispatch(loadMessage({ groupId: this.groupData?._id, page: this.currentPage, limit: 10 }));
+    this.messageSub = this.socketService.receiveMessage().subscribe((message) => {
+      // if (this.userId !== message.senderId) {
+      //   this.store.dispatch(
+      //     updateIsRead({
+      //       groupId: message.groupId,
+      //       userId: this.userId,
+      //     })
+      //   );
+      // }
 
-        }
-        this.shouldScrollToBottom = true;
-      });
+      if (
+        this.userId !== message.senderId &&
+        this.groupData?._id === message.groupId
+      ) {
+        this.store.dispatch(createMessageSuccess({ message }));
+      }
+      this.shouldScrollToBottom = true;
+    });
 
     this.socketService.receiveDeleteMessage().subscribe((data) => {
-      this.messagesGroup = this.messagesGroup.filter(
-        (msg) => msg._id !== data.messageId
-      );
+      this.store.dispatch(deleteMessageEveryoneSuccess({ messages: data }));
+      this.currentPage = 1;
+      this.hasMoreMessages = true;
+      this.isLoadingMessages = false;
+      this.shouldScrollToBottom = true;
+    });
+
+    this.socketService.receiveDeleteMessageForMe().subscribe((data) => {
+      this.store.dispatch(deleteMessageForMeSuccess({ message: data }));
       this.currentPage = 1;
       this.hasMoreMessages = true;
       this.isLoadingMessages = false;
@@ -160,10 +175,6 @@ export class ChatMessageComponent
     if (scrollElement) {
       scrollElement.scrollTop = scrollElement.scrollHeight;
     }
-  }
-
-  getScrollElement(): ElementRef {
-    return this.scrollableChatRef;
   }
 
   ngOnDestroy(): void {

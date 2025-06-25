@@ -85,15 +85,15 @@ export class MessageService {
       .pipe(map((res) => res.data));
   }
 
-  updateIsReadMessage(messageId: string, userId: string) {
+  updateIsReadMessage(groupId: string, userId: string) {
     return this.http.put<any>(
-      `${this.URL}/groups/users/${userId}/message/${messageId}/read`,
+      `${this.URL}/groups/${groupId}/users/${userId}/message/read`,
       {
         headers: {
           authorization: `Bearer ${this.authService.getAccessToken()}`,
         },
       }
-    );
+    ).pipe(map((res) => res.data));
   }
 
   uploadFiles(files: File[]) {

@@ -1,6 +1,8 @@
 <div
   [routerLink]="['/messages', itemGroup._id]"
-  class="px-4 py-3 cursor-point d-flex align-items-center card-notRead"
+  [ngClass]="isRead ? 'card-read' : 'card-notRead'"
+  class="px-4 py-3 cursor-point d-flex align-items-center"
+  (click)="handleReadMessage(itemGroup._id)"
 >
   <div
     class="card-avatar-wrapper position-relative"

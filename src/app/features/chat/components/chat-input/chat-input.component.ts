@@ -4,6 +4,8 @@ import { Store } from '@ngrx/store';
 import {
   clearUploadedFile,
   createMessage,
+  updateEditMessage,
+  updateIsRead,
   uploadFiles,
 } from '../../../../core/store/message/message.actions';
 import { selectUploadedFiles } from '../../../../core/store/message/message.selector';
@@ -22,9 +24,13 @@ export class ChatInputComponent implements OnInit {
   uploaded: { url?: string; originalname?: string; mimetype?: string } | null =
     null;
   replyToMessage: IMessageGroup | null = null;
+  editToMessage: IMessageGroup | null = null;
   groupData: IGroup;
 
-  constructor(private store: Store, private messageShareService: MessageShareService) {}
+  constructor(
+    private store: Store,
+    private messageShareService: MessageShareService
+  ) {}
 
   ngOnInit(): void {
     this.store.select(selectGroupDetail).subscribe((data) => {
@@ -35,7 +41,17 @@ export class ChatInputComponent implements OnInit {
 
     this.messageShareService.replyMessage$.subscribe((msg) => {
       this.replyToMessage = msg;
-    })
+    });
+
+    this.messageShareService.editMessage$.subscribe((msg) => {
+      this.messageInput = msg.content || '';
+      this.editToMessage = msg;
+    });
+
+    this.store.select(selectUploadedFiles).subscribe((data) => {
+      this.uploaded = data;
+      console.log('Uploaded file:', this.uploaded);
+    });
   }
 
   handleSendMessage() {
@@ -43,9 +59,7 @@ export class ChatInputComponent implements OnInit {
     const username = localStorage.getItem('username');
     const content = this.messageInput.trim();
     const file = this.uploaded;
-
     if (!content && !file?.url) return;
-
     let messageType: 'text' | 'image' | 'excel' | 'word' | 'other' = 'text';
     let messageContent = content;
 
@@ -53,19 +67,11 @@ export class ChatInputComponent implements OnInit {
       messageType = this.getFileType(file.mimetype || '');
       messageContent = file.url;
     }
-
-    if (!this.replyToMessage) {
+    if (this.editToMessage) {
       this.store.dispatch(
-        createMessage({
-          groupId: this.groupData._id,
-          senderId,
-          content: messageContent,
-          senderName: username,
-          replyToMessageId: null,
-          replyToContent: null,
-          replyToSenderName: null,
-          replyToType: null,
-          messageType,
+        updateEditMessage({
+          messageId: this.editToMessage._id,
+          data: { content: messageContent },
         })
       );
     } else {
@@ -75,21 +81,35 @@ export class ChatInputComponent implements OnInit {
           senderId,
           content: messageContent,
           senderName: username,
-          replyToMessageId: this.replyToMessage._id,
-          replyToContent: this.replyToMessage.content,
-          replyToSenderName: this.replyToMessage.senderName,
-          replyToType: this.replyToMessage.type,
+          replyToMessageId: this.replyToMessage?._id ?? null,
+          replyToContent: this.replyToMessage?.content ?? null,
+          replyToSenderName: this.replyToMessage?.senderName ?? null,
+          replyToType: this.replyToMessage?.type ?? null,
           messageType,
+          // isRead: this.replyToMessage.isRead
         })
       );
-    }
 
+      // console.log({
+      //   groupId: this.groupData._id,
+      //     senderId,
+      //     content: messageContent,
+      //     senderName: username,
+      //     replyToMessageId: this.replyToMessage?._id ?? null,
+      //     replyToContent: this.replyToMessage?.content ?? null,
+      //     replyToSenderName: this.replyToMessage?.senderName ?? null,
+      //     replyToType: this.replyToMessage?.type ?? null,
+      //     messageType,
+      // })
+    }
+    // this.store.dispatch(updateIsRead({ groupId: this.groupData._id , userId: senderId }));
+    this.editToMessage = null;
     this.messageInput = '';
-    this.uploaded = null;
+    this.store.dispatch(clearUploadedFile());
     this.replyToMessage = null;
   }
 
-  getFileType(mimetype: string): 'image' | 'excel' | 'word' | 'other' {
+  getFileType(mimetype: string) {
     if (mimetype.startsWith('image/')) {
       return 'image';
     }
@@ -115,82 +135,20 @@ export class ChatInputComponent implements OnInit {
     if (input.files && input.files.length > 0) {
       this.selectedFiles = Array.from(input.files);
       this.store.dispatch(uploadFiles({ files: this.selectedFiles }));
-      this.store.select(selectUploadedFiles).subscribe((data) => {
-        this.uploaded = data;
-      });
     }
+    input.value = '';
   }
 
   removeImage() {
-    this.uploaded = null;
-    this.store.dispatch(clearUploadedFile())
+    this.store.dispatch(clearUploadedFile());
   }
 
   handleReply(msg: IMessageGroup) {
     this.replyToMessage = msg;
   }
+
+  handleCloseEdit() {
+    this.editToMessage = null;
+    this.messageInput = '';
+  }
 }
-
-//   this.messageService
-//     .createMessageByGroupService(
-//       this.groupData._id as string,
-//       senderId,
-//       messageContent,
-//       username,
-//       null,
-//       null,
-//       null,
-//       null,
-//       messageType
-//     )
-//     .subscribe({
-//       next: (data) => {
-//         // console.log(data)
-//         this.socketService.sendMessage(
-//           this.groupData._id as string,
-//           senderId,
-//           username,
-//           data.content,
-//           null,
-//           null,
-//           null,
-//           null,
-//           messageType
-//         );
-//       },
-//       error: (err) => {
-//         console.error('Send message failed', err);
-//       },
-//     });
-
-//   this.messageService
-//     .createMessageByGroupService(
-//       this.groupData._id as string,
-//       senderId,
-//       messageContent,
-//       username,
-//       this.replyToMessage._id,
-//       this.replyToMessage.content,
-//       this.replyToMessage.senderName,
-//       this.replyToMessage.type,
-//       messageType
-//     )
-//     .subscribe({
-//       next: (data) => {
-//         this.socketService.sendMessage(
-//           senderId,
-//           username,
-//           data.content,
-//           this.groupData._id as string,
-//           this.replyToMessage._id,
-//           this.replyToMessage.content,
-//           this.replyToMessage.senderName,
-//           this.replyToMessage.type,
-//           messageType
-//         );
-//         this.replyToMessage = null;
-//       },
-//       error: (err) => {
-//         console.error('Send message failed', err);
-//       },
-//     });

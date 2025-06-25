@@ -14,6 +14,12 @@ import {
   loadMessage,
   loadMessageFailure,
   loadMessageSuccess,
+  updateEditMessage,
+  updateEditMessageFailure,
+  updateEditMessageSuccess,
+  updateIsRead,
+  updateIsReadFailure,
+  updateIsReadSuccess,
   uploadFiles,
   uploadFilesFailure,
   uploadFilesSuccess,
@@ -40,18 +46,18 @@ export const messageReducer = createReducer(
     error: null,
   })),
   on(createMessageSuccess, (state, { message }) => {
-    console.log("🚀 message.reducer.ts:45 - message:", message);
+    // console.log('🚀 message.reducer.ts:51 - message:', message);
 
-    return ({
-    ...state,
-    loading: false,
-    messageDetail: state.messageDetail
-      ? {
-          ...state.messageDetail,
-          senderId: [...state.messageDetail.senderId, message],
-        }
-      : state.messageDetail,
-  })
+    return {
+      ...state,
+      loading: false,
+      messageDetail: state.messageDetail
+        ? {
+            ...state.messageDetail,
+            senderId: [...state.messageDetail.senderId, message],
+          }
+        : state.messageDetail,
+    };
   }),
   on(createMessageFailure, (state, { error }) => ({
     ...state,
@@ -105,12 +111,12 @@ export const messageReducer = createReducer(
     error,
   })),
 
-  on(deleteMessageForMe, (state) => ({
+  on(updateEditMessage, (state) => ({
     ...state,
     loading: true,
     error: null,
   })),
-  on(deleteMessageForMeSuccess, (state, { message }) => ({
+  on(updateEditMessageSuccess, (state, { message }) => ({
     ...state,
     loading: false,
     messageDetail: state.messageDetail
@@ -122,7 +128,32 @@ export const messageReducer = createReducer(
         }
       : state.messageDetail,
   })),
-  on(deleteMessageForMeFailure, (state, { error }) => ({
+  on(updateEditMessageFailure, (state, { error }) => ({
+    ...state,
+    loading: false,
+    error,
+  })),
+
+  on(updateIsRead, (state) => ({
+    ...state,
+    loading: true,
+    error: null,
+  })),
+  on(updateIsReadSuccess, (state, { message }) => {
+    return {
+      ...state,
+      loading: false,
+      messageDetail: state.messageDetail
+        ? {
+            ...state.messageDetail,
+            senderId: state.messageDetail.senderId.map((m) =>
+              m._id === message._id ? message : m
+            ),
+          }
+        : state.messageDetail,
+    };
+  }),
+  on(updateIsReadFailure, (state, { error }) => ({
     ...state,
     loading: false,
     error,
@@ -148,6 +179,6 @@ export const messageReducer = createReducer(
   })),
   on(clearUploadedFile, (state) => ({
     ...state,
-    uploadedFiles: null
+    uploadedFiles: null,
   }))
 );

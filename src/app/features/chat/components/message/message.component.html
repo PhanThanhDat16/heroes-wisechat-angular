@@ -57,7 +57,7 @@
                 'align-items-end': msg.senderId === userId,
                 'align-items-start': msg.senderId !== userId
               }"
-              class="d-flex flex-column mb-2 position-relative"
+              class="d-flex flex-column position-relative gap-1"
             >
               <span class="reply-text message-item">{{
                 msg.replyToContent
@@ -74,6 +74,17 @@
                 {{ msg.content }}
               </p>
             </div>
+
+            <p
+              *ngIf="msg.type === 'text' && msg.isEdited"
+              [ngClass]="{
+                'text-end text-edit-right': msg.senderId === userId,
+                'text-start text-edit-left': msg.senderId !== userId
+              }"
+              class="text-edit mb-0 mt-1"
+            >
+              Edited
+            </p>
 
             <!-- Img -->
             <img
@@ -267,7 +278,11 @@
             >
               <i class="fa-solid fa-ellipsis-vertical"></i>
               <div class="position-absolute item-option-child">
-                <span class="item-option-children text-primary-m">
+                <span
+                  *ngIf="msg.type === 'text' && msg.senderId === userId"
+                  class="item-option-children text-primary-m"
+                  (click)="handleEdit(msg)"
+                >
                   <i
                     class="fa-solid fa-pen"
                     style="font-size: 13px; margin-right: 4px"
