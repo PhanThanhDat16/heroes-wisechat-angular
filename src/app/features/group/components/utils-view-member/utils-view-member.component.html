@@ -1,8 +1,13 @@
-<app-modal-utils-chat (stepEmitter)="onResetStep($event)">
-  <button modal-btn class="d-flex gap-2 align-items-center">
-    <i class="px-1 py-2 fa-solid fa-users-viewfinder"></i>
-    <span>Member</span>
-  </button>
+<app-modal-utils-chat
+  (stepEmitter)="onResetStep($event)"
+  class="w-100 d-block text-center"
+>
+  <span
+    modal-btn
+    class="w-100 text-center d-inline-block text-decoration-underline cursor-point"
+    style="color: #4e81e4; font-size: 14px"
+    >View more</span
+  >
   <h2 *ngIf="step === 1" modal-header>Member</h2>
   <div *ngIf="step === 1" modal-body>
     <div
@@ -16,9 +21,6 @@
         placeholder="Search user..."
         [formControl]="nameUser"
       />
-    </div>
-    <div class="d-flex justify-content-end">
-      <button class="btn btn-outline-primary">Add member</button>
     </div>
     <div class="d-flex flex-column gap-3 mt-2">
       <ng-container *ngFor="let user of listUserByGroup">
@@ -140,9 +142,9 @@
     </div>
 
     <div class="text-end mt-auto">
-      <button class="btn btn-primary " (click)="handleBackView()">
-        <i class="fa-solid fa-arrow-left"></i> 
-        <span style="margin-left: 12px;">Back</span>
+      <button class="btn btn-primary" (click)="handleBackView()">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span style="margin-left: 12px">Back</span>
       </button>
     </div>
   </div>

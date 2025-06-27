@@ -1,3 +1,8 @@
+:host {
+  background-color: #f4f4f4;
+  padding: 20px;
+}
+
 .uploaded-images-preview {
   max-width: 100%;
 }
@@ -40,9 +45,16 @@
   }
 }
 
+.input-message {
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 22px;
+}
+
 .input-message .form-control {
   background-color: #fff;
-  border-radius: 999px;
+  border-radius: 22px;
   border: 1px solid #ddd;
   padding: 10px 16px;
   display: flex;
@@ -65,14 +77,16 @@
 }
 
 .reply {
-  bottom: 64px;
   padding: 15px;
-  left: 29px;
   border-radius: 20px;
-  right: 29px;
-  background-color: #eeeeee !important;
-  color: #9d9d9d;
+  background: white;
+  position: absolute;
+  top: -53px;
+  left: 0;
+  right: 0;
+  box-shadow: 0 0 3px 0px rgba(0, 0, 0, 0.1);
   &-close {
+    position: absolute;
     right: 0;
     top: -12px;
     background-color: white;
@@ -104,7 +118,7 @@
     font-size: 14px;
   }
 
-  &-close{
+  &-close {
     position: absolute;
     width: 20px;
     height: 20px;
@@ -115,11 +129,10 @@
     justify-content: center;
     align-items: center;
     top: -6px;
-    right: 0;   
+    right: 0;
     cursor: pointer;
-    i{
+    i {
       font-size: 14px;
     }
   }
 }
-

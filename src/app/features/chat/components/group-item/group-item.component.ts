@@ -16,12 +16,15 @@ export class GroupItemComponent implements OnInit {
   @Input() itemGroup: IGroupMessage;
   userId = localStorage.getItem('userId');
   userOnlineGroup: string[] = [];
-  // itemRealtimeGroup: IGroupMessage | null = null;
   isRead = false;
 
-  constructor(private store: Store, private socketService: SocketIOService) {}
+  constructor(
+    private store: Store,
+    private socketService: SocketIOService,
+  ) {}
 
   ngOnInit(): void {
+    this.isRead = this.itemGroup.isRead.includes(this.userId);
     this.store.dispatch(loadUsersByGroup({ groupId: this.itemGroup._id }));
     this.store.select(selectUsersByGroup).subscribe((listUser) => {
       this.socketService.onlineUser$.subscribe({
@@ -34,8 +37,6 @@ export class GroupItemComponent implements OnInit {
       });
     });
 
-    // this.itemRealtimeGroup = null;
-
     this.socketService.receiveEditGroup().subscribe((data) => {
       if (this.itemGroup._id === data.groupId) {
         this.itemGroup = {
@@ -45,34 +46,24 @@ export class GroupItemComponent implements OnInit {
       }
     });
 
-    // this.store.select(selectMessage).subscribe((message) => {
-    //   const lastMessage = message?.senderId.find(
-    //     (m) => m.groupId === this.itemGroup._id
-    //   );
-    //   console.log(message) 
-    //   console.log(lastMessage) 
+    this.store.select(selectMessage).subscribe((message) => {
+      if (!message?.senderId?.length) return;
+      const groupMessages = message.senderId.filter(
+        (m) => m.groupId === this.itemGroup._id
+      );
 
-      
-
-    //   if(lastMessage){
-    //     this.isRead = true;
-    //   }else{
-    //     this.isRead = false;
-    //   }
-     
-
-    //   // if(lastMessage) {
-    //   //   const check = lastMessage.isRead.includes(this.userId);
-    //   //   console.log('check isRead', check);
-    //   //   if(!check) {
-    //   //     this.isRead = false;
-    //   //   }else{
-    //   //     this.isRead = true;
-    //   //   }
-    //   // }
-    // });
+      const lastMessage = groupMessages[groupMessages.length - 1];
+      if (lastMessage?.isRead) {
+        this.isRead = lastMessage.isRead.includes(this.userId || '');
+      }
+    });
 
     this.socketService.receiveMessage().subscribe((message) => {
+      if (message.groupId === this.itemGroup._id) {
+        this.isRead = message.isRead?.includes(this.userId || '');
+        console.log(message.isRead?.includes(this.userId || ''))
+      }
+
       if (message.groupId === this.itemGroup._id) {
         this.itemGroup = {
           ...this.itemGroup,
@@ -88,10 +79,9 @@ export class GroupItemComponent implements OnInit {
   }
 
   handleReadMessage(groupId: string) {
-    if (this.userId) {
-
-      // console.log('userId', this.userId);
-      // this.store.dispatch(updateIsRead({ groupId, userId: this.userId }));
+    const checkRead = this.itemGroup.isRead.includes(this.userId);
+    if (!checkRead) {
+      this.store.dispatch(updateIsRead({ groupId, userId: this.userId }));
     }
   }
 }

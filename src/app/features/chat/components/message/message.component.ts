@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { IMessageGroup } from '../../model/message';
 import { SocketIOService } from '../../../../core/services/socket.service';
 import { MessageShareService } from '../../../../shared/service/message-share.service';
@@ -31,7 +31,7 @@ export class MessageComponent implements OnInit {
         }
         return msg;
       });
-    })
+    });
   }
 
   getDateAndTimeStamp(currentMsg: IMessageGroup, index: number): string | null {

@@ -13,6 +13,7 @@ import { GroupDetailComponent } from './components/group-detail/group-detail.com
 import { MessageComponent } from './components/message/message.component';
 import { ChatInputComponent } from './components/chat-input/chat-input.component';
 import { UtilsMessageDeleteComponent } from './components/utils-message-delete/utils-message-delete.component';
+import { GroupDetailBarComponent } from './components/group-detail-bar/group-detail-bar.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { UtilsMessageDeleteComponent } from './components/utils-message-delete/u
     MessageComponent,
     ChatInputComponent,
     UtilsMessageDeleteComponent,
+    GroupDetailBarComponent,
   ],
   imports: [
     ChatRoutingModule,

@@ -18,6 +18,7 @@ export interface IMessageGroup {
   type: string;
   isRead: string[]
   deleteForUser: string[]
+  status: string
 }
 
 export interface IMessageCreate {

@@ -31,6 +31,7 @@ export const createMessage = createAction(
     replyToSenderName: string | null;
     replyToType: string | null;
     messageType: string;
+    isRead: string[]
   }>()
 );
 export const createMessageSuccess = createAction(

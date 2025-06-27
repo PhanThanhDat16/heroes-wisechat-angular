@@ -66,12 +66,14 @@ export const groupReducer = createReducer(
           ...state.groups,
           {
             ...group,
+            isRead: [],
             lastMessage: (group as any).lastMessage ?? 'New Group',
           } as IGroupMessage,
         ]
       : [
           {
             ...group,
+            isRead: [],
             lastMessage: (group as any).lastMessage ?? 'New Group',
           } as IGroupMessage,
         ],

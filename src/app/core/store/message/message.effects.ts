@@ -64,6 +64,7 @@ export class messageEffects {
           replyToSenderName,
           replyToType,
           messageType,
+          isRead,
         }) =>
           this.messageService
             .createMessageByGroupService(
@@ -75,7 +76,8 @@ export class messageEffects {
               replyToContent,
               replyToSenderName,
               replyToType,
-              messageType
+              messageType,
+              isRead
             )
             .pipe(
               tap((data) => {
@@ -90,7 +92,8 @@ export class messageEffects {
                   replyToContent,
                   replyToSenderName,
                   replyToType,
-                  messageType
+                  messageType,
+                  data.isRead
                 );
               }),
               map((message) => createMessageSuccess({ message })),
@@ -105,9 +108,7 @@ export class messageEffects {
       ofType(deleteMessageEveryone),
       mergeMap(({ messageId }) =>
         this.messageService.deleteMessageForEveryone(messageId).pipe(
-          tap((data) =>
-            this.socketService.deleteMessage(data)
-          ),
+          tap((data) => this.socketService.deleteMessage(data)),
           map((data) => deleteMessageEveryoneSuccess({ messages: data })),
           catchError(({ error }) => of(deleteMessageEveryoneFailure({ error })))
         )

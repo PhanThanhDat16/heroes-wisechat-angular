@@ -10,15 +10,14 @@
         ></button>
         <ng-content select="[modal-header]"></ng-content>
       </div>
-        <ng-content select="[modal-header-action]"></ng-content>
+      <ng-content select="[modal-header-action]"></ng-content>
     </div>
   </div>
   <div class="modal-body">
-    <!-- <app-create [modalRef]="modal"></app-create> -->
     <ng-content select="[modal-body]"></ng-content>
   </div>
 </ng-template>
 
-<button class="custom-modal-btn cursor-point" (click)="open(content)">
+<button class="custom-modal-btn cursor-point flex-fill" (click)="open(content)">
   <ng-content select="[modal-btn]"></ng-content>
 </button>

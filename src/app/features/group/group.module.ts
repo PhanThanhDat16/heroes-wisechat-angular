@@ -10,6 +10,7 @@ import { UtilsRenameGroupComponent } from './components/utils-rename-group/utils
 import { UtilsFindMessageGroupComponent } from './components/utils-find-message-group/utils-find-message-group.component';
 import { UtilsAddTagGroupComponent } from './components/utils-add-tag-group/utils-add-tag-group.component';
 import { SharedModule } from '../../shared/shared.module';
+import { AddMemberGroupComponent } from './components/add-member-group/add-member-group.component';
 
 @NgModule({
   declarations: [
@@ -17,6 +18,7 @@ import { SharedModule } from '../../shared/shared.module';
     UtilsRenameGroupComponent,
     UtilsFindMessageGroupComponent,
     UtilsAddTagGroupComponent,
+    AddMemberGroupComponent,
   ],
   imports: [
     CommonModule,
@@ -31,6 +33,7 @@ import { SharedModule } from '../../shared/shared.module';
     UtilsRenameGroupComponent,
     UtilsFindMessageGroupComponent,
     UtilsAddTagGroupComponent,
+    AddMemberGroupComponent
   ],
 })
 export class GroupModule {}

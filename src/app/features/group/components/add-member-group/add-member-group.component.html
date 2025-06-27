@@ -1,14 +1,22 @@
 <app-modal-add-chat (stepEmitter)="onResetStep($event)">
-  <div modal-btn class="d-flex align-items-center flex-column gap-2">
+  <div
+    modal-btn
+    class="group-detail-AddMember px-4 py-2 cursor-point d-flex align-items-center justify-content-between"
+  >
     <span
-      class="cursor-point btn-create d-flex align-items-center justify-content-center"
+      style="width: 30px; height: 30px; border-radius: 50%"
+      class="d-flex justify-content-center align-items-center bg-white"
     >
-      <i class="fa-solid fa-plus cursor-point"></i>
+      <i class="fa-solid fa-plus fs-6" style="color: #4178e2"></i>
     </span>
-    <span class="btn-create-title">Create</span>
+    <span class="fw-bold fs-6"> Add Member </span>
+    <span>
+      <i class="fa-regular fa-user fs-6"></i>
+    </span>
   </div>
+
   <div modal-header>
-    <h4 class="modal-title" id="modal-basic-title text-primary-m">New Group</h4>
+    <h4 class="modal-title" id="modal-basic-title text-primary-m">Add Member</h4>
   </div>
   <button
     *ngIf="step === 1"
@@ -26,9 +34,9 @@
     class="modal-title btn-next"
     id="modal-basic-title"
     [ngClass]="listAddUser.length >= 1 ? 'btn-next-access fw-bold' : ''"
-    (click)="handleCreate()"
+    (click)="handleAddMember()"
   >
-    Create
+    Add
   </button>
   <div modal-body class="text-primary-m">
     <div

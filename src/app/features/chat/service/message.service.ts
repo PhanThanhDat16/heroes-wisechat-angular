@@ -19,7 +19,8 @@ export class MessageService {
     replyToContent: string | null,
     replyToSenderName: string | null,
     replyToType: string | null,
-    type = 'text'
+    type = 'text',
+    isRead = []
   ) {
     return this.http
       .post<any>(
@@ -33,6 +34,7 @@ export class MessageService {
           replyToSenderName,
           replyToType,
           type,
+          isRead
         },
         {
           headers: {

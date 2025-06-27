@@ -70,3 +70,7 @@ export const updateGroupFailure = createAction(
   '[Group] Update Group Failure',
   props<{ error: any }>()
 );
+
+export const addMemberIngroup = createAction(
+  '[Group] Add Member In Group',
+)

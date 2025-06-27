@@ -1,18 +1,29 @@
+.group-detail {
+  &-AddMember {
+    background-color: #4178e2;
+    color: white;
+  }
+}
+
+app-modal-add-chat {
+  display: flex;
+}
+
 .btn-create {
   width: 55px;
   height: 55px;
   border-radius: 50%;
   border: 1px solid #5a5656;
   color: #2b2b2b;
-  i{
+  i {
     font-weight: bold;
     font-size: 20px;
   }
 
-  &-title{
+  &-title {
     font-size: 15px;
-  color: #0d0d0d;
-  font-weight: 500;
+    color: #0d0d0d;
+    font-weight: 500;
   }
 }
 

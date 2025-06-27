@@ -80,7 +80,8 @@ export class SocketIOService {
     replyToContent: string | null,
     replyToSenderName: string | null,
     replyToType: string | null,
-    type: string
+    type: string,
+    isRead = []
   ) {
     this.socket.emit('sendMessage', {
       _id,
@@ -93,6 +94,7 @@ export class SocketIOService {
       replyToSenderName,
       replyToType,
       type,
+      isRead,
     });
   }
 
@@ -138,7 +140,6 @@ export class SocketIOService {
       };
     });
   }
-
 
   editMessage(data: IMessageGroup) {
     this.socket.emit('editMessage', data);

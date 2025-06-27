@@ -1,69 +1,44 @@
-<div
-  class="py-3 px-4 border rounded d-flex align-items-center justify-content-between"
->
-  <div class="d-flex flex-column align-items-start gap-2">
-    <span class="fs-5 fw-medium">{{ groupData?.name }}</span>
-    <span class="d-flex align-items-center gap-1">
-      <span
-        [ngClass]="
-          userOnlineGroup.length > 0 ? 'status-online' : 'status-offline'
-        "
-      ></span>
-      <span class="fw-6 fs-7 text-primary-chat">{{
-        userOnlineGroup.length > 0 ? "Online" : "Offline"
-      }}</span>
-    </span>
-  </div>
-  <span class="cursor-point d-flex gap-4 align-items-center">
+<div  [ngClass]="{ 'collapsed': !isGroupDetailBarVisible }" class="flex-fill group-detail-wrapper" style="background-color: #f4f4f4">
+  <div class="h-100">
     <div
-      ngbDropdown
-      class="d-flex gap-2 align-items-center groupdropdown-wrapper"
-      #dropdown="ngbDropdown"
+      class="py-3 px-4 chat-header d-flex align-items-center justify-content-between"
     >
-      <span
-        class="fw-bold pointer d-flex align-items-center gap-1"
-        id="groupDropDown"
-        ngbDropdownToggle
-      >
-        <i class="fa-solid fa-ellipsis" style="color: #d1d1d1"></i>
-      </span>
-      <div
-        ngbDropdownMenu
-        aria-labelledby="groupDropDown"
-        class="dropdown-menu-end p-0 overflow-hidden"
-      >
-        <app-utils-view-member ngbDropdownItem></app-utils-view-member>
-        <app-utils-rename-group ngbDropdownItem></app-utils-rename-group>
+      <div class="d-flex align-items-center gap-2">
+        <img
+          src="https://images.unsplash.com/photo-1527525443983-6e60c75fff46?q=80&w=685&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          alt=""
+          class="chat-header-img"
+        />
+        <div class="d-flex flex-column align-items-start gap-2">
+          <span class="fs-5 fw-medium">{{ groupData?.name }}</span>
+          <span class="d-flex align-items-center gap-1">
+            <span
+              [ngClass]="
+                userOnlineGroup.length > 0 ? 'status-online' : 'status-offline'
+              "
+            ></span>
+            <span class="fw-6 fs-7 text-primary-chat">{{
+              userOnlineGroup.length > 0 ? "Online" : "Offline"
+            }}</span>
+          </span>
+        </div>
       </div>
+     
+
+      <span class="cursor-point d-flex gap-4 align-items-center"  (click)="toggleGroupDetailBar()">
+        <span
+          class="fw-bold pointer d-flex align-items-center justify-content-center chat-header-img-item"
+        >
+          <i class="fa-solid fa-ellipsis-vertical"></i>
+        </span>
+      </span>
     </div>
-  </span>
+
+    <app-chat-message
+      [checkMessageGroup]="checkMessageGroup"
+    ></app-chat-message>
+
+    <app-chat-input></app-chat-input>
+  </div>
+  <app-group-detail-bar></app-group-detail-bar>
 </div>
-
-<app-chat-message [checkMessageGroup]="checkMessageGroup"></app-chat-message>
-
-<app-chat-input></app-chat-input>
-
-<!-- <button ngbDropdownItem class="d-flex gap-2 align-items-center">
-          <i class="px-1 py-2 fa-solid fa-magnifying-glass"></i>
-          <span>Find Message</span>
-        </button>
-        <button ngbDropdownItem class="d-flex gap-2 align-items-center">
-          <i class="px-1 py-2 fa-solid fa-tags"></i>
-          <span>Add Tag</span>
-        </button>
-        <button ngbDropdownItem class="d-flex gap-2 align-items-center">
-          <i class="px-1 py-2 fa-solid fa-arrow-right-from-bracket"></i>
-          <span>Leave Group</span>
-        </button> -->
-
-<!-- <app-chat-message
-  [messagesGroup]="messagesGroup"
-  [isLoadingMessages]="isLoadingMessages"
-  [checkMessageGroup]="checkMessageGroup"
-  [uploaded]="uploaded"
-  [groupData]="groupData"
-  [user]="user"
-  [userId]="userId"
-  (scrollTop)="loadMoreMessages()"
-  (replyEmitter)="handleReply($event)"
-></app-chat-message> -->

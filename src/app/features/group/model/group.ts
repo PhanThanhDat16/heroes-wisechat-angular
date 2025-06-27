@@ -5,6 +5,7 @@ export interface IGroupMessage {
   name: string;
   ownerId: string;
   createdAt: string;
+  isRead: string[];
   lastMessage: {
     createdAt: string;
     content: string;

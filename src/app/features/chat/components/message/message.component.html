@@ -24,7 +24,7 @@
       >
         <img
           class="card-avatar"
-          src="https://images.unsplash.com/photo-1728887823143-d92d2ebbb53a?q=80&w=2080..."
+          src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt=""
         />
       </div>
@@ -38,141 +38,141 @@
           class="text-wrapper d-flex align-items-center gap-3"
         >
           <div placement="top" [ngbTooltip]="msg.createdAt | formatTime">
-            <!-- Text -->
-            <p
-              *ngIf="msg.type === 'text' && !msg.replyToMessageId"
-              [ngClass]="{
-                'bg-primary text-white align-self-end': msg.senderId === userId,
-                'bg-customer text-dark align-self-start':
-                  msg.senderId !== userId
-              }"
-              class="mb-0 text-message fs-6 text-content message-item"
-            >
-              {{ msg.content }}
-            </p>
-
-            <div
-              *ngIf="msg.replyToType === 'text' && msg.replyToMessageId"
-              [ngClass]="{
-                'align-items-end': msg.senderId === userId,
-                'align-items-start': msg.senderId !== userId
-              }"
-              class="d-flex flex-column position-relative gap-1"
-            >
-              <span class="reply-text message-item">{{
-                msg.replyToContent
-              }}</span>
-
-              <p
+            <!-- Have reply -->
+            <ng-container *ngIf="msg.replyToMessageId">
+              <div
                 [ngClass]="{
-                  'bg-primary text-white': msg.senderId === userId,
-                  'bg-customer text-dark': msg.senderId !== userId
+                  'align-items-end': msg.senderId === userId,
+                  'align-items-start': msg.senderId !== userId
                 }"
-                *ngIf="msg.replyToType === 'text'"
-                class="mb-0 text-message fs-6 text-content message-item overlay-content"
+                class="d-flex flex-column gap-1"
               >
-                {{ msg.content }}
-              </p>
-            </div>
+                <!-- Reply Text -->
+                <span
+                  *ngIf="msg.replyToType === 'text'"
+                  class="reply-text message-item"
+                >
+                  {{ msg.replyToContent }}
+                </span>
 
-            <p
-              *ngIf="msg.type === 'text' && msg.isEdited"
-              [ngClass]="{
-                'text-end text-edit-right': msg.senderId === userId,
-                'text-start text-edit-left': msg.senderId !== userId
-              }"
-              class="text-edit mb-0 mt-1"
-            >
-              Edited
-            </p>
+                <!-- Reply Image -->
+                <img
+                  *ngIf="msg.replyToType === 'image'"
+                  [src]="msg.replyToContent"
+                  class="img-fluid rounded reply-text cursor-pointer message-item"
+                  style="max-width: 300px; height: auto"
+                  alt="Image"
+                  (click)="selectedImageUrl = msg.content"
+                />
 
-            <!-- Img -->
-            <img
-              *ngIf="msg.type === 'image' && !msg.replyToMessageId"
-              [src]="msg.content"
-              class="img-fluid rounded cursor-pointer message-item"
-              style="max-width: 300px; height: auto"
-              alt="Image"
-              (click)="selectedImageUrl = msg.content"
-            />
+                <!-- Reply File -->
+                <div
+                  *ngIf="
+                    msg.replyToType === 'word' || msg.replyToType === 'excel'
+                  "
+                  class="file-card"
+                >
+                  <div
+                    class="file-icon-wrapper"
+                    [ngClass]="{
+                      'bg-word': msg.replyToType === 'word',
+                      'bg-excel': msg.replyToType === 'excel'
+                    }"
+                  >
+                    <img
+                      [src]="
+                        msg.replyToType === 'word'
+                          ? 'https://thehanoichamomile.com/wp-content/uploads/2019/06/12-121390_new-microsoft-word-icon.jpg'
+                          : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTroU91FLk1e5CTmveZCstER9A-qLpJGNtZvA&s'
+                      "
+                      alt=""
+                    />
+                  </div>
+                  <div class="file-info">
+                    <div class="file-name">
+                      {{ extractFileName(msg.replyToContent) }}
+                    </div>
+                    <div class="file-meta">
+                      {{
+                        msg.replyToType === "word"
+                          ? "Word Document"
+                          : "Excel Spreadsheet"
+                      }}
+                    </div>
+                  </div>
+                </div>
 
-            <div
-              *ngIf="msg.replyToType === 'image' && msg.replyToMessageId"
-              [ngClass]="{
-                'align-items-end': msg.senderId === userId,
-                'align-items-start': msg.senderId !== userId
-              }"
-              class="d-flex flex-column mb-2"
-            >
-              <img
-                [src]="msg.replyToContent"
-                class="img-fluid rounded reply-text cursor-pointer message-item"
-                style="max-width: 300px; height: auto"
-                alt="Image"
-                (click)="selectedImageUrl = msg.content"
-              />
+                <!-- Message content reply -->
+                <p
+                  [ngClass]="{
+                    'bg-primary text-white': msg.senderId === userId,
+                    'bg-customer text-dark': msg.senderId !== userId
+                  }"
+                  class="mb-0 text-message fs-6 text-content message-item"
+                >
+                  {{ msg.content }}
+                </p>
+              </div>
+            </ng-container>
+
+            <!-- Not reply -->
+            <ng-container *ngIf="!msg.replyToMessageId">
+              <!-- Text -->
               <p
+                *ngIf="msg.type === 'text'"
                 [ngClass]="{
-                  'bg-primary text-white': msg.senderId === userId,
-                  'bg-customer text-dark': msg.senderId !== userId
+                  'bg-primary text-white align-self-end':
+                    msg.senderId === userId,
+                  'bg-customer text-dark align-self-start':
+                    msg.senderId !== userId
                 }"
-                *ngIf="msg.replyToType === 'image'"
                 class="mb-0 text-message fs-6 text-content message-item"
               >
                 {{ msg.content }}
               </p>
-            </div>
 
-            <!-- Word -->
-            <div
-              *ngIf="msg.type === 'word' && !msg.replyToMessageId"
-              class="file-card"
-            >
-              <div class="file-icon-wrapper bg-word">
-                <img
-                  src="https://thehanoichamomile.com/wp-content/uploads/2019/06/12-121390_new-microsoft-word-icon.jpg"
-                  alt=""
-                />
-              </div>
-              <div class="file-info">
-                <div class="file-name">{{ extractFileName(msg.content) }}</div>
-                <div class="file-meta">Word Document</div>
-              </div>
-              <a
-                class="download-btn"
-                [href]="msg.content"
-                download
-                target="_blank"
-                ngbTooltip="Download"
+              <!-- Image -->
+              <img
+                *ngIf="msg.type === 'image'"
+                [src]="msg.content"
+                class="img-fluid rounded cursor-pointer message-item"
+                style="max-width: 300px; height: auto"
+                alt="Image"
+                (click)="selectedImageUrl = msg.content"
+              />
+
+              <!-- Word / Excel -->
+              <div
+                *ngIf="msg.type === 'word' || msg.type === 'excel'"
+                class="file-card"
               >
-                <i class="fa-solid fa-arrow-down"></i>
-              </a>
-            </div>
-
-            <div
-              *ngIf="msg.replyToType === 'word' && msg.replyToMessageId"
-              [ngClass]="{
-                'align-items-end': msg.senderId === userId,
-                'align-items-start': msg.senderId !== userId
-              }"
-              class="d-flex flex-column mb-2"
-            >
-              <span class="reply-text message-item">{{
-                msg.replyToContent
-              }}</span>
-
-              <div class="file-card">
-                <div class="file-icon-wrapper bg-word">
+                <div
+                  class="file-icon-wrapper"
+                  [ngClass]="{
+                    'bg-word': msg.type === 'word',
+                    'bg-excel': msg.type === 'excel'
+                  }"
+                >
                   <img
-                    src="https://thehanoichamomile.com/wp-content/uploads/2019/06/12-121390_new-microsoft-word-icon.jpg"
+                    [src]="
+                      msg.type === 'word'
+                        ? 'https://thehanoichamomile.com/wp-content/uploads/2019/06/12-121390_new-microsoft-word-icon.jpg'
+                        : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTroU91FLk1e5CTmveZCstER9A-qLpJGNtZvA&s'
+                    "
                     alt=""
                   />
                 </div>
                 <div class="file-info">
                   <div class="file-name">
-                    {{ extractFileName(msg.replyToContent) }}
+                    {{ extractFileName(msg.content) }}
                   </div>
-                  <div class="file-meta">Word Document</div>
+                  <div class="file-meta">
+                    {{
+                      msg.type === "word"
+                        ? "Word Document"
+                        : "Excel Spreadsheet"
+                    }}
+                  </div>
                 </div>
                 <a
                   class="download-btn"
@@ -184,78 +184,29 @@
                   <i class="fa-solid fa-arrow-down"></i>
                 </a>
               </div>
-              <p
-                [ngClass]="{
-                  'bg-primary text-white': msg.senderId === userId,
-                  'bg-customer text-dark': msg.senderId !== userId
-                }"
-                *ngIf="msg.replyToType === 'word'"
-                class="mb-0 text-message fs-6 text-content message-item"
-              >
-                {{ msg.content }}
-              </p>
-            </div>
+            </ng-container>
 
-            <!-- Excel -->
-            <div
-              *ngIf="msg.type === 'excel' && !msg.replyToMessageId"
-              class="file-card"
-            >
-              <div class="file-icon-wrapper bg-excel">
-                <img
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTroU91FLk1e5CTmveZCstER9A-qLpJGNtZvA&s"
-                  alt=""
-                />
-              </div>
-              <div class="file-info">
-                <div class="file-name">{{ extractFileName(msg.content) }}</div>
-                <div class="file-meta">Excel Spreadsheet</div>
-              </div>
-              <a
-                class="download-btn"
-                [href]="msg.content"
-                download
-                target="_blank"
-                ngbTooltip="Download"
-              >
-                <i class="fa-solid fa-arrow-down"></i>
-              </a>
-            </div>
-
-            <div
-              *ngIf="msg.replyToType === 'excel' && msg.replyToMessageId"
+            <p
+              *ngIf="msg.isEdited"
               [ngClass]="{
-                'align-items-end': msg.senderId === userId,
-                'align-items-start': msg.senderId !== userId
+                'text-end text-edit-right': msg.senderId === userId,
+                'text-start text-edit-left': msg.senderId !== userId
               }"
-              class="d-flex flex-column mb-2"
+              class="text-edit mb-0 mt-1"
             >
-              <div class="file-card">
-                <div class="file-icon-wrapper bg-excel">
-                  <img
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTroU91FLk1e5CTmveZCstER9A-qLpJGNtZvA&s"
-                    alt=""
-                  />
-                </div>
-                <div class="file-info">
-                  <div class="file-name">
-                    {{ extractFileName(msg.replyToContent) }}
-                  </div>
-                  <div class="file-meta">Excel Spreadsheet</div>
-                </div>
-              </div>
+              Edited
+            </p>
 
-              <p
-                [ngClass]="{
-                  'bg-primary text-white': msg.senderId === userId,
-                  'bg-customer text-dark': msg.senderId !== userId
-                }"
-                *ngIf="msg.replyToType === 'excel'"
-                class="mb-0 text-message fs-6 text-content message-item"
-              >
-                {{ msg.content }}
-              </p>
-            </div>
+            <p
+              *ngIf="!msg.isEdited"
+              [ngClass]="{
+                'text-end text-edit-right': msg.senderId === userId,
+                'text-start text-edit-left': msg.senderId !== userId
+              }"
+              class="text-edit mb-0 mt-1"
+            >
+              {{ msg.status }}
+            </p>
           </div>
 
           <div

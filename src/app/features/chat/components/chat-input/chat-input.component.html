@@ -1,5 +1,5 @@
 <ng-container *ngIf="uploaded">
-  <div class="uploaded-images-preview mb-2 px-3">
+  <div class="uploaded-images-preview mb-2 px-5">
     <div class="d-flex flex-nowrap gap-2 overflow-auto">
       <div class="image-item position-relative rounded shadow-sm">
         <ng-container [ngSwitch]="getFileType(uploaded.mimetype)">
@@ -48,22 +48,21 @@
   </div>
 </ng-container>
 
-<div *ngIf="replyToMessage" class="position-absolute reply">
-  <span
-    class="position-absolute reply-close"
-    (click)="this.replyToMessage = null"
-  >
-    <i class="fa-solid fa-xmark"></i>
-  </span>
-  <span class="text-truncate d-block" style="width: 97%">{{
-    replyToMessage.content
-  }}</span>
-</div>
+<div class="input-message position-relative bg-white mt-auto">
+  <div *ngIf="replyToMessage" class="reply">
+    <span class="reply-close" (click)="this.replyToMessage = null">
+      <i class="fa-solid fa-xmark"></i>
+    </span>
+    <span class="text-truncate d-block" style="width: 97%">{{
+      replyToMessage.content
+    }}</span>
+  </div>
 
-<div class="input-message position-relative px-3 bg-white mt-auto">
   <div *ngIf="editToMessage" class="position-absolute edit-message">
     <span>Edit Message</span>
-    <span class="edit-close" (click)="handleCloseEdit()"><i class="fa-solid fa-xmark"></i></span>
+    <span class="edit-close" (click)="handleCloseEdit()"
+      ><i class="fa-solid fa-xmark"></i
+    ></span>
   </div>
 
   <div class="d-flex gap-3 align-items-center form-control me-2 py-3">

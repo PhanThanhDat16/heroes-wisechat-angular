@@ -8,8 +8,7 @@ import { UserService } from '../../../../core/services/user.service';
 import { GroupService } from '../../service/group.service';
 import { IGroup } from '../../model/group';
 import { Store } from '@ngrx/store';
-import { loadUsersByGroup } from '../../../../core/store/group/group.actions';
-import { selectUsersByGroup } from '../../../../core/store/group/group.selector';
+import { selectMembersGroup } from '../../../../core/store/message/message.selector';
 
 @Component({
   selector: 'app-utils-view-member',
@@ -38,13 +37,15 @@ export class UtilsViewMemberComponent implements OnInit, OnDestroy {
     this.route.params.subscribe((params) => {
       const groupId = params['id'];
 
-      this.store.select(selectUsersByGroup).subscribe((data) => {
-        this.listUserByGroup = data;
-        this.socketService.onlineUser$.subscribe((userIds) => {
-          this.userOnlineGroup = this.listUserByGroup
-            .filter((u) => userIds.includes(u._id))
-            .map((u) => u._id);
-        });
+      this.store.select(selectMembersGroup).subscribe((members) => {
+        if (members) {
+          this.listUserByGroup = members;
+          this.socketService.onlineUser$.subscribe((userIds) => {
+            this.userOnlineGroup = this.listUserByGroup
+              .filter((u) => userIds.includes(u._id))
+              .map((u) => u._id);
+          });
+        }
       });
 
       this.groupService.getGroupDetail(groupId).subscribe({

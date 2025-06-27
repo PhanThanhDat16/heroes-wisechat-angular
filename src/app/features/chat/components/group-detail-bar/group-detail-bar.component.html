@@ -1,0 +1,132 @@
+<div class="group-detail-bar bg-white d-flex flex-column h-100">
+  <div
+    class="group-detail-barHeader p-4"
+    style="border-bottom: 1px solid #f3f3f3"
+  >
+    <div
+      class="group-detail-barHeaderItem left justify-content-between align-items-center mb-5"
+    >
+      <div class="avatar-group">
+        <img
+          src="https://images.unsplash.com/photo-1527525443983-6e60c75fff46?q=80&w=685&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          alt="Group"
+        />
+        <div class="group-info gap-2">
+          <span class="group-name">{{ groupData?.name }}</span>
+          <span class="group-members">{{listUserByGroup.length || 0}} Members</span>
+        </div>
+      </div>
+      <div class="edit-icon">
+        <app-utils-rename-group></app-utils-rename-group>
+      </div>
+    </div>
+
+    <div
+      class="group-detail-barHeaderItem right justify-content-between align-items-center"
+    >
+      <div class="d-flex align-items-center gap-2">
+        <span class="icon">
+          <i
+            [ngClass]="
+              notificationOn ? 'fa-solid fa-bell' : 'fa-regular fa-bell'
+            "
+          ></i>
+        </span>
+        <span class="label">Notification</span>
+      </div>
+
+      <label class="toggle-switch">
+        <input type="checkbox" [(ngModel)]="notificationOn" />
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="group-detail-barBody mt-auto">
+    <div class="d-flex gap-4 px-4 py-2">
+      <div
+        class="group-detail-barBodyTopItem flex-fill rounded flex-column gap-2 d-flex align-items-center justify-content-center"
+      >
+        <div class="d-flex gap-2 align-items-center">
+          <i class="fa-regular fa-file-lines" style="color: #b0b315"></i>
+          <span>Files</span>
+        </div>
+        <span class="fw-bold">{{quantityImgAndFile.file || 0}}</span>
+      </div>
+
+      <div
+        class="flex-fill group-detail-barBodyTopItem rounded flex-column gap-2 d-flex align-items-center justify-content-center"
+      >
+        <div class="d-flex gap-2 align-items-center">
+          <i class="fa-regular fa-image" style="color: #7da8fd"></i>
+          <span>Images</span>
+        </div>
+        <span class="fw-bold">{{quantityImgAndFile.image || 0}}</span>
+      </div>
+    </div>
+
+    <div class="group-detail-barBodyCenter">
+      <div class="p-4">
+        <h5>Themes</h5>
+        <div class="group-detail-barBodyList">
+          <div
+            *ngFor="let src of ListTheme"
+            class="group-detail-barBodyListItem"
+          >
+            <img [src]="src" alt="" />
+          </div>
+          <div
+            class="group-detail-barBodyListItem"
+            style="background-color: #f4f4f4; border: 1px solid #d4d3d3"
+          ></div>
+        </div>
+      </div>
+      <div>
+        <app-add-member-group [listUserByGroup]="listUserByGroup"></app-add-member-group>
+
+        <div class="p-4">
+          <div
+            class="mb-3 d-flex justify-content-between align-items-center"
+            *ngFor="let member of listUserByGroup.slice(0, 2)"
+          >
+            <div class="d-flex align-items-center gap-3">
+              <div style="position: relative; width: 50px; height: 50px">
+                <img
+                  src="https://images.unsplash.com/photo-1740252117012-bb53ad05e370?q=80&w=880&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                  alt=""
+                  style="width: 50px; height: 50px; border-radius: 50%"
+                />
+                <span
+                  [ngClass]="
+                    userOnlineGroup.includes(member._id) ? 'online-user' : ''
+                  "
+                ></span>
+              </div>
+              <div class="d-flex flex-column gap-2 text-black">
+                <span class="fw-bold">{{ member.username }}</span>
+                <span style="font-size: 13px"> {{ member.email }} </span>
+              </div>
+            </div>
+            <span class="text-black" style="font-size: 12px">{{
+              groupData && groupData.ownerId === member._id ? "Admin" : "Member"
+            }}</span>
+          </div>
+
+          <app-utils-view-member class="w-100 d-block"></app-utils-view-member>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="group-detail-barBottom p-4"
+      style="border-top: 1px solid #f3f3f3"
+    >
+      <p style="font-size: 14px" class="text-center">
+        Group was created on the 05-2025
+      </p>
+      <span class="text-center text-danger fw-normal w-100 d-inline-block"
+        >Leave Group</span
+      >
+    </div>
+  </div>
+</div>

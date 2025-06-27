@@ -24,8 +24,6 @@ import {
   createMessageSuccess,
   deleteMessageEveryoneSuccess,
   deleteMessageForMeSuccess,
-  loadMessage,
-  updateIsRead,
 } from '../../../../core/store/message/message.actions';
 
 @Component({
@@ -55,7 +53,7 @@ export class ChatMessageComponent
   constructor(
     private store: Store,
     private socketService: SocketIOService,
-    private messageService: MessageService,
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -82,24 +80,17 @@ export class ChatMessageComponent
     if (this.messageSub) {
       this.messageSub.unsubscribe();
     }
-    this.messageSub = this.socketService.receiveMessage().subscribe((message) => {
-      // if (this.userId !== message.senderId) {
-      //   this.store.dispatch(
-      //     updateIsRead({
-      //       groupId: message.groupId,
-      //       userId: this.userId,
-      //     })
-      //   );
-      // }
-
-      if (
-        this.userId !== message.senderId &&
-        this.groupData?._id === message.groupId
-      ) {
-        this.store.dispatch(createMessageSuccess({ message }));
-      }
-      this.shouldScrollToBottom = true;
-    });
+    this.messageSub = this.socketService
+      .receiveMessage()
+      .subscribe((message) => {
+        if (
+          this.userId !== message.senderId &&
+          this.groupData?._id === message.groupId
+        ) {
+          this.store.dispatch(createMessageSuccess({ message }));
+        }
+        this.shouldScrollToBottom = true;
+      });
 
     this.socketService.receiveDeleteMessage().subscribe((data) => {
       this.store.dispatch(deleteMessageEveryoneSuccess({ messages: data }));
@@ -147,6 +138,12 @@ export class ChatMessageComponent
     if (!scrollElement) return;
     const prevScrollHeight = scrollElement.scrollHeight;
     this.isLoadingMessages = true;
+
+    if (this.messagesGroup.length < 10) {
+      this.isLoadingMessages = false;
+      return;
+    }
+
     this.messageService
       .getMessageByGroupService(this.groupData._id, this.currentPage + 1, 10)
       .subscribe({
@@ -158,6 +155,7 @@ export class ChatMessageComponent
           }
           this.messagesGroup = [...data.senderId, ...this.messagesGroup];
           this.currentPage++;
+
           setTimeout(() => {
             const newScrollHeight = scrollElement.scrollHeight;
             scrollElement.scrollTop = newScrollHeight - prevScrollHeight;

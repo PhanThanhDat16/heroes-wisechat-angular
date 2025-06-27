@@ -1,9 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { IMessageGroup } from '../../model/message';
 import { Store } from '@ngrx/store';
+import { Actions, ofType } from '@ngrx/effects';
 import {
   clearUploadedFile,
   createMessage,
+  createMessageSuccess,
   updateEditMessage,
   updateIsRead,
   uploadFiles,
@@ -29,7 +31,8 @@ export class ChatInputComponent implements OnInit {
 
   constructor(
     private store: Store,
-    private messageShareService: MessageShareService
+    private messageShareService: MessageShareService,
+    private action$: Actions
   ) {}
 
   ngOnInit(): void {
@@ -50,7 +53,6 @@ export class ChatInputComponent implements OnInit {
 
     this.store.select(selectUploadedFiles).subscribe((data) => {
       this.uploaded = data;
-      console.log('Uploaded file:', this.uploaded);
     });
   }
 
@@ -86,23 +88,16 @@ export class ChatInputComponent implements OnInit {
           replyToSenderName: this.replyToMessage?.senderName ?? null,
           replyToType: this.replyToMessage?.type ?? null,
           messageType,
-          // isRead: this.replyToMessage.isRead
+          isRead: [senderId],
         })
       );
-
-      // console.log({
-      //   groupId: this.groupData._id,
-      //     senderId,
-      //     content: messageContent,
-      //     senderName: username,
-      //     replyToMessageId: this.replyToMessage?._id ?? null,
-      //     replyToContent: this.replyToMessage?.content ?? null,
-      //     replyToSenderName: this.replyToMessage?.senderName ?? null,
-      //     replyToType: this.replyToMessage?.type ?? null,
-      //     messageType,
-      // })
     }
-    // this.store.dispatch(updateIsRead({ groupId: this.groupData._id , userId: senderId }));
+    this.action$.pipe(ofType(createMessageSuccess)).subscribe(() => {
+      this.store.dispatch(
+        updateIsRead({ groupId: this.groupData._id, userId: senderId })
+      );
+    });
+
     this.editToMessage = null;
     this.messageInput = '';
     this.store.dispatch(clearUploadedFile());

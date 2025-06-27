@@ -62,7 +62,6 @@ export class GroupService {
   }
 
   updateGroup(groupId, name: string ) {
-
     return this.http
       .put<{ message: string; data: any }>(
         `${this.URL}/groups/${groupId}`,
