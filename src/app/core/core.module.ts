@@ -6,7 +6,7 @@ import { RouterLink } from '@angular/router';
 @NgModule({
   declarations: [],
   imports: [SharedModule, RouterLink],
-  exports: []
+  exports: [],
 })
 export class coreModule {
   constructor(@Optional() @SkipSelf() parentModule: coreModule) {

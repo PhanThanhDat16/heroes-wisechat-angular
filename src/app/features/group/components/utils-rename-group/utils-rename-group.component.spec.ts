@@ -8,7 +8,7 @@ describe('UtilsRenameGroupComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [UtilsRenameGroupComponent]
+      declarations: [UtilsRenameGroupComponent],
     })
     .compileComponents();
     

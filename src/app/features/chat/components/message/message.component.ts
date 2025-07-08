@@ -2,6 +2,34 @@ import { Component, Input, OnInit } from '@angular/core';
 import { IMessageGroup } from '../../model/message';
 import { SocketIOService } from '../../../../core/services/socket.service';
 import { MessageShareService } from '../../../../shared/service/message-share.service';
+import { Store } from '@ngrx/store';
+import {
+  reactToMessage,
+  reactToMessageSuccess,
+} from '../../../../core/store/message/message.actions';
+
+const listEmoji = [
+  {
+    icon: '❤️',
+    type: 'heart',
+  },
+  {
+    icon: '😂',
+    type: 'laugh',
+  },
+  {
+    icon: '😍',
+    type: 'kiss-heart',
+  },
+  {
+    icon: '😭',
+    type: 'cry',
+  },
+  {
+    icon: '😌',
+    type: 'smile',
+  },
+];
 
 @Component({
   selector: 'app-message',
@@ -13,10 +41,12 @@ export class MessageComponent implements OnInit {
   userId = localStorage.getItem('userId');
   onlineUserIds: string[] = [];
   selectedImageUrl: string | null = null;
+  listEmoji = listEmoji;
 
   constructor(
     private socketService: SocketIOService,
-    private messageShareService: MessageShareService
+    private messageShareService: MessageShareService,
+    private store: Store
   ) {}
 
   ngOnInit(): void {
@@ -31,6 +61,18 @@ export class MessageComponent implements OnInit {
         }
         return msg;
       });
+    });
+
+    this.socketService.reactMessage().subscribe((data) => {
+      if (data.userId !== this.userId) {
+        this.store.dispatch(
+          reactToMessageSuccess({
+            messageId: data.messageId,
+            reactions: data.reactions,
+            quantityReact: data.quantityReact,
+          })
+        );
+      }
     });
   }
 
@@ -60,8 +102,34 @@ export class MessageComponent implements OnInit {
     return url.split('/').pop() || 'file';
   }
 
+  getEmojiIcon(type: string): string {
+    const found = this.listEmoji.find((e) => e.type === type);
+    return found ? found.icon : '';
+  }
+
+  getReactions(
+    msg: IMessageGroup
+  ): { type: string; count: number; users: string[] }[] {
+    const reactions = (msg as any).reactions || {};
+    return Object.keys(reactions).map((key) => ({
+      type: key,
+      count: reactions[key].count,
+      users: reactions[key].users,
+    }));
+  }
+
+  isUserReacted(emoji: { users: string[] }): boolean {
+    return emoji.users.includes(this.userId);
+  }
+
   checkDeleteForMe(msg: IMessageGroup): boolean {
     if (!Array.isArray(msg.deleteForUser)) return false;
     return msg.deleteForUser.includes(this.userId);
+  }
+
+  handleEmoji(messageId, types, groupId) {
+    this.store.dispatch(
+      reactToMessage({ messageId, userId: this.userId, types, groupId })
+    );
   }
 }

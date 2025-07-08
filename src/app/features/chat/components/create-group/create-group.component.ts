@@ -18,6 +18,7 @@ import {
 } from '../../../../core/store/group/group.actions';
 import { IGroupCreate } from '../../../group/model/group';
 import { Actions, ofType } from '@ngrx/effects';
+import { loadNoti } from '../../../../core/store/notification/notification.actions';
 
 @Component({
   selector: 'app-create-group',
@@ -28,8 +29,8 @@ export class CreateGroupComponent implements OnInit {
   nameUser = new FormControl('');
   users: IUser[];
   listAddUser: IUser[] = [];
-  step: number = 1;
-  nameGroup: string = '';
+  step: 'CHOOSE_MEMBER' | 'CREATE_MEMBER' = 'CHOOSE_MEMBER';
+  nameGroup = '';
   @ViewChild(ModalAddChatComponent) modalComponent!: ModalAddChatComponent;
   @ViewChildren('userCheckbox') viewChildrenUser!: ElementRef<HTMLInputElement>;
 
@@ -80,10 +81,10 @@ export class CreateGroupComponent implements OnInit {
   }
 
   handlNext() {
-    this.step = 2;
+    this.step = 'CREATE_MEMBER';
   }
 
-  onResetStep(dataStep: number) {
+  onResetStep(dataStep: 'CHOOSE_MEMBER' | 'CREATE_MEMBER') {
     this.step = dataStep;
     this.listAddUser = [];
     if (this.viewChildrenUser && (this.viewChildrenUser as any).forEach) {
@@ -93,6 +94,10 @@ export class CreateGroupComponent implements OnInit {
         }
       );
     }
+  }
+
+  handleBack(){
+    this.step = 'CHOOSE_MEMBER'
   }
 
   handleCreate() {
@@ -108,9 +113,10 @@ export class CreateGroupComponent implements OnInit {
         ownerId: userId,
         members: this.listAddUser.map((u) => u._id),
       };
-
+      
       this.store.dispatch(createGroup({ data }));
       this.action$.pipe(ofType(createGroupSuccess), take(1)).subscribe(() => {
+        this.store.dispatch(loadNoti({ userId }));
         this.toastService.success('Create group successful!');
         this.modalComponent?.closeModal();
       });

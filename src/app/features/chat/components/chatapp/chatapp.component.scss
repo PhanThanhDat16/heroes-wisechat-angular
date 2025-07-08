@@ -1,14 +1,13 @@
-.wrapper-chat{
+.wrapper-chat {
   max-height: calc(100vh - 108px);
   border: 1px solid #e5e5e5;
-  &-container{
+  &-container {
     display: grid;
     grid-template-columns: 1fr 3fr;
   }
 }
 
 .card {
-
   &-avatar {
     width: 60px;
     height: 60px;
@@ -16,14 +15,14 @@
     margin-right: 10px;
     object-fit: cover;
   }
- 
+
   &-text {
     color: #a2b1bf;
   }
 
   &-search {
     border-radius: 14px;
-    padding: 15px ;
+    padding: 15px;
     background-color: #e8e8e8;
     border: 1px solid #dcdcdc;
   }
@@ -38,15 +37,12 @@
     font-size: 10px;
     color: #9dabb7;
   }
-  &-wrapper{
+  &-wrapper {
     padding: 15px;
     border-radius: 50px;
   }
-  // &-message {
-  //   font-size: 14px;
-  // }
 }
 
-.p-10{
+.p-10 {
   padding: 10px;
 }

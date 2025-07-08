@@ -13,17 +13,19 @@ export class GroupService {
   constructor(private http: HttpClient, private authService: AuthService) {}
 
   createGroup(data: IGroupCreate) {
-    return this.http.post<{ message: string; data: any }>(`${this.URL}/groups`, data, {
-      headers: {
-        Authorization: `Bearer ${this.authService.getAccessToken()}`,
-      },
-    }).pipe(map((res) => res.data));
+    return this.http
+      .post<{ message: string; data: any }>(`${this.URL}/groups`, data, {
+        headers: {
+          Authorization: `Bearer ${this.authService.getAccessToken()}`,
+        },
+      })
+      .pipe(map((res) => res.data));
   }
 
   getGroupsByUser(userId: string) {
     return this.http
       .get<{ message: string; data: IGroupMessage[] }>(
-        `${this.URL}/groups/users/${userId}`,
+        `${this.URL}/group/user/${userId}`,
         {
           headers: {
             Authorization: `Bearer ${this.authService.getAccessToken()}`,
@@ -61,25 +63,11 @@ export class GroupService {
       .pipe(map((res) => res.data));
   }
 
-  updateGroup(groupId, name: string ) {
+  updateGroup(groupId, name: string) {
     return this.http
       .put<{ message: string; data: any }>(
         `${this.URL}/groups/${groupId}`,
-        {name},
-        {
-          headers: {
-            Authorization: `Bearer ${this.authService.getAccessToken()}`,
-          },
-        }
-      )
-      .pipe(map((res) => res.data));
-  }
-
-  updateLeaveGroup(groupId, userId, data: { ownerId: string }) {
-    return this.http
-      .put<{ message: string; data: any }>(
-        `${this.URL}/groups/${groupId}/users/${userId}`,
-        data,
+        { name },
         {
           headers: {
             Authorization: `Bearer ${this.authService.getAccessToken()}`,
@@ -94,6 +82,79 @@ export class GroupService {
       .put<{ message: string; data: any }>(
         `${this.URL}/groups/${groupId}/users/${userId}`,
         {
+          headers: {
+            Authorization: `Bearer ${this.authService.getAccessToken()}`,
+          },
+        }
+      )
+      .pipe(map((res) => res.data));
+  }
+
+  leaveGroup(groupId, userId, data: { ownerId: string | null }) {
+    return this.http
+      .delete<{ message: string; data: any }>(
+        `${this.URL}/groups/${groupId}/users/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.authService.getAccessToken()}`,
+          },
+          body: data,
+        }
+      )
+      .pipe(map((res) => res.data));
+  }
+
+  addMemberInGroup(groupId: string, users: string[]) {
+    return this.http
+      .put<{ message: string; data: any }>(
+        `${this.URL}/groups/${groupId}/users`,
+        users,
+        {
+          headers: {
+            Authorization: `Bearer ${this.authService.getAccessToken()}`,
+          },
+        }
+      )
+      .pipe(map((res) => res.data));
+  }
+
+  deleteMemberInGroups(groupId: string, memberId: string) {
+    return this.http
+      .delete<{ message: string; data: any }>(
+        `${this.URL}/groups/${groupId}/members/${memberId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${this.authService.getAccessToken()}`,
+          },
+        }
+      )
+      .pipe(map((res) => res.data));
+  }
+
+  addTagGroup(groupId: string, userId: string, tag: string) {
+    return this.http
+      .put<{ message: string; data: any }>(
+        `${this.URL}/groups/${groupId}/user/${userId}/tag`,
+        { tag },
+        {
+          headers: {
+            Authorization: `Bearer ${this.authService.getAccessToken()}`,
+          },
+        }
+      )
+      .pipe(map((res) => res.data));
+  }
+
+  getManyGroup(userId: string, search?: string) {
+    let params = new HttpParams();
+    if (search && search.trim() !== '') {
+      params = params.set('search', search);
+    }
+    return this.http
+      .get<{ message: string; data: any }>(
+        `${this.URL}/groups/user/${userId}`,
+        {
+          params,
           headers: {
             Authorization: `Bearer ${this.authService.getAccessToken()}`,
           },

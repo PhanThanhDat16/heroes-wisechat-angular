@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { IMessageGroup } from '../../model/message';
 import { Store } from '@ngrx/store';
 import { Actions, ofType } from '@ngrx/effects';
@@ -14,20 +14,22 @@ import { selectUploadedFiles } from '../../../../core/store/message/message.sele
 import { selectGroupDetail } from '../../../../core/store/group/group.selector';
 import { IGroup } from '../../../group/model/group';
 import { MessageShareService } from '../../../../shared/service/message-share.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-chat-input',
   templateUrl: './chat-input.component.html',
   styleUrl: './chat-input.component.scss',
 })
-export class ChatInputComponent implements OnInit {
+export class ChatInputComponent implements OnInit, OnDestroy {
   selectedFiles: File[] = [];
-  messageInput: string = '';
+  messageInput = '';
   uploaded: { url?: string; originalname?: string; mimetype?: string } | null =
     null;
   replyToMessage: IMessageGroup | null = null;
   editToMessage: IMessageGroup | null = null;
   groupData: IGroup;
+  private subscriptions = new Subscription();
 
   constructor(
     private store: Store,
@@ -36,24 +38,36 @@ export class ChatInputComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.store.select(selectGroupDetail).subscribe((data) => {
+    const groupSub = this.store.select(selectGroupDetail).subscribe((data) => {
       if (data) {
         this.groupData = data;
       }
     });
 
-    this.messageShareService.replyMessage$.subscribe((msg) => {
-      this.replyToMessage = msg;
-    });
+    this.subscriptions.add(groupSub);
 
-    this.messageShareService.editMessage$.subscribe((msg) => {
-      this.messageInput = msg.content || '';
-      this.editToMessage = msg;
-    });
+    const messageSub = this.messageShareService.replyMessage$.subscribe(
+      (msg) => {
+        this.replyToMessage = msg;
+      }
+    );
 
-    this.store.select(selectUploadedFiles).subscribe((data) => {
-      this.uploaded = data;
-    });
+    this.subscriptions.add(messageSub);
+
+    const messageShareSub = this.messageShareService.editMessage$.subscribe(
+      (msg) => {
+        this.messageInput = msg.content || '';
+        this.editToMessage = msg;
+      }
+    );
+    this.subscriptions.add(messageShareSub);
+
+    const uploadSub = this.store
+      .select(selectUploadedFiles)
+      .subscribe((data) => {
+        this.uploaded = data;
+      });
+    this.subscriptions.add(uploadSub);
   }
 
   handleSendMessage() {
@@ -88,7 +102,7 @@ export class ChatInputComponent implements OnInit {
           replyToSenderName: this.replyToMessage?.senderName ?? null,
           replyToType: this.replyToMessage?.type ?? null,
           messageType,
-          isRead: [senderId],
+          readUsers: [senderId],
         })
       );
     }
@@ -145,5 +159,9 @@ export class ChatInputComponent implements OnInit {
   handleCloseEdit() {
     this.editToMessage = null;
     this.messageInput = '';
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe()
   }
 }

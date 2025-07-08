@@ -34,7 +34,7 @@ export class MessageService {
           replyToSenderName,
           replyToType,
           type,
-          isRead
+          isRead,
         },
         {
           headers: {
@@ -45,8 +45,18 @@ export class MessageService {
       .pipe(map((res) => res.data));
   }
 
-  getMessageByGroupService(groupId: string, page: number, limit: number) {
-    const params = new HttpParams().set('page', page).set('limit', limit);
+  getMessageByGroupService(
+    groupId: string,
+    page: number,
+    limit: number,
+    search?: string
+  ) {
+    let params = new HttpParams();
+    if (search && search.trim() !== '') {
+      params = params.set('search', search);
+    }
+    params = params.set('page', page).set('limit', limit);
+
     return this.http
       .get<any>(`${this.URL}/groups/${groupId}/messages`, {
         params,
@@ -88,14 +98,13 @@ export class MessageService {
   }
 
   updateIsReadMessage(groupId: string, userId: string) {
-    return this.http.put<any>(
-      `${this.URL}/groups/${groupId}/users/${userId}/message/read`,
-      {
+    return this.http
+      .put<any>(`${this.URL}/groups/${groupId}/users/${userId}/message/read`, {
         headers: {
           authorization: `Bearer ${this.authService.getAccessToken()}`,
         },
-      }
-    ).pipe(map((res) => res.data));
+      })
+      .pipe(map((res) => res.data));
   }
 
   uploadFiles(files: File[]) {
@@ -106,6 +115,38 @@ export class MessageService {
 
     return this.http
       .post<any>(`${this.URL}/upload`, formData)
+      .pipe(map((res) => res.data));
+  }
+
+  reactMessageEmoji(
+    messageId: string,
+    groupId: string,
+    types: { userId: string; type: string }
+  ) {
+    return this.http
+      .post<any>(`${this.URL}/groups/${groupId}/message/${messageId}/react`, types, {
+        headers: {
+          authorization: `Bearer ${this.authService.getAccessToken()}`,
+        },
+      })
+      .pipe(map((res) => res.data));
+  }
+
+  getManyMessage(userId: string, search?: string) {
+    let params = new HttpParams();
+    if (search && search.trim() !== '') {
+      params = params.set('search', search);
+    }
+    return this.http
+      .get<{ message: string; data: any }>(
+        `${this.URL}/groups/messages/user/${userId}`,
+        {
+          params,
+          headers: {
+            Authorization: `Bearer ${this.authService.getAccessToken()}`,
+          },
+        }
+      )
       .pipe(map((res) => res.data));
   }
 }

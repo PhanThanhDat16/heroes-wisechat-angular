@@ -20,9 +20,9 @@ export class HeroesListComponent implements OnInit, OnDestroy {
   heroes: IHero[] = [];
   trackSub: Subscription;
   selectedHeroIds: string[] = [];
-  selectAll: boolean = false;
+  selectAll = false;
   tags: ITag[];
-  isLoading: boolean = false;
+  isLoading = false;
   @ViewChild('dropdownComponent') dropdownComponent: DropdownlableComponent;
 
   constructor(

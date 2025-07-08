@@ -1,7 +1,11 @@
-<div  [ngClass]="{ 'collapsed': !isGroupDetailBarVisible }" class="flex-fill group-detail-wrapper" style="background-color: #f4f4f4">
-  <div class="h-100">
+<div
+  [ngClass]="{ collapsed: !isGroupDetailBarVisible }"
+  class="flex-fill group-detail-wrapper"
+  style="background-color: #f4f4f4"
+>
+  <div class="h-100 d-flex flex-column">
     <div
-      class="py-3 px-4 chat-header d-flex align-items-center justify-content-between"
+      class="py-3 px-4 chat-header d-flex align-items-center justify-content-between position-relative"
     >
       <div class="d-flex align-items-center gap-2">
         <img
@@ -10,7 +14,13 @@
           class="chat-header-img"
         />
         <div class="d-flex flex-column align-items-start gap-2">
-          <span class="fs-5 fw-medium">{{ groupData?.name }}</span>
+          <div class="d-flex align-items-center gap-3">
+            <span class="fs-5 fw-medium">{{ groupData?.name }}</span>
+            <span [ngStyle]="getTagStyle(tag)" class="fw-bold">{{
+              tag | capitalizeWords
+            }}</span>
+          </div>
+
           <span class="d-flex align-items-center gap-1">
             <span
               [ngClass]="
@@ -23,20 +33,22 @@
           </span>
         </div>
       </div>
-     
 
-      <span class="cursor-point d-flex gap-4 align-items-center"  (click)="toggleGroupDetailBar()">
+      <div class="d-flex align-items-center gap-3">
         <span
-          class="fw-bold pointer d-flex align-items-center justify-content-center chat-header-img-item"
+          class="cursor-point d-flex gap-4 align-items-center"
+          (click)="toggleGroupDetailBar()"
         >
-          <i class="fa-solid fa-ellipsis-vertical"></i>
+          <span
+            class="fw-bold pointer d-flex align-items-center justify-content-center chat-header-img-item"
+          >
+            <i class="fa-solid fa-ellipsis-vertical"></i>
+          </span>
         </span>
-      </span>
+      </div>
     </div>
 
-    <app-chat-message
-      [checkMessageGroup]="checkMessageGroup"
-    ></app-chat-message>
+    <app-chat-message></app-chat-message>
 
     <app-chat-input></app-chat-input>
   </div>

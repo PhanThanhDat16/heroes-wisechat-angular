@@ -8,7 +8,7 @@ describe('UtilsAddTagGroupComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [UtilsAddTagGroupComponent]
+      declarations: [UtilsAddTagGroupComponent],
     })
     .compileComponents();
     

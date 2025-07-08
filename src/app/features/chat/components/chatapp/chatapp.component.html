@@ -1,35 +1,52 @@
 <div class="wrapper-chat border-top-1 m-0 d-flex flex-column">
   <div class="wrapper-chat-container flex-fill overflow-hidden">
-    <div class="d-flex flex-column overflow-hidden" style="border-right: 1px solid #dcdcdc">
-      <div class="p-4 d-flex flex-column gap-3 border-bottom-1">
-        <div class="d-flex card-search align-items-center gap-2">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input
-            type="text"
-            class="border-0 flex-fill"
-            placeholder="Search"
-          />
+    <div
+      class="d-flex flex-column overflow-hidden"
+      style="border-right: 1px solid #dcdcdc"
+    >
+      <div class="p-3 d-flex flex-column gap-3 border-bottom-1">
+        <div class="d-flex align-items-center gap-3 justify-content-between">
+          <div
+            class="d-flex card-search align-items-center gap-2 rounded-pill flex-fill"
+          >
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input
+              type="text"
+              class="border-0 flex-fill"
+              placeholder="Search conversations"
+              [formControl]="searchGeneral"
+            />
+          </div>
+          <app-create-group></app-create-group>
         </div>
 
-        <h5 class="text-black" style="font-size: 18px;">Onlines</h5>
-        <app-create-group></app-create-group>
-
-        <div class="m-0 my-3 d-flex align-items-center justify-content-between  text-black" >
-          <h4 >Messages</h4>
-          <span style="color: #85a4e0;">({{data.length || '0'}}) Groups</span>
+        <div
+          *ngIf="!query && query.trim() === ''"
+          class="m-0 mt-3 d-flex align-items-center justify-content-between text-black"
+        >
+          <h4>Messages</h4>
+          <span style="color: #85a4e0">({{ data.length || "0" }}) Groups</span>
         </div>
       </div>
 
       <div class="flex-fill overflow-auto scroll-y" style="height: 670px">
-        <ng-container *ngIf="data.length > 0">
-          <div *ngFor="let item of data">
-            <app-group-item [itemGroup]="item"></app-group-item>
+        <ng-container *ngIf="data.length > 0 && !query && query.trim() === ''">
+          <div *ngFor="let item of data; trackBy: trackByGroup">
+            <app-group-item
+              [currentGroupId]="currentGroupId"
+              [itemGroup]="item"
+            ></app-group-item>
           </div>
+        </ng-container>
+        <ng-container *ngIf="query">
+          <app-search-general [search]="query"></app-search-general>
         </ng-container>
       </div>
     </div>
 
-    <div class="rounded position-relative d-flex flex-column justify-content-center">
+    <div
+      class="rounded position-relative d-flex flex-column justify-content-center"
+    >
       <ng-container *ngIf="data.length === 0">
         <i
           class="fa-solid fa-layer-group text-center my-5"
@@ -44,12 +61,7 @@
         <router-outlet></router-outlet>
       </ng-container>
 
-      <ng-container
-        *ngIf="
-          data.length > 0 &&
-          (checkLinkDetail === undefined || checkLinkDetail === null)
-        "
-      >
+      <ng-container *ngIf="data.length > 0 && !checkLinkDetail">
         <div class="text-center d-flex flex-column gap-4">
           <i
             class="fa-regular fa-message"

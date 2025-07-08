@@ -3,7 +3,7 @@ import { Subject } from "rxjs";
 import { IMessageGroup } from "../../features/chat/model/message";
 
 @Injectable({
-    providedIn: "root"
+    providedIn: "root",
 })
 export class MessageShareService {
   private replyMessageSubject = new Subject<IMessageGroup>()

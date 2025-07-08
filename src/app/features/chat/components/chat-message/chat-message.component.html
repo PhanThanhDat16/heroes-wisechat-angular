@@ -12,7 +12,11 @@
 
   <app-message [messagesGroup]="messagesGroup"></app-message>
 
-  <ng-container *ngIf="messagesGroup.length === 0 && !isLoadingMessages">
+  <ng-container
+    *ngIf="
+      messagesGroup.length === 0 && !isLoadingMessages && !checkMessageGroup
+    "
+  >
     <div class="d-flex flex-column align-items-center gap-5 mt-5">
       <i class="fa-solid fa-users" style="color: #8b95a7; font-size: 180px"></i>
       <div class="d-flex nmessage-wrapper gap-5">

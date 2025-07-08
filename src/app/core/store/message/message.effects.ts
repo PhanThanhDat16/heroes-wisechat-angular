@@ -4,18 +4,30 @@ import { MessageService } from '../../../features/chat/service/message.service';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, mergeMap, of, switchMap, tap } from 'rxjs';
 import {
+  addMemberInGroup,
+  addMemberInGroupFailure,
+  addMemberInGroupSuccess,
   createMessage,
   createMessageFailure,
   createMessageSuccess,
+  deleteMemberInGroup,
+  deleteMemberInGroupFailure,
+  deleteMemberInGroupSuccess,
   deleteMessageEveryone,
   deleteMessageEveryoneFailure,
   deleteMessageEveryoneSuccess,
   deleteMessageForMe,
   deleteMessageForMeFailure,
   deleteMessageForMeSuccess,
+  leaveGroup,
+  leaveGroupFailure,
+  leaveGroupSuccess,
   loadMessage,
   loadMessageFailure,
   loadMessageSuccess,
+  reactToMessage,
+  reactToMessageFailure,
+  reactToMessageSuccess,
   updateEditMessage,
   updateEditMessageFailure,
   updateEditMessageSuccess,
@@ -27,25 +39,29 @@ import {
   uploadFilesSuccess,
 } from './message.actions';
 import { SocketIOService } from '../../services/socket.service';
+import { GroupService } from '../../../features/group/service/group.service';
 
 @Injectable()
 export class messageEffects {
   constructor(
     private action$: Actions,
     private messageService: MessageService,
-    private socketService: SocketIOService // private toastService: ToastService,
+    private socketService: SocketIOService,
+    private groupService: GroupService
   ) {}
 
   loadMessage$ = createEffect(() =>
     this.action$.pipe(
       ofType(loadMessage),
-      switchMap(({ groupId, page, limit }) =>
-        this.messageService.getMessageByGroupService(groupId, page, limit).pipe(
-          map((messageDetail) =>
-            loadMessageSuccess({ message: messageDetail })
-          ),
-          catchError(({ error }) => of(loadMessageFailure({ error })))
-        )
+      switchMap(({ groupId, page, limit, search }) =>
+        this.messageService
+          .getMessageByGroupService(groupId, page, limit, search)
+          .pipe(
+            map((messageDetail) =>
+              loadMessageSuccess({ message: messageDetail })
+            ),
+            catchError(({ error }) => of(loadMessageFailure({ error })))
+          )
       )
     )
   );
@@ -64,7 +80,7 @@ export class messageEffects {
           replyToSenderName,
           replyToType,
           messageType,
-          isRead,
+          readUsers,
         }) =>
           this.messageService
             .createMessageByGroupService(
@@ -77,11 +93,10 @@ export class messageEffects {
               replyToSenderName,
               replyToType,
               messageType,
-              isRead
+              readUsers
             )
             .pipe(
               tap((data) => {
-                // console.log('Message created:', data);
                 this.socketService.sendMessage(
                   data._id,
                   senderId,
@@ -93,7 +108,7 @@ export class messageEffects {
                   replyToSenderName,
                   replyToType,
                   messageType,
-                  data.isRead
+                  data.readUsers
                 );
               }),
               map((message) => createMessageSuccess({ message })),
@@ -167,6 +182,122 @@ export class messageEffects {
           map((uploadedFiles) => uploadFilesSuccess({ files: uploadedFiles })),
           catchError(({ error }) => of(uploadFilesFailure({ error })))
         )
+      )
+    )
+  );
+
+  addMemberInGroup$ = createEffect(() =>
+    this.action$.pipe(
+      ofType(addMemberInGroup),
+      mergeMap(({ group, users, userId }) =>
+        this.groupService.addMemberInGroup(group._id, users).pipe(
+          tap((data) => {
+            this.socketService.addMemberFromGroup(data.result, group, userId);
+            this.socketService.sendMessage(
+              data.message._id,
+              data.message.senderId,
+              data.message.senderName,
+              data.message.content,
+              data.message.groupId,
+              data.message.replyToMessageId,
+              data.message.replyToContent,
+              data.message.replyToSenderName,
+              data.message.replyToType,
+              data.message.messageType,
+              data.message.readUsers
+            );
+          }),
+          map((newMember) =>
+            addMemberInGroupSuccess({ newMember: newMember.result })
+          ),
+          catchError((error) => of(addMemberInGroupFailure({ error })))
+        )
+      )
+    )
+  );
+
+  deleteMemberInGroup$ = createEffect(() =>
+    this.action$.pipe(
+      ofType(deleteMemberInGroup),
+      switchMap(({ groupId, memberId }) =>
+        this.groupService.deleteMemberInGroups(groupId, memberId).pipe(
+          tap((data) => {
+            const ownerId = localStorage.getItem('userId');
+            if (ownerId) {
+              this.socketService.kickedFromGroup(
+                data.result.userId,
+                data.result.groupId,
+                ownerId
+              );
+            }
+            this.socketService.sendMessage(
+              data.message._id,
+              data.message.senderId,
+              data.message.senderName,
+              data.message.content,
+              data.message.groupId,
+              data.message.replyToMessageId,
+              data.message.replyToContent,
+              data.message.replyToSenderName,
+              data.message.replyToType,
+              data.message.messageType,
+              data.message.readUsers
+            );
+          }),
+          map((user) => deleteMemberInGroupSuccess({ user })),
+          catchError((error) => of(deleteMemberInGroupFailure({ error })))
+        )
+      )
+    )
+  );
+
+  leaveGroup$ = createEffect(() =>
+    this.action$.pipe(
+      ofType(leaveGroup),
+      switchMap(({ groupId, userId, data }) =>
+        this.groupService.leaveGroup(groupId, userId, data).pipe(
+          tap((data) => {
+            // const ownerId = localStorage.getItem('userId')
+            // if(ownerId){
+            //   this.socketService.kickedFromGroup(data.userId, data.groupId, ownerId);
+            // }
+            this.socketService.sendMessage(
+              data.message._id,
+              data.message.senderId,
+              data.message.senderName,
+              data.message.content,
+              data.message.groupId,
+              data.message.replyToMessageId,
+              data.message.replyToContent,
+              data.message.replyToSenderName,
+              data.message.replyToType,
+              data.message.messageType,
+              data.message.readUsers
+            );
+          }),
+          map((user) => leaveGroupSuccess({ user })),
+          catchError((error) => of(leaveGroupFailure({ error })))
+        )
+      )
+    )
+  );
+
+  reactToMessage$ = createEffect(() =>
+    this.action$.pipe(
+      ofType(reactToMessage),
+      mergeMap(({ messageId, userId, types, groupId }) =>
+        this.messageService
+          .reactMessageEmoji(messageId, groupId, { userId, type: types })
+          .pipe(
+            map((res) =>
+              reactToMessageSuccess({
+                messageId,
+                reactions: res.reactions,
+                quantityReact: res.quantityReact,
+              })
+            ),
+            catchError((error) => of(reactToMessageFailure({ error })))
+          )
       )
     )
   );

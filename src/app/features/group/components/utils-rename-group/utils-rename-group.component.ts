@@ -10,6 +10,7 @@ import {
 } from '../../../../core/store/group/group.actions';
 import { take } from 'rxjs';
 import { Actions, ofType } from '@ngrx/effects';
+import { loadNoti } from '../../../../core/store/notification/notification.actions';
 
 @Component({
   selector: 'app-utils-rename-group',
@@ -18,6 +19,7 @@ import { Actions, ofType } from '@ngrx/effects';
 })
 export class UtilsRenameGroupComponent {
   nameGroup = new FormControl('');
+  userId: string = localStorage.getItem('userId')
   @ViewChild(ModalUtilsChatComponent) modalComponent!: ModalUtilsChatComponent;
 
   constructor(
@@ -32,8 +34,9 @@ export class UtilsRenameGroupComponent {
 
     if (groupId) {
       this.store.dispatch(updateGroup({ groupId, name: this.nameGroup.value }));
-
+      
       this.action$.pipe(ofType(updateGroupSuccess), take(1)).subscribe(() => {
+        this.store.dispatch(loadNoti({ userId: this.userId }));
         this.toastService.success('Rename successfull');
         this.modalComponent.closeModal();
       });

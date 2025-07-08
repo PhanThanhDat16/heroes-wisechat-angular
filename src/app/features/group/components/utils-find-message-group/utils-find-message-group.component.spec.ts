@@ -8,7 +8,7 @@ describe('UtilsFindMessageGroupComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [UtilsFindMessageGroupComponent]
+      declarations: [UtilsFindMessageGroupComponent],
     })
     .compileComponents();
     

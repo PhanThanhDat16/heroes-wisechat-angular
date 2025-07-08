@@ -1,0 +1,32 @@
+:host{
+    height: 100%;
+    display: block;
+    background-color: white;
+    border-left: 1px solid #dcdcdc;
+}
+
+.msg{
+    &-wrapper{
+        max-height: 690px;
+    }
+    &-img{
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    &-name{
+        font-weight: bold;
+        font-size: 15px;
+    }
+
+    &-content{
+        max-width: 130px;
+    }
+
+    &-content, &-date{
+        font-size: 13px;
+        color: #3a3a3a66;
+    }
+}

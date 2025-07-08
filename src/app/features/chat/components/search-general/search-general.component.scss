@@ -1,0 +1,68 @@
+.find-message {
+  &-wrapper {
+    padding: 10px 15px;
+    border-radius: 18px;
+    &:hover {
+      background-color: #cccccc26;
+    }
+  }
+  &-icon {
+    padding: 12px;
+    border-radius: 50%;
+    background-color: #cccccc80;
+    i {
+      color: #474749;
+    }
+  }
+  &-content {
+    color: #474749;
+  }
+}
+
+.group {
+  &-img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  &-item{
+    padding: 10px 15px;
+    border-radius: 18px;
+    &:hover{
+      background-color: #cccccc26;
+    }
+  }
+
+  &-name {
+    color: #3c434a;
+  }
+}
+
+.msg {
+  &-wrapper {
+    max-height: 690px;
+  }
+  &-img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  &-name {
+    font-weight: bold;
+    font-size: 15px;
+  }
+
+  &-content{
+    max-width: 130px;
+  }
+
+  &-content,
+  &-date {
+    font-size: 13px;
+    color: #3a3a3a66;
+  }
+}

@@ -8,10 +8,10 @@ import { IHero } from '../../model/heroes';
   styleUrl: './hero-card.component.scss',
 })
 export class HeroCardComponent implements OnInit {
-  owner: string = '';
-  isLoading: boolean = false;
+  owner = '';
+  isLoading = false;
   @Input() hero!: IHero;
-  @Input() checked: boolean = false;
+  @Input() checked = false;
   @Input() showCheckbox: boolean;
   @Input() navigateDetail: boolean;
   @Output() checkboxChange = new EventEmitter<{

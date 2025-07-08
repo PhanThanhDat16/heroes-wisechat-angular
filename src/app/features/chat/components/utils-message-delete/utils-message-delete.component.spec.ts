@@ -8,7 +8,7 @@ describe('UtilsMessageDeleteComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [UtilsMessageDeleteComponent]
+      declarations: [UtilsMessageDeleteComponent],
     })
     .compileComponents();
     

@@ -3,6 +3,7 @@
   .modal-content {
     overflow-y: auto;
     height: 800px;
+    max-height: max-content;
     &::-webkit-scrollbar {
       width: 6px;
       border-radius: 8px;

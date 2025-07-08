@@ -5,7 +5,7 @@
   (click)="handleReadMessage(itemGroup._id)"
 >
   <div
-    class="card-avatar-wrapper position-relative"
+    class="card-avatar-wrapper position-relative flex-shrink"
     [class.online-indicator]="userOnlineGroup.length > 1"
   >
     <img
@@ -16,7 +16,12 @@
   </div>
   <div class="flex-fill">
     <div class="d-flex justify-content-between align-items-center">
-      <h5 class="card-title fs-6 fw-bold mb-2">{{ itemGroup.name }}</h5>
+      <h5 class="card-title fs-6 fw-bold mb-2 d-flex align-items-center gap-2">
+        {{ itemGroup.name }}
+        <span [ngStyle]="getTagStyle(itemGroup.tag)">{{
+          itemGroup.tag | capitalizeWords
+        }}</span>
+      </h5>
       <span class="text-primary-chat card-time">
         {{
           itemGroup.lastMessage?.createdAt ?? itemGroup.createdAt
@@ -26,18 +31,23 @@
         }}
       </span>
     </div>
-    <p
-      class="card-text fs-6 d-inline-block text-truncate"
-      style="max-width: 273px; color: #3a3a3a66;"
-    >
-      {{
-        itemGroup.lastMessage && itemGroup.lastMessage.senderName
-          ? itemGroup.lastMessage.senderId === userId
-            ? "You: "
-            : itemGroup.lastMessage.senderName + ": "
-          : ""
-      }}
-      {{ itemGroup.lastMessage?.content ?? itemGroup.lastMessage ?? "" }}
-    </p>
+    <div class="d-flex align-items-center justify-content-between gap-2">
+      <p
+        class="card-text fs-6 d-inline-block text-truncate m-0"
+        style="max-width: 188px; color: #3a3a3a66"
+      >
+        {{
+          itemGroup.lastMessage && itemGroup.lastMessage.senderName
+            ? itemGroup.lastMessage.senderId === userId
+              ? "You: "
+              : itemGroup.lastMessage.senderName + ": "
+            : ""
+        }}
+        {{ itemGroup.lastMessage?.content ?? itemGroup.lastMessage ?? "" }}
+      </p>
+      <span *ngIf="isRead" class="me-3"
+        ><i class="fa-solid fa-check icon-check"></i
+      ></span>
+    </div>
   </div>
 </div>

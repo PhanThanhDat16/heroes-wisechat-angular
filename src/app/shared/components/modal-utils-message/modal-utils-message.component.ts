@@ -12,7 +12,7 @@ import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: 'app-modal-utils-message',
   templateUrl: './modal-utils-message.component.html',
-  styleUrl: './modal-utils-message.component.scss'
+  styleUrl: './modal-utils-message.component.scss',
 })
 export class ModalUtilsMessageComponent {
   @Output() stepEmitter = new EventEmitter<number>();

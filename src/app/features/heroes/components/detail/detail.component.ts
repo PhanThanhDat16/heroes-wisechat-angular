@@ -23,11 +23,11 @@ export class DetailComponent implements OnInit, OnDestroy {
   id: string;
   hero: IHero;
   trackSub: Subscription;
-  checkUserId: boolean = true;
+  checkUserId = true;
   isLoading = false;
-  username: string = '';
+  username = '';
   tags: ITag[] = [];
-  createdAt: string = ''
+  createdAt = ''
 
   formDetail = new FormGroup({
     name: new FormControl('', Validators.required),
@@ -109,7 +109,6 @@ export class DetailComponent implements OnInit, OnDestroy {
       this.trackSub = this.heroService.getHeroDetailService(this.id).subscribe({
         next: (data) => {
           this.createdAt = data.createdAt ?? ''
-          console.log
           this.checkUserId = data.userId === userId;
           this.hero = data;
           this.tags = this.hero.tags ?? [];

@@ -1,4 +1,4 @@
-import { IMessageGroup, IMessageGroupDetail, IUploadedFile } from '../../../features/chat/model/message';
+import { IMessageGroupDetail, IUploadedFile } from '../../../features/chat/model/message';
 
 export interface IMessageState {
   messageDetail: IMessageGroupDetail | null;
@@ -14,5 +14,5 @@ export const initialState: IMessageState = {
   loading: false,
   error: null,
   uploading: false,
-  uploadedFiles: null
+  uploadedFiles: null,
 };

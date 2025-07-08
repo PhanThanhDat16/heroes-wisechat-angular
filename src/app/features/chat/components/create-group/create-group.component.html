@@ -1,39 +1,56 @@
 <app-modal-add-chat (stepEmitter)="onResetStep($event)">
-  <div modal-btn class="d-flex align-items-center flex-column gap-2">
     <span
+    modal-btn
       class="cursor-point btn-create d-flex align-items-center justify-content-center"
     >
       <i class="fa-solid fa-plus cursor-point"></i>
     </span>
-    <span class="btn-create-title">Create</span>
-  </div>
   <div modal-header>
-    <h4 class="modal-title" id="modal-basic-title text-primary-m">New Group</h4>
+    <h4 class="modal-title modal-text-title" id="modal-basic-title">
+      New Group
+    </h4>
   </div>
-  <button
-    *ngIf="step === 1"
-    modal-header-action
-    class="modal-title btn-next"
-    id="modal-basic-title"
-    [ngClass]="listAddUser.length >= 1 ? 'btn-next-access fw-bold' : ''"
-    (click)="handlNext()"
-  >
-    Next
-  </button>
-  <button
-    *ngIf="step === 2"
-    modal-header-action
-    class="modal-title btn-next"
-    id="modal-basic-title"
-    [ngClass]="listAddUser.length >= 1 ? 'btn-next-access fw-bold' : ''"
-    (click)="handleCreate()"
-  >
-    Create
-  </button>
+  <div modal-header-action *ngIf="step === 'CHOOSE_MEMBER'">
+    <button
+      class="rounded-pill border py-3 px-4 me-2"
+      (click)="handleBack()"
+      [ngClass]="step === 'CHOOSE_MEMBER' ? 'btn-back' : ''"
+    >
+      Back
+    </button>
+    <button
+      class="modal-title btn-next border rounded-pill lh-1 px-4 py-3"
+      id="modal-basic-title"
+      [ngClass]="listAddUser.length >= 1 ? 'btn-next-access fw-bold' : ''"
+      (click)="handlNext()"
+    >
+      Next
+    </button>
+  </div>
+
+  <div modal-header-action *ngIf="step === 'CREATE_MEMBER'">
+    <button
+      class="rounded-pill border py-3 px-4 me-2"
+      (click)="handleBack()"
+      [ngClass]="step === 'CREATE_MEMBER' ? '' : 'btn-back'"
+    >
+      Back
+    </button>
+    <button
+      modal-header-action
+      class="modal-title btn-next border rounded-pill lh-1 px-4 py-3"
+      id="modal-basic-title"
+      [ngClass]="listAddUser.length >= 1 ? 'btn-next-access fw-bold' : ''"
+      (click)="handleCreate()"
+    >
+      Create
+    </button>
+  </div>
+
   <div modal-body class="text-primary-m">
     <div
-      *ngIf="step === 1"
-      class="d-flex card-search align-items-center mb-4 p-10 border rounded gap-2"
+      *ngIf="step === 'CHOOSE_MEMBER'"
+      class="d-flex card-search align-items-center mb-4 p-10 border rounded-pill gap-2"
     >
       <i class="fa-solid fa-magnifying-glass"></i>
       <input
@@ -44,7 +61,10 @@
       />
     </div>
 
-    <div *ngIf="step === 2" class="card-search mb-4 p-10 border rounded">
+    <div
+      *ngIf="step === 'CREATE_MEMBER'"
+      class="card-search mb-4 p-10 border rounded-pill"
+    >
       <input
         type="text"
         class="border-0 w-100"
@@ -66,7 +86,7 @@
       </ng-container>
     </div>
 
-    <ng-container *ngIf="step === 1">
+    <ng-container *ngIf="step === 'CHOOSE_MEMBER'">
       <span class="fw-bold">Users</span>
       <div class="d-flex flex-column gap-2 mt-2">
         <ng-container *ngFor="let user of users">

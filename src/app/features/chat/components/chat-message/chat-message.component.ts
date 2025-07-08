@@ -1,6 +1,5 @@
 import {
   Component,
-  Input,
   ViewChild,
   ElementRef,
   AfterViewInit,
@@ -11,9 +10,12 @@ import {
 import { IMessageGroup } from '../../model/message';
 import { IGroup } from '../../../group/model/group';
 import { IUser } from '../../../auth/model/user';
-import { debounceTime, fromEvent, Subscription, take } from 'rxjs';
+import { debounceTime, fromEvent, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { selectGroupDetail } from '../../../../core/store/group/group.selector';
+import {
+  selectGroupDetail,
+  selectGroupLoading,
+} from '../../../../core/store/group/group.selector';
 import {
   selectMessage,
   selectUploadedFiles,
@@ -31,24 +33,21 @@ import {
   templateUrl: './chat-message.component.html',
   styleUrls: ['./chat-message.component.scss'],
 })
-export class ChatMessageComponent
-  implements AfterViewInit, OnInit, AfterViewChecked, OnDestroy
-{
-  // check again
-  @Input() checkMessageGroup;
-
+export class ChatMessageComponent implements AfterViewInit, OnInit, AfterViewChecked, OnDestroy {
+  checkMessageGroup = true;
   @ViewChild('scrollableChatRef') scrollableChatRef: ElementRef;
   groupData: IGroup;
   messagesGroup: IMessageGroup[] = [];
   user: IUser;
   userId = localStorage.getItem('userId');
-  messageSub: Subscription;
   currentPage = 1;
   hasMoreMessages = true;
   isLoadingMessages = false;
   shouldScrollToBottom = false;
   uploaded: { url?: string; originalname?: string; mimetype?: string } | null =
     null;
+
+  private subscriptions = new Subscription();
 
   constructor(
     private store: Store,
@@ -57,30 +56,44 @@ export class ChatMessageComponent
   ) {}
 
   ngOnInit(): void {
-    this.store.select(selectGroupDetail).subscribe((groupDetail) => {
-      if (groupDetail) {
-        this.groupData = groupDetail;
-        this.user = groupDetail.user as IUser;
-        this.messagesGroup = [];
-        this.currentPage = 1;
-        this.hasMoreMessages = true;
-        this.isLoadingMessages = false;
-      }
+    const groupSub = this.store
+      .select(selectGroupDetail)
+      .subscribe((groupDetail) => {
+        this.checkMessageGroup = true;
+        if (groupDetail) {
+          this.groupData = groupDetail;
+          this.user = groupDetail.user as IUser;
+          this.messagesGroup = [];
+          this.currentPage = 1;
+          this.hasMoreMessages = true;
+          this.isLoadingMessages = false;
+        }
+      });
+    this.subscriptions.add(groupSub);
+
+    const loadingSub = this.store.select(selectGroupLoading).subscribe((loading) => {
+      this.isLoadingMessages = loading;
     });
-    this.store.select(selectMessage).subscribe((message) => {
+    this.subscriptions.add(loadingSub);
+
+    const selectMessageSub = this.store.select(selectMessage).subscribe((message) => {
       if (message) {
         this.messagesGroup = message.senderId;
         this.shouldScrollToBottom = true;
+        this.checkMessageGroup = false;
       }
     });
-    this.store.select(selectUploadedFiles).subscribe((data) => {
+    this.subscriptions.add(selectMessageSub);
+
+    const selectFileSub = this.store.select(selectUploadedFiles).subscribe((data) => {
       this.uploaded = data;
     });
+    this.subscriptions.add(selectFileSub)
 
-    if (this.messageSub) {
-      this.messageSub.unsubscribe();
-    }
-    this.messageSub = this.socketService
+    // if (this.messageSub) {
+    //   this.messageSub.unsubscribe();
+    // }
+    const socketMessageSub = this.socketService
       .receiveMessage()
       .subscribe((message) => {
         if (
@@ -91,22 +104,25 @@ export class ChatMessageComponent
         }
         this.shouldScrollToBottom = true;
       });
+    this.subscriptions.add(socketMessageSub);
 
-    this.socketService.receiveDeleteMessage().subscribe((data) => {
+    const receiveDeleteMeSub = this.socketService.receiveDeleteMessage().subscribe((data) => {
       this.store.dispatch(deleteMessageEveryoneSuccess({ messages: data }));
       this.currentPage = 1;
       this.hasMoreMessages = true;
       this.isLoadingMessages = false;
       this.shouldScrollToBottom = true;
     });
+    this.subscriptions.add(receiveDeleteMeSub)
 
-    this.socketService.receiveDeleteMessageForMe().subscribe((data) => {
+    const receiveDeleteForMeSub = this.socketService.receiveDeleteMessageForMe().subscribe((data) => {
       this.store.dispatch(deleteMessageForMeSuccess({ message: data }));
       this.currentPage = 1;
       this.hasMoreMessages = true;
       this.isLoadingMessages = false;
       this.shouldScrollToBottom = true;
     });
+    this.subscriptions.add(receiveDeleteForMeSub)
   }
 
   ngAfterViewInit(): void {
@@ -176,6 +192,6 @@ export class ChatMessageComponent
   }
 
   ngOnDestroy(): void {
-    this.messageSub.unsubscribe();
+    this.subscriptions.unsubscribe();
   }
 }

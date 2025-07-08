@@ -15,7 +15,7 @@ import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
   styleUrl: './modal-add-chat.component.scss',
 })
 export class ModalAddChatComponent {
-  @Output() stepEmitter = new EventEmitter<number>();
+  @Output() stepEmitter = new EventEmitter<'CHOOSE_MEMBER' | 'CREATE_MEMBER'>();
 
   private modalService = inject(NgbModal);
 
@@ -33,12 +33,16 @@ export class ModalAddChatComponent {
         }
       );
 
-    this.stepEmitter.emit(1);
+    this.stepEmitter.emit('CHOOSE_MEMBER');
   }
 
   closeModal() {
     this.modalService.dismissAll();
   }
+
+  // handleBack(){
+  //   this.stepEmitter.emit('CHOOSE_MEMBER');
+  // }
 
   private getDismissReason(reason: any): string {
     switch (reason) {

@@ -15,7 +15,7 @@ import { SharedModule } from '../../shared/shared.module';
     SharedModule,
     ReactiveFormsModule,
     NgbDropdownModule,
-    HeroesRoutingModule
+    HeroesRoutingModule,
   ],
 })
 export class ProfileModule {}

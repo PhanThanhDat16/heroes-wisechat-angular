@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { SocketIOService } from '../../../../core/services/socket.service';
 import { IGroup } from '../../../group/model/group';
 import { Store } from '@ngrx/store';
+import { loadGroupDetail } from '../../../../core/store/group/group.actions';
 import {
-  loadGroupDetail,
-} from '../../../../core/store/group/group.actions';
-import { selectGroupDetail } from '../../../../core/store/group/group.selector';
+  selectGroupDetail,
+  selectGroups,
+} from '../../../../core/store/group/group.selector';
 import {
   loadMessage,
   updateIsRead,
@@ -14,20 +15,22 @@ import {
 import { selectMembersGroup } from '../../../../core/store/message/message.selector';
 import { IUser } from '../../../auth/model/user';
 import { Subscription } from 'rxjs';
+import { listTag } from '../group-detail-bar/group-detail-bar.component';
 
 @Component({
   selector: 'app-group-detail',
   templateUrl: './group-detail.component.html',
   styleUrls: ['./group-detail.component.scss'],
 })
-export class GroupDetailComponent implements OnInit {
+export class GroupDetailComponent implements OnInit, OnDestroy {
   groupData: IGroup;
-  checkMessageGroup: boolean = false;
   userOnlineGroup: IUser[] = [];
   isGroupDetailBarVisible = true;
-  groupSub: Subscription;
+  tag;
   groupId: string | null = null;
   userId = localStorage.getItem('userId');
+  isCollapsed = true;
+  private subscriptions = new Subscription();
 
   constructor(
     private store: Store,
@@ -36,53 +39,96 @@ export class GroupDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.route.params.subscribe((params) => {
-      // console.log(params)
+    const routeSub = this.route.params.subscribe((params) => {
       this.groupId = params['id'];
       if (this.groupId) {
-        this.checkMessageGroup = false;
         this.store.dispatch(loadGroupDetail({ groupId: this.groupId }));
-        this.checkMessageGroup = false;
       }
     });
+    this.subscriptions.add(routeSub);
 
-    this.store.select(selectGroupDetail).subscribe((groupDetail) => {
-      this.groupData = groupDetail;
-      this.store.dispatch(
-        loadMessage({ groupId: this.groupId, page: 1, limit: 10 })
-      );
-    });
-
-    this.store.select(selectMembersGroup).subscribe((members) => {
-      if (members) {
-        this.socketService.onlineUser$.subscribe((userIds) => {
-          this.userOnlineGroup = members.filter((m) => userIds.includes(m._id));
-        });
-      }
-    });
-
-    this.socketService.receiveEditGroup().subscribe((data) => {
-      if (this.groupData._id === data.groupId) {
-        this.groupData = {
-          ...this.groupData,
-          name: data.name,
-        };
-      }
-    });
-
-    this.socketService.receiveMessage().subscribe((message) => {
-      const route = this.route.snapshot.params['id'];
-      if (message.groupId === route) {
-        if (this.userId) {
-          this.store.dispatch(
-            updateIsRead({ groupId: route, userId: this.userId })
-          );
+    this.store.select(selectGroups).subscribe((groups) => {
+      if (groups) {
+        const group = groups.find((g) => g._id === this.groupId)
+        if(group){
+          this.tag = group.tag;
         }
       }
     });
+
+    const groupSub = this.store
+      .select(selectGroupDetail)
+      .subscribe((groupDetail) => {
+        this.groupData = groupDetail;
+        this.store.dispatch(
+          loadMessage({ groupId: this.groupId, page: 1, limit: 10 })
+        );
+      });
+    this.subscriptions.add(groupSub);
+
+    const selectMemberSub = this.store
+      .select(selectMembersGroup)
+      .subscribe((members) => {
+        if (members) {
+          this.socketService.onlineUser$.subscribe((userIds) => {
+            this.userOnlineGroup = members.filter((m) =>
+              userIds.includes(m._id)
+            );
+          });
+        }
+      });
+    this.subscriptions.add(selectMemberSub);
+
+    const receiveEdit = this.socketService
+      .receiveEditGroup()
+      .subscribe((data) => {
+        if (
+          this.groupData._id === data.groupId &&
+          data.senderId !== this.userId
+        ) {
+          this.groupData = {
+            ...this.groupData,
+            name: data.name,
+          };
+        }
+      });
+    this.subscriptions.add(receiveEdit);
+
+    const receiveSub = this.socketService
+      .receiveMessage()
+      .subscribe((message) => {
+        const route = this.route.snapshot.params['id'];
+        if (message.groupId === route) {
+          if (this.userId) {
+            this.store.dispatch(
+              updateIsRead({ groupId: route, userId: this.userId })
+            );
+          }
+        }
+      });
+    this.subscriptions.add(receiveSub);
   }
 
   toggleGroupDetailBar() {
     this.isGroupDetailBarVisible = !this.isGroupDetailBarVisible;
+  }
+
+  getTagStyle(tagName: string) {
+    const found = listTag.find(
+      (t) => t.tag.toLowerCase() === tagName?.toLowerCase()
+    );
+    return found
+      ? {
+          'background-color': found.background,
+          color: found.color,
+          padding: '4px 8px',
+          'border-radius': '12px',
+          'font-size': '12px',
+        }
+      : {};
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }

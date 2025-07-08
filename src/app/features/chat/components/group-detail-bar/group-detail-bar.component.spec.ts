@@ -8,7 +8,7 @@ describe('GroupDetailBarComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [GroupDetailBarComponent]
+      declarations: [GroupDetailBarComponent],
     })
     .compileComponents();
     

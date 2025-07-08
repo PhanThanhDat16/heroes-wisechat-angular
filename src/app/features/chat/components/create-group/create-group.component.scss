@@ -1,6 +1,6 @@
 .btn-create {
-  width: 55px;
-  height: 55px;
+  width: 45px;
+  height: 45px;
   border-radius: 50%;
   border: 1px solid #5a5656;
   color: #2b2b2b;
@@ -27,7 +27,13 @@
 
 .btn-next-access {
   pointer-events: all;
-  color: #0080ff;
+  color: white;
+  background-color: #5046e4;
+}
+
+.btn-back {
+  color: #ccc;
+  pointer-events: none;
 }
 
 .card {
@@ -90,3 +96,10 @@
 .custom-checkbox:checked + .checkmark .check-icon {
   display: block;
 }
+
+  
+.modal-text-title{
+    font-weight: 700 !important;
+    color: #12131e !important;
+}
+

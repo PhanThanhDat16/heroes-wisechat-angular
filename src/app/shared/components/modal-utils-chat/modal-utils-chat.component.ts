@@ -15,7 +15,7 @@ import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
   styleUrl: './modal-utils-chat.component.scss',
 })
 export class ModalUtilsChatComponent {
-  @Output() stepEmitter = new EventEmitter<number>();
+  @Output() stepEmitter = new EventEmitter<"VIEW_MEMBER" | "VIEW_DETAIL">();
   private modalService = inject(NgbModal);
   closeResult: WritableSignal<string> = signal('');
 
@@ -30,7 +30,7 @@ export class ModalUtilsChatComponent {
           this.closeResult.set(`Dismissed ${this.getDismissReason(reason)}`);
         }
       );
-    this.stepEmitter.emit(1);
+    this.stepEmitter.emit("VIEW_MEMBER");
   }
 
   closeModal() {

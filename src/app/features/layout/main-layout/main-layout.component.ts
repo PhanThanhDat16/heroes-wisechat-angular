@@ -3,7 +3,7 @@ import { Store } from '@ngrx/store';
 import { loadHeroesSuccess } from '../../../core/store/hero/hero.actions';
 import { SocketIOService } from '../../../core/services/socket.service';
 import { loadGroup } from '../../../core/store/group/group.actions';
-import { Subscription } from 'rxjs';
+import {  Subscription } from 'rxjs';
 import { selectGroups } from '../../../core/store/group/group.selector';
 
 @Component({
@@ -12,7 +12,7 @@ import { selectGroups } from '../../../core/store/group/group.selector';
   styleUrl: './main-layout.component.scss',
 })
 export class MainLayoutComponent implements OnDestroy, OnInit {
-  trackSub: Subscription;
+  private subscriptions = new Subscription();
 
   constructor(private store: Store, private socketService: SocketIOService) {}
 
@@ -27,7 +27,7 @@ export class MainLayoutComponent implements OnDestroy, OnInit {
       this.socketService.connect();
       this.socketService.sendUserOnline(userId);
       this.store.dispatch(loadGroup({ userId }));
-      this.trackSub = this.store.select(selectGroups).subscribe({
+      const groupSub = this.store.select(selectGroups).subscribe({
         next: (data) => {
           const listGroupId = data.map((g) => g._id);
           // JOIN GROUP SOCKET
@@ -37,10 +37,13 @@ export class MainLayoutComponent implements OnDestroy, OnInit {
           console.log(error);
         },
       });
+
+      this.subscriptions.add(groupSub)
     }
   }
 
   ngOnDestroy(): void {
     this.store.dispatch(loadHeroesSuccess({ heroes: [] }));
+    this.subscriptions.unsubscribe()
   }
 }

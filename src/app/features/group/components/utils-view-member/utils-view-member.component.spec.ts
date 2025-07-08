@@ -8,7 +8,7 @@ describe('UtilsViewMemberComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [UtilsViewMemberComponent]
+      declarations: [UtilsViewMemberComponent],
     })
     .compileComponents();
     

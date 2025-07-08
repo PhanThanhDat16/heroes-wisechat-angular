@@ -8,7 +8,7 @@ describe('ModalUtilsMessageComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ModalUtilsMessageComponent]
+      declarations: [ModalUtilsMessageComponent],
     })
     .compileComponents();
     

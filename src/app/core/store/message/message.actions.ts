@@ -4,10 +4,12 @@ import {
   IMessageGroupDetail,
   IUploadedFile,
 } from '../../../features/chat/model/message';
+import { IUser } from '../../../features/auth/model/user';
+import { IGroup, IGroupMember } from '../../../features/group/model/group';
 
 export const loadMessage = createAction(
   '[Message] Load Message',
-  props<{ groupId: string; page: number; limit: number }>()
+  props<{ groupId: string; page: number; limit: number; search?: string }>()
 );
 export const loadMessageSuccess = createAction(
   '[Message] Load Message Success',
@@ -17,7 +19,6 @@ export const loadMessageFailure = createAction(
   '[Message] Load Message Failure',
   props<{ error: any }>()
 );
-
 
 export const createMessage = createAction(
   '[Message] Create Message',
@@ -31,7 +32,7 @@ export const createMessage = createAction(
     replyToSenderName: string | null;
     replyToType: string | null;
     messageType: string;
-    isRead: string[]
+    readUsers: string[]
   }>()
 );
 export const createMessageSuccess = createAction(
@@ -42,7 +43,6 @@ export const createMessageFailure = createAction(
   '[Message] Create Message Failure',
   props<{ error: any }>()
 );
-
 
 export const deleteMessageEveryone = createAction(
   '[Message] Delete Message',
@@ -109,3 +109,58 @@ export const uploadFilesFailure = createAction(
   props<{ error: any }>()
 );
 export const clearUploadedFile = createAction('[Message] Clear Uploaded File');
+
+
+export const addMemberInGroup = createAction(
+  '[Message] Add Member In Group',
+  props<{ group: IGroup; users: string[], userId: string }>()
+);
+export const addMemberInGroupSuccess = createAction(
+  '[Message] Add Member In Group Success',
+  props<{ newMember: IUser[] }>()
+);
+export const addMemberInGroupFailure = createAction(
+  '[Message] Add Member In Group Failure',
+  props<{ error: any }>()
+);
+
+export const deleteMemberInGroup = createAction(
+  '[Message] Delete Member In Group',
+  props<{ groupId: string; memberId: string }>()
+);
+export const deleteMemberInGroupSuccess = createAction(
+  '[Message] Delete Member In Group Success',
+  props<{ user: IGroupMember }>()
+);
+export const deleteMemberInGroupFailure = createAction(
+  '[Message] Delete Member In Group Failure',
+  props<{ error: any }>()
+);
+
+export const leaveGroup = createAction(
+  '[Message] Leave Group',
+  props<{ groupId: string; userId: string, data: { ownerId: string | null } }>()
+)
+export const leaveGroupSuccess = createAction(
+  '[Message] Leave Group Success',
+  props<{ user: IGroupMember }>()
+)
+export const leaveGroupFailure = createAction(
+  '[Message] Leave Group Failure',
+  props<{ error: any }>()
+)
+
+export const reactToMessage = createAction(
+  '[Message] React To Message',
+  props<{ messageId: string; userId: string; types: string; groupId: string }>()
+);
+
+export const reactToMessageSuccess = createAction(
+  '[Message] React To Message Success',
+  props<{ messageId: string; reactions: any, quantityReact: number }>()
+);
+
+export const reactToMessageFailure = createAction(
+  '[Message] React To Message Failure',
+  props<{ error: any }>()
+);

@@ -2,6 +2,7 @@ import { createAction, props } from '@ngrx/store';
 import {
   IGroup,
   IGroupCreate,
+  IGroupMember,
   IGroupMessage,
 } from '../../../features/group/model/group';
 import { IUser } from '../../../features/auth/model/user';
@@ -38,7 +39,7 @@ export const loadUsersByGroup = createAction(
 );
 export const loadUsersByGroupSuccess = createAction(
   '[Group] Load Users By Group Success',
-  props<{ users: IUser[] }>()
+  props<{ groupId: string; users: IUser[] }>()
 );
 export const loadUsersByGroupFailure = createAction(
   '[Group] Load Users By Group Failure',
@@ -71,6 +72,16 @@ export const updateGroupFailure = createAction(
   props<{ error: any }>()
 );
 
-export const addMemberIngroup = createAction(
-  '[Group] Add Member In Group',
+export const addTagForGroup = createAction(
+  '[Group] Add Tag For Group',
+  props<{userId: string, groupId: string, tag: string}>()
 )
+export const addTagForGroupSuccess = createAction(
+  '[Group] Add Tag For Group Success',
+  props<{groupMember: IGroupMember}>()
+)
+export const addTagForGroupFailure = createAction(
+  '[Group] Add Tag For Group Failure',
+  props<{error: any}>()
+)
+

@@ -38,7 +38,7 @@ export class RegisterComponent implements OnInit {
       },
       error: (error) => {
         this.toastService.error(error.error.message)
-      }
+      },
     })
   }
 
