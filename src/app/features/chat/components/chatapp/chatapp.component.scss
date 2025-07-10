@@ -1,5 +1,8 @@
+:host{
+  height: calc(100vh - 108px);
+}
 .wrapper-chat {
-  max-height: calc(100vh - 108px);
+  height: calc(100vh - 108px);
   border: 1px solid #e5e5e5;
   &-container {
     display: grid;

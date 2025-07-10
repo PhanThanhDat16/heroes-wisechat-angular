@@ -26,7 +26,7 @@ import { loadNoti } from '../../../../core/store/notification/notification.actio
 })
 export class UtilsViewMemberComponent implements OnInit, OnDestroy {
   groupData: IGroup;
-  step: "VIEW_MEMBER" | "VIEW_DETAIL" = "VIEW_MEMBER";
+  step: 'VIEW_MEMBER' | 'VIEW_DETAIL' = 'VIEW_MEMBER';
   userId = localStorage.getItem('userId');
   listUserByGroup: IUser[] = [];
   userOnlineGroup: string[] = [];
@@ -63,6 +63,9 @@ export class UtilsViewMemberComponent implements OnInit, OnDestroy {
 
       this.groupService.getGroupDetail(groupId).subscribe({
         next: (data) => (this.groupData = data),
+        error: (error) => {
+          // console.log(error);
+        },
       });
 
       if (this.nameUserSub) {
@@ -92,12 +95,12 @@ export class UtilsViewMemberComponent implements OnInit, OnDestroy {
       });
   }
 
-  onResetStep(dataStep: "VIEW_MEMBER" | "VIEW_DETAIL") {
+  onResetStep(dataStep: 'VIEW_MEMBER' | 'VIEW_DETAIL') {
     this.step = dataStep;
   }
 
   handleViewProfile(id: string) {
-    this.step = "VIEW_DETAIL";
+    this.step = 'VIEW_DETAIL';
     this.userService.getUserDetail(id).subscribe({
       next: (data) => {
         this.user = data;
@@ -106,17 +109,17 @@ export class UtilsViewMemberComponent implements OnInit, OnDestroy {
   }
 
   handleBackView() {
-    this.step = "VIEW_MEMBER";
+    this.step = 'VIEW_MEMBER';
   }
 
   handleDeletUserInGroup(user: IUser) {
     this.store.dispatch(
       deleteMemberInGroup({ groupId: this.groupData._id, memberId: user._id })
     );
-    
+
     this.action$
-    .pipe(ofType(deleteMemberInGroupSuccess), take(1))
-    .subscribe(() => {
+      .pipe(ofType(deleteMemberInGroupSuccess), take(1))
+      .subscribe(() => {
         this.store.dispatch(loadNoti({ userId: this.userId }));
         this.toastService.success('Delete member successful!');
         this.modalComponent?.closeModal();

@@ -1,5 +1,5 @@
 <div *ngFor="let msg of messagesGroup; let index = index">
-  <div *ngIf="msg.type === 'system'" class="w-100 text-center my-2">
+  <div *ngIf="msg.type === 'system'" class="w-100 text-center my-2 p-1">
     <span class="text-system fst-italic">{{ msg.content }}</span>
   </div>
 
@@ -26,7 +26,7 @@
         [ngClass]="{ 'justify-content-end': msg.senderId === userId }"
       >
         <div
-          *ngIf="msg.senderId !== userId"
+          *ngIf="msg.senderId !== userId && msg.senderName !=='System'"
           [ngClass]="
             onlineUserIds.includes(msg.senderId) ? 'avatar-online' : ''
           "
@@ -39,7 +39,7 @@
         </div>
 
         <div class="d-flex flex-column gap-1 flex-fill">
-          <span *ngIf="msg.senderId !== userId" class="text-name">{{
+          <span *ngIf="msg.senderId !== userId && msg.senderName !=='System'" class="text-name">{{
             msg.senderName | capitalizeWords
           }}</span>
           <div

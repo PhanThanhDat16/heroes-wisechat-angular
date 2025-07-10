@@ -25,13 +25,15 @@ import { IGroup } from '../../../features/group/model/group';
 import { GroupService } from '../../../features/group/service/group.service';
 import { SocketIOService } from '../../services/socket.service';
 import { addMemberInGroupSuccess } from '../message/message.actions';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class GroupEffects {
   constructor(
     private action$: Actions,
     private groupService: GroupService,
-    private socketService: SocketIOService
+    private socketService: SocketIOService,
+    private router: Router
   ) {}
 
   loadGroup$ = createEffect(() =>
@@ -52,7 +54,10 @@ export class GroupEffects {
       switchMap(({ groupId }) =>
         this.groupService.getGroupDetail(groupId).pipe(
           map((group) => loadGroupDetailSuccess({ group })),
-          catchError((error) => of(loadGroupDetailFailure({ error })))
+          catchError((error) => {
+            this.router.navigate(['/messages'])
+            return of(loadGroupDetailFailure({ error }))
+          })
         )
       )
     )

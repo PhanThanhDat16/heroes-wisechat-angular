@@ -75,7 +75,9 @@ export class GroupDetailBarComponent implements OnInit, OnDestroy {
   userOnlineGroup: string[];
   groupData: IGroup;
   listUserByGroup: IUser[] = [];
+  listUserByGroupLeave: IUser[] = [];
   userId = localStorage.getItem('userId');
+  isLoadingMembers = true;
   quantityImgAndFile: {
     image: number;
     file: number;
@@ -84,7 +86,6 @@ export class GroupDetailBarComponent implements OnInit, OnDestroy {
     file: 0,
   };
   private subscriptions = new Subscription();
-  // notiTagMap: Record<string, boolean> = {};
 
   constructor(
     private store: Store,
@@ -131,7 +132,9 @@ export class GroupDetailBarComponent implements OnInit, OnDestroy {
       .select(selectMembersGroup)
       .subscribe((members) => {
         if (members) {
+          this.isLoadingMembers = false;
           this.listUserByGroup = members;
+          this.listUserByGroupLeave = members.filter((member) => member._id !== this.userId)
           this.socketService.onlineUser$.subscribe((userIds) => {
             this.userOnlineGroup = this.listUserByGroup
               .filter((u) => userIds.includes(u._id))
@@ -197,15 +200,31 @@ export class GroupDetailBarComponent implements OnInit, OnDestroy {
     localStorage.setItem('notification', JSON.stringify(this.notification));
   }
 
-  // CHECK
-  handleTagChange(tag: string) {
-    this.store.dispatch(
-      addTagForGroup({
-        groupId: this.groupData._id,
-        userId: this.userId,
-        tag: tag.toLocaleLowerCase(),
-      })
-    );
+  handleTagChange(selectedTag: string, e: MouseEvent) {
+    e.stopImmediatePropagation();
+    const currentValue = this.tagForm.get(selectedTag)?.value;
+    if (currentValue) {
+      this.tagForm.get(selectedTag)?.setValue(false, { emitEvent: false });
+      this.store.dispatch(
+        addTagForGroup({
+          groupId: this.groupData._id,
+          userId: this.userId,
+          tag: '',
+        })
+      );
+    } else {
+      for (const tag of this.listTagGroup) {
+        this.tagForm.get(tag.tag)?.setValue(false, { emitEvent: false });
+      }
+      this.tagForm.get(selectedTag)?.setValue(true, { emitEvent: false });
+      this.store.dispatch(
+        addTagForGroup({
+          groupId: this.groupData._id,
+          userId: this.userId,
+          tag: selectedTag.toLocaleLowerCase(),
+        })
+      );
+    }
     localStorage.setItem('tagMap', JSON.stringify(this.tagForm.value));
   }
 

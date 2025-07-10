@@ -145,14 +145,14 @@ export class GroupService {
       .pipe(map((res) => res.data));
   }
 
-  getManyGroup(userId: string, search?: string) {
+  getManyGroup(search?: string) {
     let params = new HttpParams();
     if (search && search.trim() !== '') {
       params = params.set('search', search);
     }
     return this.http
       .get<{ message: string; data: any }>(
-        `${this.URL}/groups/user/${userId}`,
+        `${this.URL}/user/groups`,
         {
           params,
           headers: {

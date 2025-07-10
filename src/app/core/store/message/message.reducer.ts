@@ -87,27 +87,39 @@ export const messageReducer = createReducer(
     loading: true,
     error: null,
   })),
-  on(deleteMessageEveryoneSuccess, (state, { messages }) => ({
-    ...state,
-    loading: false,
-    messageDetail: state.messageDetail
-      ? {
-          ...state.messageDetail,
-          senderId: state.messageDetail.senderId
-            .filter((m) => m._id !== messages._id)
-            .map((m) =>
-              m.replyToMessageId === messages._id
-                ? {
-                    ...m,
-                    replyToContent: 'Deleted',
-                    replyToType: 'delete',
-                    replyToSenderName: null,
-                  }
-                : m
-            ),
-        }
-      : state.messageDetail,
-  })),
+  on(deleteMessageEveryoneSuccess, (state, { messages }) => {
+    const isImage = messages.type === 'image';
+    const isFile = messages.type === 'excel' || messages.type === 'word';
+
+    return {
+      ...state,
+      loading: false,
+      messageDetail: state.messageDetail
+        ? {
+            ...state.messageDetail,
+            senderId: state.messageDetail.senderId
+              .filter((m) => m._id !== messages._id)
+              .map((m) =>
+                m.replyToMessageId === messages._id
+                  ? {
+                      ...m,
+                      replyToContent: 'Deleted',
+                      replyToType: 'delete',
+                      replyToSenderName: null,
+                    }
+                  : m
+              ),
+            mediaImageCount: isImage
+              ? Math.max((state.messageDetail.mediaImageCount || 1) - 1, 0)
+              : state.messageDetail.mediaImageCount || 0,
+            mediaFileCount: isFile
+              ? Math.max((state.messageDetail.mediaFileCount || 1) - 1, 0)
+              : state.messageDetail.mediaFileCount || 0,
+          }
+        : state.messageDetail,
+    };
+  }),
+
   on(deleteMessageEveryoneFailure, (state, { error }) => ({
     ...state,
     loading: false,
@@ -301,19 +313,22 @@ export const messageReducer = createReducer(
     ...state,
     loading: true,
   })),
-  on(reactToMessageSuccess, (state, { messageId, reactions, quantityReact }) => {
-    const updatedMessages = state.messageDetail?.senderId.map((msg) =>
-      msg._id === messageId ? { ...msg, reactions, quantityReact } : msg
-    );
+  on(
+    reactToMessageSuccess,
+    (state, { messageId, reactions, quantityReact }) => {
+      const updatedMessages = state.messageDetail?.senderId.map((msg) =>
+        msg._id === messageId ? { ...msg, reactions, quantityReact } : msg
+      );
 
-    return {
-      ...state,
-      messageDetail: {
-        ...state.messageDetail!,
-        senderId: updatedMessages!,
-      },
-    };
-  }),
+      return {
+        ...state,
+        messageDetail: {
+          ...state.messageDetail!,
+          senderId: updatedMessages!,
+        },
+      };
+    }
+  ),
   on(reactToMessageFailure, (state, { error }) => {
     return {
       ...state,
@@ -323,24 +338,23 @@ export const messageReducer = createReducer(
   })
 );
 
+// on(reactToMessageSuccess, (state, { messageId, reactions }) => {
+//   if (!state.messageDetail) return state;
+//   const updatedMessages = state.messageDetail.senderId.map((msg) =>
+//     msg._id === messageId
+//       ? {
+//           ...msg,
+//           reactions,
+//         }
+//       : msg
+//   );
 
-  // on(reactToMessageSuccess, (state, { messageId, reactions }) => {
-  //   if (!state.messageDetail) return state;
-  //   const updatedMessages = state.messageDetail.senderId.map((msg) =>
-  //     msg._id === messageId
-  //       ? {
-  //           ...msg,
-  //           reactions,
-  //         }
-  //       : msg
-  //   );
-
-  //   return {
-  //     ...state,
-  //     loading: false,
-  //     messageDetail: {
-  //       ...state.messageDetail,
-  //       senderId: updatedMessages,
-  //     },
-  //   };
-  // }),
+//   return {
+//     ...state,
+//     loading: false,
+//     messageDetail: {
+//       ...state.messageDetail,
+//       senderId: updatedMessages,
+//     },
+//   };
+// }),

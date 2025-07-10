@@ -1,5 +1,55 @@
-<ng-container *ngIf="uploaded">
+<div class="position-relative">
+  <!-- <ng-container *ngIf="uploaded">
   <div class="uploaded-images-preview mb-2 px-5">
+    <div class="d-flex flex-nowrap gap-2 overflow-auto">
+      <div class="image-item position-relative rounded shadow-sm">
+        <ng-container [ngSwitch]="getFileType(uploaded.mimetype)">
+          <img
+            *ngSwitchCase="'image'"
+            [src]="uploaded.url"
+            [alt]="uploaded.originalname"
+            class="preview-img"
+          />
+
+          <img
+            *ngSwitchCase="'excel'"
+            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTroU91FLk1e5CTmveZCstER9A-qLpJGNtZvA&s"
+            alt="Excel file"
+            class="preview-img"
+          />
+
+          <img
+            *ngSwitchCase="'word'"
+            src="https://thehanoichamomile.com/wp-content/uploads/2019/06/12-121390_new-microsoft-word-icon.jpg"
+            alt="Word file"
+            class="preview-img"
+          />
+
+          <div
+            *ngSwitchDefault
+            class="w-100 h-100 d-flex justify-content-center align-items-center bg-light text-secondary"
+          >
+            File
+          </div>
+        </ng-container>
+
+        <div class="image-filename">
+          {{ uploaded.originalname }}
+        </div>
+
+        <button
+          type="button"
+          (click)="removeImage()"
+          class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 py-0 px-2"
+        >
+          ×
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container> -->
+<ng-container *ngIf="uploaded">
+  <div class="uploaded-images-preview mb-2 px-5 position-absolute">
     <div class="d-flex flex-nowrap gap-2 overflow-auto">
       <div class="image-item position-relative rounded shadow-sm">
         <ng-container [ngSwitch]="getFileType(uploaded.mimetype)">
@@ -90,6 +140,7 @@
       class="border-0 flex-fill"
       [(ngModel)]="messageInput"
       [disabled]="uploaded !== null ? true : false"
+      (keydown.enter)="handleSendMessage()"
     />
 
     <button (click)="handleSendMessage()">
@@ -106,6 +157,7 @@
       </span>
     </button>
   </div>
+</div>
 </div>
 
 <div *ngIf="editToMessage" class="overlay-edit"></div>

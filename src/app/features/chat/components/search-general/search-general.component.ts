@@ -1,14 +1,16 @@
 import {
   Component,
+  EventEmitter,
   Input,
   OnChanges,
   OnDestroy,
   OnInit,
+  Output,
   SimpleChanges,
 } from '@angular/core';
 import { GroupService } from '../../../group/service/group.service';
 import { IGroup } from '../../../group/model/group';
-import { IMessageGroup } from '../../model/message';
+import { IMessageGeneral } from '../../model/message';
 import { MessageService } from '../../service/message.service';
 import { Router } from '@angular/router';
 
@@ -19,10 +21,11 @@ import { Router } from '@angular/router';
 })
 export class SearchGeneralComponent implements OnChanges, OnDestroy {
   @Input() search;
+  @Output() emitSearch = new EventEmitter<string>();
   userId = localStorage.getItem('userId');
   isLoading;
   listGroup: IGroup[] | null = null;
-  listMessage: IMessageGroup[] | null = null;
+  listMessage: IMessageGeneral[] | null = null;
 
   constructor(
     private groupService: GroupService,
@@ -31,9 +34,9 @@ export class SearchGeneralComponent implements OnChanges, OnDestroy {
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (this.search !== '' && this.userId) {
+    if (this.search !== '') {
       this.isLoading = true;
-      this.groupService.getManyGroup(this.userId, this.search).subscribe({
+      this.groupService.getManyGroup(this.search).subscribe({
         next: (data) => {
           this.isLoading = false;
           this.listGroup = data;
@@ -43,9 +46,9 @@ export class SearchGeneralComponent implements OnChanges, OnDestroy {
   }
 
   handleFindMessageGenernal() {
-    if (this.userId && this.search) {
+    if (this.search) {
       this.isLoading = true;
-      this.messageService.getManyMessage(this.userId, this.search).subscribe({
+      this.messageService.getManyMessage(this.search).subscribe({
         next: (data) => {
           this.isLoading = false;
           this.listMessage = data.senderId;
@@ -55,7 +58,7 @@ export class SearchGeneralComponent implements OnChanges, OnDestroy {
   }
 
   handleNavigateGroup(groupId: string) {
-    console.log('hi');
+    this.emitSearch.emit('')
     this.router.navigate(['/messages', groupId]);
   }
 

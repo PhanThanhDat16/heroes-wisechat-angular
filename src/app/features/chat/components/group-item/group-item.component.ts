@@ -2,7 +2,11 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { SocketIOService } from '../../../../core/services/socket.service';
 import { IGroupMessage } from '../../../group/model/group';
 import { Store } from '@ngrx/store';
-import { loadUsersByGroup } from '../../../../core/store/group/group.actions';
+import {
+  loadGroup,
+  loadGroupDetail,
+  loadUsersByGroup,
+} from '../../../../core/store/group/group.actions';
 import { selectUsersByGroup } from '../../../../core/store/group/group.selector';
 import { updateIsRead } from '../../../../core/store/message/message.actions';
 import { selectMessage } from '../../../../core/store/message/message.selector';
@@ -43,8 +47,57 @@ export class GroupItemComponent implements OnInit, OnDestroy {
     });
     this.subscriptions.add(onlineSub);
 
+    this.socketService.receiveEditGroup().subscribe((data) => {
+      if (
+        this.itemGroup._id === data.groupId &&
+        data.senderId !== this.userId
+      ) {
+        this.itemGroup = {
+          ...this.itemGroup,
+          name: data.name,
+        };
+      }
+    });
+
+    this.socketService
+      .receiveKickedFromGroup()
+      .subscribe(({ groupId, userId }) => {
+        if (this.itemGroup._id === groupId) {
+          this.store.dispatch(loadGroup({ userId: this.userId }));
+          this.store.dispatch(loadGroupDetail({ groupId }));
+          this.userOnlineGroup = this.userOnlineGroup.filter(
+            (uId) => uId !== userId
+          );
+        }
+      });
+
     this.store.select(selectMessage).subscribe((message) => {
       if (message && message.group._id === this.itemGroup._id) {
+        const userId = localStorage.getItem('userId');
+
+        const visibleMessages = message.senderId.filter(
+          (msg) => !msg.deleteForUser?.includes(userId)
+        );
+
+        const lastVisibleMessage = visibleMessages[visibleMessages.length - 1];
+
+        if (lastVisibleMessage) {
+          this.itemGroup = {
+            ...this.itemGroup,
+            lastMessage: {
+              content: lastVisibleMessage.content,
+              senderId: lastVisibleMessage.senderId,
+              senderName: lastVisibleMessage.senderName,
+              createdAt: lastVisibleMessage.createdAt,
+            },
+          };
+        } else {
+          this.itemGroup = {
+            ...this.itemGroup,
+            lastMessage: null,
+          };
+        }
+
         if (message.group._id === this.wasReadGroupId && this.wasReadManually) {
           this.isRead = true;
         }
@@ -98,34 +151,12 @@ export class GroupItemComponent implements OnInit, OnDestroy {
       }
     });
     this.subscriptions.add(msgSub);
-
-    this.socketService.receiveEditGroup().subscribe((data) => {
-      if (
-        this.itemGroup._id === data.groupId &&
-        data.senderId !== this.userId
-      ) {
-        this.itemGroup = {
-          ...this.itemGroup,
-          name: data.name,
-        };
-      }
-    });
-
-    this.socketService
-      .receiveKickedFromGroup()
-      .subscribe(({ groupId, userId }) => {
-        if (this.itemGroup._id === groupId) {
-          this.userOnlineGroup = this.userOnlineGroup.filter(
-            (uId) => uId !== userId
-          );
-        }
-      });
   }
 
-  checkIsRead() {
-    this.isRead =
-      this.itemGroup?.readUsers?.includes(this.userId || '') || false;
-  }
+  // checkIsRead() {
+  //   this.isRead =
+  //     this.itemGroup?.readUsers?.includes(this.userId || '') || false;
+  // }
 
   handleReadMessage(groupId: string) {
     if (!this.itemGroup.readUsers.includes(this.userId || '')) {
@@ -146,6 +177,18 @@ export class GroupItemComponent implements OnInit, OnDestroy {
           'font-size': '12px',
         }
       : {};
+  }
+
+  isURL(content: string): boolean {
+    try {
+      new URL(content);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  isImage(content: string): boolean {
+    return /\.(jpeg|jpg|gif|png|webp)$/i.test(content);
   }
 
   ngOnDestroy(): void {

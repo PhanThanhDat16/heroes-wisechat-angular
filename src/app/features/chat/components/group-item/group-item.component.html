@@ -43,11 +43,21 @@
               : itemGroup.lastMessage.senderName + ": "
             : ""
         }}
-        {{ itemGroup.lastMessage?.content ?? itemGroup.lastMessage ?? "" }}
+        <!-- {{ itemGroup.lastMessage?.content ?? itemGroup.lastMessage ?? "" }} -->
+        <ng-container
+          *ngIf="isURL(itemGroup.lastMessage?.content); else normalContent"
+        >
+          <ng-container
+            *ngIf="isImage(itemGroup.lastMessage?.content); else fileText"
+            >Imgage</ng-container
+          >
+          <ng-template #fileText>File</ng-template>
+        </ng-container>
+        <ng-template #normalContent>{{
+          itemGroup.lastMessage?.content ?? 'New Group'
+        }}</ng-template>
       </p>
-      <span *ngIf="isRead" class="me-3"
-        ><i class="fa-solid fa-check icon-check"></i
-      ></span>
+      <span *ngIf="!isRead" class="me-3 check-wrapper"> </span>
     </div>
   </div>
 </div>

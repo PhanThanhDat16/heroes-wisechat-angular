@@ -137,7 +137,7 @@ export class messageEffects {
       switchMap(({ messageId, userId }) =>
         this.messageService.deleteMessageForMe(messageId, userId).pipe(
           tap((data) => {
-            console.log('Delete message for me:', data);
+            // console.log('Delete message for me:', data);
             this.socketService.deleteMessageForMe(data);
           }),
           map((data) => deleteMessageForMeSuccess({ message: data })),
@@ -257,10 +257,15 @@ export class messageEffects {
       switchMap(({ groupId, userId, data }) =>
         this.groupService.leaveGroup(groupId, userId, data).pipe(
           tap((data) => {
-            // const ownerId = localStorage.getItem('userId')
-            // if(ownerId){
-            //   this.socketService.kickedFromGroup(data.userId, data.groupId, ownerId);
-            // }
+            const oldOwnerId = localStorage.getItem('userId');
+            if (oldOwnerId) {
+              this.socketService.kickedFromGroup(
+                oldOwnerId,
+                data.result.groupId,
+                data.result.userId
+              );
+            }
+            console.log(data)
             this.socketService.sendMessage(
               data.message._id,
               data.message.senderId,
@@ -275,7 +280,7 @@ export class messageEffects {
               data.message.readUsers
             );
           }),
-          map((user) => leaveGroupSuccess({ user })),
+          map((user) => leaveGroupSuccess({ user: user.result })),
           catchError((error) => of(leaveGroupFailure({ error })))
         )
       )

@@ -18,13 +18,19 @@
     />
   </div>
 
-  <div *ngIf="isLoading" class="text-center py-4">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden"></span>
-    </div>
-  </div>
+  <ng-container *ngIf="isLoading; else loadedContent">
+    <ng-container *ngFor="let item of [1, 2, 3]">
+      <div class="d-flex gap-2 align-items-center mb-4">
+        <app-loading-skeleton height="45px" width="45px" borderRadius="50%"></app-loading-skeleton>
+        <div class="d-flex flex-column gap-1">
+          <app-loading-skeleton height="13px" width="100px" borderRadius="20px"></app-loading-skeleton>
+          <app-loading-skeleton height="10px" width="150px" borderRadius="20px"></app-loading-skeleton>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
 
-  <ng-container *ngIf="listMessage && listMessage.length > 0">
+  <ng-template #loadedContent>
     <div class="overflow-y-auto scroll-y msg-wrapper">
       <div
         class="d-flex align-items-center gap-2 mb-4"
@@ -45,7 +51,7 @@
         </div>
       </div>
     </div>
-  </ng-container>
+  </ng-template>
 
   <ng-container *ngIf="listMessage && listMessage.length === 0 && !isLoading">
     <div class="d-flex flex-column align-items-center gap-5 mt-5">

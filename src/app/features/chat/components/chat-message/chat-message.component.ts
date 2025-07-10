@@ -71,10 +71,10 @@ export class ChatMessageComponent implements AfterViewInit, OnInit, AfterViewChe
       });
     this.subscriptions.add(groupSub);
 
-    const loadingSub = this.store.select(selectGroupLoading).subscribe((loading) => {
-      this.isLoadingMessages = loading;
-    });
-    this.subscriptions.add(loadingSub);
+    // const loadingSub = this.store.select(selectGroupLoading).subscribe((loading) => {
+    //   this.isLoadingMessages = loading;
+    // });
+    // this.subscriptions.add(loadingSub);
 
     const selectMessageSub = this.store.select(selectMessage).subscribe((message) => {
       if (message) {
@@ -169,7 +169,10 @@ export class ChatMessageComponent implements AfterViewInit, OnInit, AfterViewChe
             this.isLoadingMessages = false;
             return;
           }
-          this.messagesGroup = [...data.senderId, ...this.messagesGroup];
+          const newMessages = data.senderId.filter(
+  (newMsg) => !this.messagesGroup.some((oldMsg) => oldMsg._id === newMsg._id)
+);
+this.messagesGroup = [...newMessages, ...this.messagesGroup];
           this.currentPage++;
 
           setTimeout(() => {

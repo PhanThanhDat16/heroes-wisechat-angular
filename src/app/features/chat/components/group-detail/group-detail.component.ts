@@ -27,6 +27,7 @@ export class GroupDetailComponent implements OnInit, OnDestroy {
   userOnlineGroup: IUser[] = [];
   isGroupDetailBarVisible = true;
   tag;
+  isLoading = false;
   groupId: string | null = null;
   userId = localStorage.getItem('userId');
   isCollapsed = true;
@@ -42,15 +43,16 @@ export class GroupDetailComponent implements OnInit, OnDestroy {
     const routeSub = this.route.params.subscribe((params) => {
       this.groupId = params['id'];
       if (this.groupId) {
+        this.isLoading = true;
         this.store.dispatch(loadGroupDetail({ groupId: this.groupId }));
       }
     });
     this.subscriptions.add(routeSub);
 
-    this.store.select(selectGroups).subscribe((groups) => {
-      if (groups) {
-        const group = groups.find((g) => g._id === this.groupId)
-        if(group){
+    this.store.select(selectGroups).subscribe((groups: any[]) => {
+      if (groups && groups.length > 0) {
+        const group = groups.find((gr: any) => gr._id === this.groupId);
+        if (group) {
           this.tag = group.tag;
         }
       }
@@ -60,6 +62,7 @@ export class GroupDetailComponent implements OnInit, OnDestroy {
       .select(selectGroupDetail)
       .subscribe((groupDetail) => {
         this.groupData = groupDetail;
+        this.isLoading = false;
         this.store.dispatch(
           loadMessage({ groupId: this.groupId, page: 1, limit: 10 })
         );
@@ -94,19 +97,19 @@ export class GroupDetailComponent implements OnInit, OnDestroy {
       });
     this.subscriptions.add(receiveEdit);
 
-    const receiveSub = this.socketService
-      .receiveMessage()
-      .subscribe((message) => {
-        const route = this.route.snapshot.params['id'];
-        if (message.groupId === route) {
-          if (this.userId) {
-            this.store.dispatch(
-              updateIsRead({ groupId: route, userId: this.userId })
-            );
-          }
-        }
-      });
-    this.subscriptions.add(receiveSub);
+    // const receiveSub = this.socketService
+    //   .receiveMessage()
+    //   .subscribe((message) => {
+    //     const route = this.route.snapshot.params['id'];
+    //     if (message.groupId === route) {
+    //       if (this.userId) {
+    //         this.store.dispatch(
+    //           updateIsRead({ groupId: route, userId: this.userId })
+    //         );
+    //       }
+    //     }
+    //   });
+    // this.subscriptions.add(receiveSub);
   }
 
   toggleGroupDetailBar() {

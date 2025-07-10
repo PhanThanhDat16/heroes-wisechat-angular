@@ -13,6 +13,7 @@
       <span
         [ngClass]="user ? 'text-primary cursor-pointer' : 'btn-choose'"
         (click)="handleChooseAdmin()"
+        class="cursor-point"
         >Choose</span
       >
     </div>
@@ -32,7 +33,7 @@
     </div>
     <div class="d-flex flex-column gap-3 mt-2">
       <fieldset>
-        <ng-container *ngFor="let user of listUserByGroup">
+        <ng-container *ngFor="let user of listUserByGroupLeave">
           <label
             class="custom-checkbox-wrapper d-flex align-items-center justify-content-between py-2 px-3"
           >
@@ -48,7 +49,6 @@
               #userCheckbox
               type="radio"
               name="chooseAdmin"
-              [checked]="isUserSelected(user._id)"
               (change)="handleOpenModal(user, $event)"
             />
           </label>
@@ -60,7 +60,7 @@
 
 <span
   modal-btn
-  class="text-danger fw-normal w-100 d-inline-block cursor-point d-flex align-items-center gap-2 justify-content-center"
+  class="text-danger fw-normal w-100 d-inline-block d-flex align-items-center gap-2 justify-content-center cursor-point "
   (click)="handleLeaveGroup(content)"
 >
   <i class="fa-solid fa-arrow-right-from-bracket"></i>

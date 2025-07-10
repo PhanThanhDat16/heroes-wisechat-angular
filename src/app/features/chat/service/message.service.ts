@@ -132,14 +132,14 @@ export class MessageService {
       .pipe(map((res) => res.data));
   }
 
-  getManyMessage(userId: string, search?: string) {
+  getManyMessage(search?: string) {
     let params = new HttpParams();
     if (search && search.trim() !== '') {
       params = params.set('search', search);
     }
     return this.http
       .get<{ message: string; data: any }>(
-        `${this.URL}/groups/messages/user/${userId}`,
+        `${this.URL}/users/messages`,
         {
           params,
           headers: {

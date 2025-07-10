@@ -25,6 +25,33 @@ export interface IMessageGroup {
     }>;
 }
 
+export interface IMessageGeneral {
+  _id?: string;
+  content: string;
+  createdAt: string;
+  groupId: {
+    _id: string,
+    name: string
+  };
+  quantityReact: number;
+  senderId: string;
+  senderName: string;
+  updatedAt: string;
+  isEdited: boolean;
+  replyToMessageId: string | null;
+  replyToContent: string | null;
+  replyToSenderName: string | null;
+  replyToType: string | null;
+  type: string;
+  readUsers: string[];
+  deleteForUser: string[];
+  status: string;
+  reactions?: Record<string, {
+      count: number;
+      users: string[];
+    }>;
+}
+
 export interface IMessageCreate {
   groupId: string;
   senderId: string;

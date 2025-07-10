@@ -15,6 +15,7 @@ import {
 } from '../../../../core/store/notification/notification.actions';
 import { selectNoti } from '../../../../core/store/notification/notification.selector';
 import { FormControl } from '@angular/forms';
+import { loadMessage } from '../../../../core/store/message/message.actions';
 
 @Component({
   selector: 'app-chatapp',
@@ -69,49 +70,26 @@ export class ChatappComponent implements OnInit, OnDestroy {
 
       const receiveSub = this.socketService.receiveMessage().subscribe((message) => {
         if (message) {
-          const dataClone = [...this.data];
-          const index = this.data.findIndex((g) => g._id === message.groupId);
-          if (index !== -1) {
-            const updatedGroup = {
-              ...this.data[index],
-              lastMessage: {
-                content: message.content,
-                senderId: message.senderId,
-                senderName: message.senderName,
-                createdAt: message.createdAt,
-              },
-            };
-            dataClone.splice(index, 1);
-            dataClone.unshift(updatedGroup);
-            this.data = dataClone;
-          }
+          // const dataClone = [...this.data];
+          // const index = this.data.findIndex((g) => g._id === message.groupId);
+          // if (index !== -1) {
+          //   const updatedGroup = {
+          //     ...this.data[index],
+          //     lastMessage: {
+          //       content: message.content,
+          //       senderId: message.senderId,
+          //       senderName: message.senderName,
+          //       createdAt: message.createdAt,
+          //     },
+          //   };
+          //   dataClone.splice(index, 1);
+          //   dataClone.unshift(updatedGroup);
+          //   this.data = dataClone;
+          // }
+          this.store.dispatch(loadGroup({userId}))
         }
       });
       this.subscriptions.add(receiveSub)
-      // this.socketService.receiveMessage().subscribe((message) => {
-      //   const dataClone = [...this.data];
-      //   const index = dataClone.findIndex((g) => g._id === message.groupId);
-
-      //   if (index !== -1) {
-      //     const oldGroup = dataClone[index];
-      //     const updatedGroup = {
-      //       ...oldGroup,
-      //       lastMessage: {
-      //         content: message.content,
-      //         senderId: message.senderId,
-      //         senderName: message.senderName,
-      //         createdAt: message.createdAt,
-      //       },
-      //       readUsers: oldGroup.readUsers.includes(this.userId)
-      //         ? oldGroup.readUsers
-      //         : message.readUsers,
-      //     };
-
-      //     dataClone.splice(index, 1);
-      //     dataClone.unshift(updatedGroup);
-      //     this.data = dataClone;
-      //   }
-      // });
     }
 
     const routeSub = this.router.events
@@ -157,6 +135,11 @@ export class ChatappComponent implements OnInit, OnDestroy {
       .subscribe((search) => {
         this.query = search?.trim() || '';
       });
+  }
+
+  handleResetSearch(search){
+    this.searchGeneral.setValue('')
+    this.query = ''
   }
 
   trackByGroup(index: number, item: IGroupMessage) {

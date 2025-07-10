@@ -13,25 +13,41 @@
           alt=""
           class="chat-header-img"
         />
-        <div class="d-flex flex-column align-items-start gap-2">
-          <div class="d-flex align-items-center gap-3">
-            <span class="fs-5 fw-medium">{{ groupData?.name }}</span>
-            <span [ngStyle]="getTagStyle(tag)" class="fw-bold">{{
-              tag | capitalizeWords
-            }}</span>
+        <div *ngIf="isLoading; else content">
+          <div class="d-flex flex-column align-items-start gap-2">
+            <app-loading-skeleton
+              width="200px"
+              height="24px"
+            ></app-loading-skeleton>
+            <app-loading-skeleton
+              width="100px"
+              height="16px"
+            ></app-loading-skeleton>
           </div>
-
-          <span class="d-flex align-items-center gap-1">
-            <span
-              [ngClass]="
-                userOnlineGroup.length > 0 ? 'status-online' : 'status-offline'
-              "
-            ></span>
-            <span class="fw-6 fs-7 text-primary-chat">{{
-              userOnlineGroup.length > 0 ? "Online" : "Offline"
-            }}</span>
-          </span>
         </div>
+
+        <ng-template #content>
+          <div class="d-flex flex-column align-items-start gap-2">
+            <div class="d-flex align-items-center gap-3">
+              <span class="fs-5 fw-medium">{{ groupData?.name }}</span>
+              <span [ngStyle]="getTagStyle(tag)" class="fw-bold">{{
+                tag | capitalizeWords
+              }}</span>
+            </div>
+            <span class="d-flex align-items-center gap-1">
+              <span
+                [ngClass]="
+                  userOnlineGroup.length > 0
+                    ? 'status-online'
+                    : 'status-offline'
+                "
+              ></span>
+              <span class="fw-6 fs-7 text-primary-chat">{{
+                userOnlineGroup.length > 0 ? "Online" : "Offline"
+              }}</span>
+            </span>
+          </div>
+        </ng-template>
       </div>
 
       <div class="d-flex align-items-center gap-3">

@@ -39,7 +39,7 @@
           </div>
         </ng-container>
         <ng-container *ngIf="query">
-          <app-search-general [search]="query"></app-search-general>
+          <app-search-general (emitSearch)="handleResetSearch($event)" [search]="query"></app-search-general>
         </ng-container>
       </div>
     </div>

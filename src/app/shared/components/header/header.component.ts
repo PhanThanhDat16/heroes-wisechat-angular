@@ -42,7 +42,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
         const isEnabled = groupNotiMap[data.groupId] ?? true;
 
         if (this.userId && isEnabled) {
-          console.log('Show')
           this.store.dispatch(loadNoti({ userId: this.userId }));
         }
       });
