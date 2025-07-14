@@ -1,7 +1,7 @@
-import { Component, DoCheck, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { IGroupMessage } from '../../../group/model/group';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { debounceTime, filter, Subscription } from 'rxjs';
+import { debounceTime, filter, map, startWith, Subscription } from 'rxjs';
 import { SocketIOService } from '../../../../core/services/socket.service';
 import { Store } from '@ngrx/store';
 import {
@@ -10,12 +10,8 @@ import {
 } from '../../../../core/store/group/group.actions';
 import { selectGroups } from '../../../../core/store/group/group.selector';
 import { Actions, ofType } from '@ngrx/effects';
-import {
-  loadNoti,
-} from '../../../../core/store/notification/notification.actions';
-import { selectNoti } from '../../../../core/store/notification/notification.selector';
+import { loadNoti } from '../../../../core/store/notification/notification.actions';
 import { FormControl } from '@angular/forms';
-import { loadMessage } from '../../../../core/store/message/message.actions';
 
 @Component({
   selector: 'app-chatapp',
@@ -27,7 +23,7 @@ export class ChatappComponent implements OnInit, OnDestroy {
   checkLinkDetail: string | undefined = undefined;
   userId = localStorage.getItem('userId');
   currentGroupId: string | null = null;
-  // isLoading = false;
+  checkGroupIdRead = '';
   query = '';
   searchGeneral = new FormControl('');
   private subscriptions = new Subscription();
@@ -41,9 +37,17 @@ export class ChatappComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.route.firstChild?.params.subscribe((params) => {
-      this.currentGroupId = params['id'];
-    });
+    // this.route.firstChild?.params.subscribe((params) => {
+    //   this.currentGroupId = params['id'];
+    // });
+    this.router.events
+      .pipe(
+        filter((e) => e instanceof NavigationEnd),
+        map(() => this.route.firstChild?.snapshot.paramMap.get('id') || null),
+        startWith(this.route.firstChild?.snapshot.paramMap.get('id') || null)
+      )
+      .subscribe((id) => (this.currentGroupId = id));
+
     const userId = localStorage.getItem('userId');
     if (userId) {
       const groupSub = this.store.select(selectGroups).subscribe((groups) => {
@@ -68,28 +72,30 @@ export class ChatappComponent implements OnInit, OnDestroy {
         });
       this.subscriptions.add(newGroupSub);
 
-      const receiveSub = this.socketService.receiveMessage().subscribe((message) => {
-        if (message) {
-          // const dataClone = [...this.data];
-          // const index = this.data.findIndex((g) => g._id === message.groupId);
-          // if (index !== -1) {
-          //   const updatedGroup = {
-          //     ...this.data[index],
-          //     lastMessage: {
-          //       content: message.content,
-          //       senderId: message.senderId,
-          //       senderName: message.senderName,
-          //       createdAt: message.createdAt,
-          //     },
-          //   };
-          //   dataClone.splice(index, 1);
-          //   dataClone.unshift(updatedGroup);
-          //   this.data = dataClone;
-          // }
-          this.store.dispatch(loadGroup({userId}))
-        }
-      });
-      this.subscriptions.add(receiveSub)
+      const receiveSub = this.socketService
+        .receiveMessage()
+        .subscribe((message) => {
+          if (message) {
+            // const dataClone = [...this.data];
+            // const index = this.data.findIndex((g) => g._id === message.groupId);
+            // if (index !== -1) {
+            //   const updatedGroup = {
+            //     ...this.data[index],
+            //     lastMessage: {
+            //       content: message.content,
+            //       senderId: message.senderId,
+            //       senderName: message.senderName,
+            //       createdAt: message.createdAt,
+            //     },
+            //   };
+            //   dataClone.splice(index, 1);
+            //   dataClone.unshift(updatedGroup);
+            //   this.data = dataClone;
+            // }
+            this.store.dispatch(loadGroup({ userId }));
+          }
+        });
+      this.subscriptions.add(receiveSub);
     }
 
     const routeSub = this.router.events
@@ -113,15 +119,17 @@ export class ChatappComponent implements OnInit, OnDestroy {
     const addMemberGroupSub = this.socketService
       .receiveAddMemberFromGroup()
       .subscribe(({ group, listUser, userId }) => {
-        if (this.userId === userId) {
+        if (this.userId !== userId) {
           this.socketService.joinGroup([group._id]);
           this.store.dispatch(loadGroup({ userId: this.userId! }));
-        } else {
-          const existingGroupIds = this.data.map((g) => g._id);
-          if (!existingGroupIds.includes(group._id)) {
-            this.store.dispatch(loadGroup({ userId: this.userId! }));
-          }
         }
+        //  else {
+        //   console.log('đã join');
+        //   const existingGroupIds = this.data.map((g) => g._id);
+        //   if (!existingGroupIds.includes(group._id)) {
+        //     this.store.dispatch(loadGroup({ userId: this.userId! }));
+        //   }
+        // }
       });
     this.subscriptions.add(addMemberGroupSub);
 
@@ -137,13 +145,17 @@ export class ChatappComponent implements OnInit, OnDestroy {
       });
   }
 
-  handleResetSearch(search){
-    this.searchGeneral.setValue('')
-    this.query = ''
+  handleResetSearch(search) {
+    this.searchGeneral.setValue('');
+    this.query = '';
   }
 
   trackByGroup(index: number, item: IGroupMessage) {
     return item._id;
+  }
+
+  handleResetGroupIdRead(id) {
+    this.checkGroupIdRead = id;
   }
 
   ngOnDestroy(): void {

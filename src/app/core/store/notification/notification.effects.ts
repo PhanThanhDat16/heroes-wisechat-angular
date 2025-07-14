@@ -41,8 +41,8 @@ export class NotiEffects {
   updateReadNoti$ = createEffect(() =>
     this.action$.pipe(
       ofType(updateReadNoti),
-      switchMap(({ notiId, userId }) =>
-        this.notiSerivce.updateReadNoti(notiId, userId).pipe(
+      switchMap(({ notiId }) =>
+        this.notiSerivce.updateReadNoti(notiId).pipe(
           map((notiByUser) => updateReadNotiSuccess({ notiByUser })),
           catchError(({ error }) => of(updateReadNotiFailure({ error })))
         )

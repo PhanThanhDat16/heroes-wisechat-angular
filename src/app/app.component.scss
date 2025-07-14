@@ -206,7 +206,7 @@ body {
   }
 }
 
-.width-maxcontent{
+.width-maxcontent {
   width: max-content;
 }
 
@@ -219,7 +219,7 @@ body {
   text-overflow: ellipsis;
 }
 
-.flex-shrink{
+.flex-shrink {
   flex-shrink: 0;
 }
 
@@ -247,7 +247,7 @@ body {
   border: 1px solid #909090;
 }
 
-.z-max{
+.z-max {
   z-index: 1111;
 }
 
@@ -279,4 +279,9 @@ body {
     background-color: #001aff8c;
     border-color: #1012c059;
   }
+}
+
+.z-max-relative{
+  z-index: 111;
+  position: relative;
 }

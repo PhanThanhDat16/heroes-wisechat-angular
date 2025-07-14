@@ -1,9 +1,4 @@
-import {
-  Component,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
@@ -11,7 +6,10 @@ import { Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { ITag } from '../../../tags/model/tag';
 import { HeroService } from '../../service/heroes.service';
-import { deleteHero, updateHero } from '../../../../core/store/hero/hero.actions';
+import {
+  deleteHero,
+  updateHero,
+} from '../../../../core/store/hero/hero.actions';
 import { IHero, IHeroUpdate } from '../../model/heroes';
 
 @Component({
@@ -27,7 +25,7 @@ export class DetailComponent implements OnInit, OnDestroy {
   isLoading = false;
   username = '';
   tags: ITag[] = [];
-  createdAt = ''
+  createdAt = '';
 
   formDetail = new FormGroup({
     name: new FormControl('', Validators.required),
@@ -63,11 +61,6 @@ export class DetailComponent implements OnInit, OnDestroy {
     };
 
     try {
-      // this.heroService.updateHeroService(this.id, heroUpdate).subscribe({
-      //   next: (data) => {
-      //     this.toastService.success("Update Successfully")
-      //   },
-      // });
       this.store.dispatch(updateHero({ id: this.id, hero: heroUpdate }));
     } catch (error) {
       console.log(error);
@@ -108,7 +101,7 @@ export class DetailComponent implements OnInit, OnDestroy {
       this.isLoading = true;
       this.trackSub = this.heroService.getHeroDetailService(this.id).subscribe({
         next: (data) => {
-          this.createdAt = data.createdAt ?? ''
+          this.createdAt = data.createdAt ?? '';
           this.checkUserId = data.userId === userId;
           this.hero = data;
           this.tags = this.hero.tags ?? [];

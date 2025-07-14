@@ -1,3 +1,128 @@
+.theme {
+  &-cloud {
+    background-color: #0546ee !important;
+    color: white !important;
+  }
+  &-cloud-orther {
+    background-color: #dff4ff !important;
+    color: black !important;
+  }
+
+  &-family {
+    background-color: #c44b01 !important;
+    color: white !important;
+  }
+  &-family-orther {
+    background-color: #feecd2 !important;
+    color: black !important;
+  }
+
+  &-green {
+    background-color: #467729 !important;
+    color: white !important;
+  }
+  &-green-orther {
+    background-color: #fafce8 !important;
+    color: black !important;
+  }
+
+  &-default {
+    background-color: #0d6efd;
+    color: white;
+  }
+  &-default-orther {
+    background-color: #e8e8e8;
+    color: black;
+  }
+}
+
+.text-bg {
+  &-cloud {
+    color: #65686c !important;
+  }
+
+  &-family,
+  &-green {
+    color: #2a160b !important;
+  }
+
+  &-default {
+    color: #a9a9a9cc;
+  }
+}
+
+.text-react-default {
+  color: #f1f1f1da;
+  i {
+    color: #f1f1f1da !important;
+  }
+}
+
+.text-react-cloud {
+  color: #e6f0ff;
+  i {
+    color: #e6f0ff !important;
+  }
+}
+
+.text-react-family {
+  color: #ffe4c2;
+  i {
+    color: #ffe4c2 !important;
+  }
+}
+
+.text-react-green {
+  color: #e1f5d0;
+  i {
+    color: #e1f5d0 !important;
+  }
+}
+
+.text-react i {
+  text-shadow: 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
+.text {
+  &-hour {
+    font-size: 10px;
+    color: #9dabb7;
+  }
+
+  &-react {
+    display: none !important;
+  }
+
+  &-content {
+    padding: 10px 15px;
+    border-radius: 22px;
+    cursor: pointer;
+  }
+
+  &-name {
+    font-size: 13px;
+    margin-left: 6px;
+  }
+
+  &-wrapper {
+    &:hover .text-react {
+      position: relative;
+      display: flex !important;
+      color: #ccc;
+    }
+  }
+
+  &-edit {
+    font-size: 12px;
+    &-right {
+      margin-right: 10px !important;
+    }
+    &-left {
+      margin-left: 10px !important;
+    }
+  }
+}
+
 .card {
   &-avatar {
     width: 60px;
@@ -46,48 +171,6 @@
 .bg-customer {
   background-color: #e8e8e8 !important;
   border: 1px solid #d2d2d2;
-}
-
-.text {
-  &-hour {
-    font-size: 10px;
-    color: #9dabb7;
-  }
-
-  &-react {
-    display: none !important;
-  }
-
-  &-content {
-    padding: 10px 15px;
-    border-radius: 22px;
-    cursor: pointer;
-  }
-
-  &-name {
-    font-size: 13px;
-    margin-left: 6px;
-    color: #ccc;
-  }
-
-  &-wrapper {
-    &:hover .text-react {
-      position: relative;
-      display: flex !important;
-      color: #ccc;
-    }
-  }
-
-  &-edit {
-    font-size: 12px;
-    color: #888;
-    &-right {
-      margin-right: 10px;
-    }
-    &-left {
-      margin-left: 10px;
-    }
-  }
 }
 
 .my-message {
@@ -300,7 +383,6 @@
   }
 }
 
-
 .reaction-container {
   margin-top: 4px;
   padding: 0 4px;
@@ -324,15 +406,15 @@
 }
 
 .emoji {
-  &-message{
+  &-message {
     color: #65676b;
     background-color: #ccc;
   }
   &-item {
-    &-type{
+    &-type {
       font-size: 10px;
     }
-    &-count{
+    &-count {
       font-size: 11px;
     }
   }

@@ -40,10 +40,6 @@ export class ModalAddChatComponent {
     this.modalService.dismissAll();
   }
 
-  // handleBack(){
-  //   this.stepEmitter.emit('CHOOSE_MEMBER');
-  // }
-
   private getDismissReason(reason: any): string {
     switch (reason) {
       case ModalDismissReasons.ESC:

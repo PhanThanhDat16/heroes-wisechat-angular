@@ -20,7 +20,7 @@
       Add Member
     </h4>
   </div>
- 
+
   <button
     modal-header-action
     class="modal-title btn-next lh-1 px-4 py-3 border rounded-pill"
@@ -42,8 +42,6 @@
         [formControl]="nameUser"
       />
     </div>
-
-    
 
     <div *ngIf="listAddUser.length > 0" class="d-flex gap-4 mb-3 p-10 scroll-x">
       <ng-container *ngFor="let user of listAddUser">
@@ -85,9 +83,9 @@
             </span>
           </label>
         </ng-container>
-        <!-- <div *ngIf="users && users.length === 0 ">
-          Not Found
-        </div> -->
+        <div *ngIf="users && users.length === 0" class="text-center">
+          Not found
+        </div>
       </div>
     </ng-container>
   </div>

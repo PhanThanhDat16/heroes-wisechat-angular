@@ -19,6 +19,9 @@ import {
   updateGroup,
   updateGroupFailure,
   updateGroupSuccess,
+  updateThemeGroup,
+  updateThemeGroupFailure,
+  updateThemeGroupSuccess,
 } from './group.actions';
 import { IGroupMessage } from '../../../features/group/model/group';
 
@@ -65,27 +68,6 @@ export const groupReducer = createReducer(
   })),
 
   on(createGroup, (state) => ({ ...state, loading: true })),
-  // on(createGroupSuccess, (state, { group }) => ({
-  //   ...state,
-  //   groups: state.groups
-  //     ? [
-
-  //         {
-  //           ...group,
-  //           readUsers: [],
-  //           lastMessage: (group as any).lastMessage ?? 'New Group',
-  //         } as IGroupMessage,
-  //           ...state.groups,
-  //       ]
-  //     : [
-  //         {
-  //           ...group,
-  //           readUsers: [],
-  //           lastMessage: (group as any).lastMessage ?? 'New Group',
-  //         } as IGroupMessage,
-  //       ],
-  //   loading: false,
-  // })),
   on(createGroupSuccess, (state, { group }) => ({
     ...state,
     groups: state.groups
@@ -122,7 +104,7 @@ export const groupReducer = createReducer(
     loading: false,
   })),
 
-  on(addTagForGroup, (state) => ({ ...state})),
+  on(addTagForGroup, (state) => ({ ...state })),
   on(addTagForGroupSuccess, (state, { groupMember }) => ({
     ...state,
     groups: state.groups.map((g) =>
@@ -132,5 +114,23 @@ export const groupReducer = createReducer(
   on(addTagForGroupFailure, (state, { error }) => ({
     ...state,
     error,
+  })),
+
+  on(updateThemeGroup, (state) => ({
+    ...state,
+    loading: true,
+  })),
+  on(updateThemeGroupSuccess, (state, { group }) => ({
+    ...state,
+    groups: state.groups.map((g) =>
+      g._id === group._id ? { ...g, ...group } : g
+    ),
+    groupDetail: group,
+    loading: false,
+  })),
+  on(updateThemeGroupFailure, (state, { error }) => ({
+    ...state,
+    error,
+    loading: false,
   }))
 );

@@ -101,6 +101,7 @@
                 *ngFor="let noti of listNoti"
                 class="bell-item cursor-point d-flex align-items-start justify-content-between"
                 [ngClass]="{ unread: !noti.isRead }"
+                (click)="handleReadNoti(noti)"
               >
                 <div class="d-flex align-items-start gap-2">
                   <img

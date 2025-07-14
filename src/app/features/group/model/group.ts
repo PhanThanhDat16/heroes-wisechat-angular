@@ -1,4 +1,5 @@
 import { IUser } from '../../auth/model/user';
+import { ITheme } from '../../chat/model/theme';
 
 export interface IGroupMessage {
   _id: string;
@@ -26,6 +27,7 @@ export interface IGroup {
   name?: string;
   ownerId: string;
   user?: IUser;
+  theme?: string
   tag?: string | null
   members?: string[];
   createdAt: string;

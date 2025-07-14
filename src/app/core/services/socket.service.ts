@@ -5,6 +5,7 @@ import { IEditGroup } from '../model/socket';
 import { IGroup } from '../../features/group/model/group';
 import { IMessageGroup } from '../../features/chat/model/message';
 import { IUser } from '../../features/auth/model/user';
+import { IThemeSocket } from '../../features/chat/model/theme';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +18,6 @@ export class SocketIOService {
 
   constructor() {
     this.initSocket();
-    // this.store.dispatch(loadNoti({ userId: this.userId }));
   }
 
   initSocket() {
@@ -112,10 +112,6 @@ export class SocketIOService {
       this.socket.on('receiveMessage', (data) => {
         observer.next(data);
       });
-
-      return () => {
-        this.socket.off('receiveMessage');
-      };
     });
   }
 
@@ -185,9 +181,6 @@ export class SocketIOService {
           observer.next(data);
         }
       );
-      // return () => {
-      //   this.socket.off('kickUserFromGroup');
-      // };
     });
   }
 
@@ -199,18 +192,20 @@ export class SocketIOService {
     group: IGroup;
     listUser: IUser[];
     userId: string;
+    listMemberOnline?: string[];
   }> {
     return new Observable((observer) => {
       this.socket.on(
         'addMemberFromGroup',
-        (data: { group: IGroup; listUser: IUser[]; userId: string }) => {
+        (data: {
+          group: IGroup;
+          listUser: IUser[];
+          userId: string;
+          listMemberOnline?: string[];
+        }) => {
           observer.next(data);
         }
       );
-
-      // return () => {
-      // this.socket.off('addMemberFromGroup');
-      // };
     });
   }
 
@@ -226,10 +221,22 @@ export class SocketIOService {
     reactions: Record<string, { count: number; users: string[] }>;
     messageId: string;
     userId: string;
-    quantityReact: number
+    quantityReact: number;
   }> {
     return new Observable((observer) => {
       this.socket.on('reactMessage', (data) => {
+        observer.next(data);
+      });
+    });
+  }
+
+  changeTheme(data: IThemeSocket) {
+    this.socket.emit('changeTheme', data);
+  }
+  
+  receiveChangeTheme(): Observable<IThemeSocket> {
+    return new Observable((observer) => {
+      this.socket.on('changeTheme', (data: IThemeSocket) => {
         observer.next(data);
       });
     });

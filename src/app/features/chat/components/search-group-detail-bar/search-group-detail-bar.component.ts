@@ -1,8 +1,6 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Store } from '@ngrx/store';
 import { debounceTime } from 'rxjs';
-import { loadMessage } from '../../../../core/store/message/message.actions';
 import { ActivatedRoute } from '@angular/router';
 import { MessageService } from '../../service/message.service';
 import { IMessageGroup } from '../../model/message';
@@ -15,8 +13,8 @@ import { IMessageGroup } from '../../model/message';
 export class SearchGroupDetailBarComponent implements OnInit {
   @Output() stepEmitter = new EventEmitter<'SEARCH_MESSAGE' | 'GROUP_BAR'>();
   messageFind = new FormControl('');
-  listMessage: IMessageGroup[] | null
-  isLoading = false
+  listMessage: IMessageGroup[] | null;
+  isLoading = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -31,18 +29,17 @@ export class SearchGroupDetailBarComponent implements OnInit {
         .subscribe((search) => {
           const query = search?.trim() || '';
           if (query && groupId) {
-            this.isLoading = true
+            this.isLoading = true;
             this.messageService
               .getMessageByGroupService(groupId, 1, 10, search)
               .subscribe({
                 next: (data) => {
-                  console.log(data)
-                  this.isLoading = false
-                  this.listMessage = data.senderId.reverse()
+                  this.isLoading = false;
+                  this.listMessage = data.senderId.reverse();
                 },
               });
-          }else{
-            this.listMessage = null
+          } else {
+            this.listMessage = null;
           }
         });
     }

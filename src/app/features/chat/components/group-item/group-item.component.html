@@ -38,10 +38,12 @@
       >
         {{
           itemGroup.lastMessage && itemGroup.lastMessage.senderName
-            ? itemGroup.lastMessage.senderId === userId
-              ? "You: "
-              : itemGroup.lastMessage.senderName + ": "
-            : ""
+            ? (itemGroup.lastMessage.senderId === userId
+                ? 'You: '
+                : (itemGroup.lastMessage.senderName !== 'System'
+                    ? itemGroup.lastMessage.senderName + ': '
+                    : ''))
+            : ''
         }}
         <!-- {{ itemGroup.lastMessage?.content ?? itemGroup.lastMessage ?? "" }} -->
         <ng-container
@@ -49,12 +51,12 @@
         >
           <ng-container
             *ngIf="isImage(itemGroup.lastMessage?.content); else fileText"
-            >Imgage</ng-container
+            >Image</ng-container
           >
           <ng-template #fileText>File</ng-template>
         </ng-container>
         <ng-template #normalContent>{{
-          itemGroup.lastMessage?.content ?? 'New Group'
+          itemGroup.lastMessage?.content ?? "New Group"
         }}</ng-template>
       </p>
       <span *ngIf="!isRead" class="me-3 check-wrapper"> </span>

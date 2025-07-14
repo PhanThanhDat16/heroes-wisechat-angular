@@ -13,9 +13,10 @@ import { selectUploadedFiles } from '../../../../core/store/message/message.sele
 import { selectGroupDetail } from '../../../../core/store/group/group.selector';
 import { IGroup } from '../../../group/model/group';
 import { MessageShareService } from '../../../../shared/service/message-share.service';
-import { Subscription } from 'rxjs';
+import { Subscription, take } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { MessageService } from '../../service/message.service';
+import { loadGroup } from '../../../../core/store/group/group.actions';
 
 @Component({
   selector: 'app-chat-input',
@@ -31,6 +32,7 @@ export class ChatInputComponent implements OnInit, OnDestroy {
   replyToMessage: IMessageGroup | null = null;
   editToMessage: IMessageGroup | null = null;
   groupData: IGroup;
+  userId = localStorage.getItem("userId")
 
   private subscriptions = new Subscription();
 
@@ -58,6 +60,7 @@ export class ChatInputComponent implements OnInit, OnDestroy {
     const messageSub = this.messageShareService.replyMessage$.subscribe(
       (msg) => {
         this.replyToMessage = msg;
+        console.log(msg)
       }
     );
     this.subscriptions.add(messageSub);
@@ -190,6 +193,11 @@ export class ChatInputComponent implements OnInit, OnDestroy {
     this.messageInput = '';
     this.store.dispatch(clearUploadedFile());
     this.replyToMessage = null;
+    this.action$.pipe(
+      ofType(createMessageSuccess), take(1)
+    ).subscribe(() => {
+      this.store.dispatch(loadGroup({userId: this.userId}))
+    })
   }
 
   handleChooseFileAndImage(event: Event) {

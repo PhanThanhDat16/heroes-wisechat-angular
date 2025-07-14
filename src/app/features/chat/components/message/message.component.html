@@ -1,13 +1,27 @@
 <div *ngFor="let msg of messagesGroup; let index = index">
   <div *ngIf="msg.type === 'system'" class="w-100 text-center my-2 p-1">
-    <span class="text-system fst-italic">{{ msg.content }}</span>
+    <span
+      class="text-system fst-italic"
+      [ngClass]="{
+        'text-bg-default': !theme || theme.name === 'default',
+        'text-bg-cloud': theme?.name === 'cloud',
+        'text-bg-family': theme?.name === 'family',
+        'text-bg-green': theme?.name === 'green'
+      }"
+      >{{ msg.content }}</span
+    >
   </div>
 
   <div *ngIf="msg.type !== 'system'">
     <div
       *ngIf="getDateAndTimeStamp(msg, index) !== null && !checkDeleteForMe(msg)"
-      class="text-center py-3"
-      style="color: #ccc"
+      class="text-center py-3 text-bg-default"
+      [ngClass]="{
+        'text-bg-default': !theme || theme.name === 'default',
+        'text-bg-cloud': theme?.name === 'cloud',
+        'text-bg-family': theme?.name === 'family',
+        'text-bg-green': theme?.name === 'green'
+      }"
     >
       {{ getDateAndTimeStamp(msg, index) | smartDate }}
     </div>
@@ -26,7 +40,7 @@
         [ngClass]="{ 'justify-content-end': msg.senderId === userId }"
       >
         <div
-          *ngIf="msg.senderId !== userId && msg.senderName !=='System'"
+          *ngIf="msg.senderId !== userId && msg.senderName !== 'System'"
           [ngClass]="
             onlineUserIds.includes(msg.senderId) ? 'avatar-online' : ''
           "
@@ -39,9 +53,17 @@
         </div>
 
         <div class="d-flex flex-column gap-1 flex-fill">
-          <span *ngIf="msg.senderId !== userId && msg.senderName !=='System'" class="text-name">{{
-            msg.senderName | capitalizeWords
-          }}</span>
+          <span
+            *ngIf="msg.senderId !== userId && msg.senderName !== 'System'"
+            class="text-name text-bg-default"
+            [ngClass]="{
+              'text-bg-default': !theme || theme.name === 'default',
+              'text-bg-cloud': theme?.name === 'cloud',
+              'text-bg-family': theme?.name === 'family',
+              'text-bg-green': theme?.name === 'green'
+            }"
+            >{{ msg.senderName | capitalizeWords }}</span
+          >
           <div
             [ngClass]="msg.senderId !== userId ? 'f-row' : 'f-row-reverse'"
             class="text-wrapper d-flex align-items-center gap-3"
@@ -52,7 +74,9 @@
                 <div
                   [ngClass]="{
                     'align-items-end': msg.senderId === userId,
-                    'align-items-start': msg.senderId !== userId
+                    'align-items-start': msg.senderId !== userId,
+                    'z-max-relative':
+                      showMessageEdit && showMessageEdit._id === msg._id
                   }"
                   class="d-flex flex-column gap-1"
                 >
@@ -120,8 +144,24 @@
                   <!-- Message content reply -->
                   <div
                     [ngClass]="{
-                      'bg-primary text-white': msg.senderId === userId,
-                      'bg-customer text-dark': msg.senderId !== userId
+                      'theme-default':
+                        !theme ||
+                        (theme.name === 'default' && msg.senderId === userId),
+                      'theme-default-orther':
+                        !theme ||
+                        (theme.name === 'default' && msg.senderId !== userId),
+                      'theme-cloud':
+                        theme?.name === 'cloud' && msg.senderId === userId,
+                      'theme-cloud-orther':
+                        theme?.name === 'cloud' && msg.senderId !== userId,
+                      'theme-family':
+                        theme?.name === 'family' && msg.senderId === userId,
+                      'theme-family-orther':
+                        theme?.name === 'family' && msg.senderId !== userId,
+                      'theme-green':
+                        theme?.name === 'green' && msg.senderId === userId,
+                      'theme-green-orther':
+                        theme?.name === 'green' && msg.senderId !== userId
                     }"
                     class="mb-0 text-message fs-6 text-content message-item"
                     style="z-index: 1"
@@ -152,37 +192,55 @@
               <!-- Not reply -->
               <ng-container *ngIf="!msg.replyToMessageId">
                 <!-- Text -->
-                <div
-                  *ngIf="msg.type === 'text'"
-                  [ngClass]="{
-                    'bg-primary text-white align-self-end':
-                      msg.senderId === userId,
-                    'bg-customer text-dark align-self-start':
-                      msg.senderId !== userId
-                  }"
-                  class="mb-0 text-message fs-6 text-content message-item"
-                >
-                  {{ msg.content }}
-                  <div
-                    *ngIf="msg.type === 'text' && msg.quantityReact > 0"
-                    class="reaction-pill d-flex align-items-center gap-1 mt-1"
-                    [ngClass]="{
-                      'justify-content-end': msg.senderId === userId,
-                      'justify-content-start': msg.senderId !== userId
-                    }"
-                    style="background-color: #ccc"
-                  >
-                    <ng-container *ngFor="let emoji of getReactions(msg)">
-                      <span class="emoji-item-type">{{
-                        getEmojiIcon(emoji.type)
-                      }}</span>
-                    </ng-container>
 
-                    <span class="emoji-item-count">{{
-                      msg.quantityReact
-                    }}</span>
+                <ng-container *ngIf="msg.type === 'text'">
+                  <div
+                    [ngClass]="{
+                      'theme-default align-self-end':
+                        !theme ||
+                        (theme.name === 'default' && msg.senderId === userId),
+                      'theme-default-orther align-self-start':
+                        !theme ||
+                        (theme.name === 'default' && msg.senderId !== userId),
+                      'theme-cloud align-self-end':
+                        theme?.name === 'cloud' && msg.senderId === userId,
+                      'theme-cloud-orther align-self-start':
+                        theme?.name === 'cloud' && msg.senderId !== userId,
+                      'theme-family align-self-end':
+                        theme?.name === 'family' && msg.senderId === userId,
+                      'theme-family-orther align-self-start':
+                        theme?.name === 'family' && msg.senderId !== userId,
+                      'theme-green align-self-end':
+                        theme?.name === 'green' && msg.senderId === userId,
+                      'theme-green-orther align-self-start':
+                        theme?.name === 'green' && msg.senderId !== userId,
+                      'z-max-relative':
+                        showMessageEdit && showMessageEdit._id === msg._id
+                    }"
+                    class="mb-0 text-message fs-6 text-content message-item"
+                  >
+                    {{ msg.content }}
+                    <div
+                      *ngIf="msg.type === 'text' && msg.quantityReact > 0"
+                      class="reaction-pill d-flex align-items-center gap-1 mt-1"
+                      [ngClass]="{
+                        'justify-content-end': msg.senderId === userId,
+                        'justify-content-start': msg.senderId !== userId
+                      }"
+                      style="background-color: #ccc"
+                    >
+                      <ng-container *ngFor="let emoji of getReactions(msg)">
+                        <span class="emoji-item-type">{{
+                          getEmojiIcon(emoji.type)
+                        }}</span>
+                      </ng-container>
+
+                      <span class="emoji-item-count">{{
+                        msg.quantityReact
+                      }}</span>
+                    </div>
                   </div>
-                </div>
+                </ng-container>
 
                 <!-- Image -->
                 <div
@@ -297,29 +355,48 @@
 
               <p
                 *ngIf="msg.isEdited"
+                class="text-edit mb-0 mt-1"
                 [ngClass]="{
                   'text-end text-edit-right': msg.senderId === userId,
-                  'text-start text-edit-left': msg.senderId !== userId
+                  'text-start text-edit-left': msg.senderId !== userId,
+                  'text-bg-default': !theme || theme.name === 'default',
+                  'text-bg-cloud': theme?.name === 'cloud',
+                  'text-bg-family': theme?.name === 'family',
+                  'text-bg-green': theme?.name === 'green'
                 }"
-                class="text-edit mb-0 mt-1"
               >
                 Edited
               </p>
-
               <p
                 *ngIf="!msg.isEdited"
+                class="text-edit mb-0 mt-1"
                 [ngClass]="{
                   'text-end text-edit-right': msg.senderId === userId,
-                  'text-start text-edit-left': msg.senderId !== userId
+                  'text-start text-edit-left': msg.senderId !== userId,
+                  'text-bg-default': !theme || theme.name === 'default',
+                  'text-bg-cloud': theme?.name === 'cloud',
+                  'text-bg-family': theme?.name === 'family',
+                  'text-bg-green': theme?.name === 'green'
                 }"
-                class="text-edit mb-0 mt-1"
               >
+                <!-- {{ getStatusMessage(msg, index) }} -->
                 {{ msg.status }}
               </p>
             </div>
 
             <div
-              [ngClass]="msg.senderId !== userId ? 'f-row' : 'f-row-reverse'"
+              [ngClass]="[
+                msg.senderId !== userId ? 'f-row' : 'f-row-reverse',
+                !theme || theme.name === 'default'
+                  ? 'text-react-default'
+                  : theme.name === 'cloud'
+                  ? 'text-react-cloud'
+                  : theme.name === 'family'
+                  ? 'text-react-family'
+                  : theme.name === 'green'
+                  ? 'text-react-green'
+                  : ''
+              ]"
               class="text-react d-flex gap-3"
             >
               <span
@@ -358,7 +435,11 @@
                   >
                     <i
                       class="fa-solid fa-pen"
-                      style="font-size: 13px; margin-right: 4px"
+                      style="
+                        font-size: 13px;
+                        margin-right: 4px;
+                        color: black !important;
+                      "
                     ></i>
                     Edit
                   </span>

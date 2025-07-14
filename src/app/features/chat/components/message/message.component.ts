@@ -7,29 +7,11 @@ import {
   reactToMessage,
   reactToMessageSuccess,
 } from '../../../../core/store/message/message.actions';
-
-const listEmoji = [
-  {
-    icon: '❤️',
-    type: 'heart',
-  },
-  {
-    icon: '😂',
-    type: 'laugh',
-  },
-  {
-    icon: '😍',
-    type: 'kiss-heart',
-  },
-  {
-    icon: '😭',
-    type: 'cry',
-  },
-  {
-    icon: '😌',
-    type: 'smile',
-  },
-];
+import { ITheme } from '../../model/theme';
+import { selectGroupDetail } from '../../../../core/store/group/group.selector';
+import { ActivatedRoute } from '@angular/router';
+import { listTheme } from '../../model/listTheme';
+import { listEmoji } from '../../model/listEmoji';
 
 @Component({
   selector: 'app-message',
@@ -42,14 +24,23 @@ export class MessageComponent implements OnInit {
   onlineUserIds: string[] = [];
   selectedImageUrl: string | null = null;
   listEmoji = listEmoji;
+  showMessageEdit: IMessageGroup | null = null
+  theme: ITheme | null = null;
 
   constructor(
     private socketService: SocketIOService,
     private messageShareService: MessageShareService,
-    private store: Store
+    private store: Store,
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
+    this.store.select(selectGroupDetail).subscribe((groupDetail) => {
+      if (groupDetail) {
+        this.theme = listTheme.find((t) => t.name === groupDetail.theme);
+      }
+    });
+
     this.socketService.onlineUser$.subscribe((userIds) => {
       this.onlineUserIds = userIds;
     });
@@ -74,9 +65,16 @@ export class MessageComponent implements OnInit {
         );
       }
     });
+
+    this.socketService.receiveChangeTheme().subscribe((data) => {
+      const groupId = this.route.snapshot.params['id']
+      if(data.groupId === groupId){
+        this.theme = data.theme
+      }
+    })
   }
 
-  getDateAndTimeStamp(currentMsg: IMessageGroup, index: number): string | null {
+  getDateAndTimeStamp(currentMsg: IMessageGroup, index: number) {
     if (index === 0) return currentMsg.createdAt;
     const currentTime = new Date(currentMsg.createdAt).getTime();
     const previousTime = new Date(
@@ -90,12 +88,25 @@ export class MessageComponent implements OnInit {
     return null;
   }
 
+  // getStatusMessage (message: IMessageGroup, index: number) {
+  //   const lastMessage = this.messagesGroup[index - 1]
+  //   if(lastMessage && message.senderId !== lastMessage.senderId ) {
+  //     return message.status
+  //   }else{
+  //     if(this.getDateAndTimeStamp(message, index)){
+  //       return message.status
+  //     }
+  //   }
+  //   return null
+  // }
+
   handleReply(msg) {
     this.messageShareService.sendReplyMessage(msg);
   }
 
   handleEdit(msg) {
     this.messageShareService.sendEditMessage(msg);
+    this.showMessageEdit = msg
   }
 
   extractFileName(url: string): string {

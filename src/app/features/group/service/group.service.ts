@@ -151,15 +151,36 @@ export class GroupService {
       params = params.set('search', search);
     }
     return this.http
-      .get<{ message: string; data: any }>(
-        `${this.URL}/user/groups`,
+      .get<{ message: string; data: any }>(`${this.URL}/user/groups`, {
+        params,
+        headers: {
+          Authorization: `Bearer ${this.authService.getAccessToken()}`,
+        },
+      })
+      .pipe(map((res) => res.data));
+  }
+
+  updateThemeGroup(groupId: string, theme: string) {
+    return this.http
+      .put<{ message: string; data: any }>(
+        `${this.URL}/group/${groupId}/theme`,
+        { theme },
         {
-          params,
           headers: {
             Authorization: `Bearer ${this.authService.getAccessToken()}`,
           },
         }
       )
+      .pipe(map((res) => res.data));
+  }
+
+  verifyGroupDetail(groupId: string) {
+    return this.http
+      .get<{ message: string; data: any }>(`${this.URL}/group/${groupId}`, {
+        headers: {
+          Authorization: `Bearer ${this.authService.getAccessToken()}`,
+        },
+      })
       .pipe(map((res) => res.data));
   }
 }

@@ -8,7 +8,10 @@ import { UserService } from '../../../../core/services/user.service';
 import { GroupService } from '../../service/group.service';
 import { IGroup } from '../../model/group';
 import { Store } from '@ngrx/store';
-import { selectMembersGroup } from '../../../../core/store/message/message.selector';
+import {
+  selectMembersGroup,
+  selectMessage,
+} from '../../../../core/store/message/message.selector';
 
 import { ModalUtilsChatComponent } from '../../../../shared/components/modal-utils-chat/modal-utils-chat.component';
 import { Actions, ofType } from '@ngrx/effects';
@@ -34,6 +37,7 @@ export class UtilsViewMemberComponent implements OnInit, OnDestroy {
   user: IUserGet;
   isDeleting = false;
   nameUserSub: Subscription;
+  private subscriptions = new Subscription();
   @ViewChild(ModalUtilsChatComponent) modalComponent!: ModalUtilsChatComponent;
 
   constructor(
@@ -50,23 +54,35 @@ export class UtilsViewMemberComponent implements OnInit, OnDestroy {
     this.route.params.subscribe((params) => {
       const groupId = params['id'];
 
-      this.store.select(selectMembersGroup).subscribe((members) => {
-        if (members) {
-          this.listUserByGroup = members;
-          this.socketService.onlineUser$.subscribe((userIds) => {
-            this.userOnlineGroup = this.listUserByGroup
-              .filter((u) => userIds.includes(u._id))
-              .map((u) => u._id);
-          });
+      const selectMemberGroupSub = this.store
+        .select(selectMembersGroup)
+        .subscribe((members) => {
+          if (members) {
+            this.listUserByGroup = members;
+            this.socketService.onlineUser$.subscribe((userIds) => {
+              this.userOnlineGroup = this.listUserByGroup
+                .filter((u) => userIds.includes(u._id))
+                .map((u) => u._id);
+            });
+          }
+        });
+      this.subscriptions.add(selectMemberGroupSub);
+
+      this.store.select(selectMessage).subscribe((message) => {
+        if(message){
+          this.groupData = message.group;
         }
       });
 
-      this.groupService.getGroupDetail(groupId).subscribe({
-        next: (data) => (this.groupData = data),
-        error: (error) => {
-          // console.log(error);
-        },
-      });
+      // const groupDetailSub = this.groupService
+      //   .getGroupDetail(groupId)
+      //   .subscribe({
+      //     next: (data) => (this.groupData = data),
+      //     error: (error) => {
+      //       // console.log(error);
+      //     },
+      //   });
+      // this.subscriptions.add(groupDetailSub);
 
       if (this.nameUserSub) {
         this.nameUserSub.unsubscribe();
@@ -86,13 +102,14 @@ export class UtilsViewMemberComponent implements OnInit, OnDestroy {
         });
     });
 
-    this.socketService
+    const receiveKick = this.socketService
       .receiveKickedFromGroup()
       .subscribe(({ groupId, userId }) => {
         this.listUserByGroup = this.listUserByGroup.filter(
           (u) => u?._id !== userId
         );
       });
+    this.subscriptions.add(receiveKick);
   }
 
   onResetStep(dataStep: 'VIEW_MEMBER' | 'VIEW_DETAIL') {

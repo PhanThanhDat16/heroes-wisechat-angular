@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { MessageService } from '../../../features/chat/service/message.service';
-// import { ToastService } from 'angular-toastify';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, mergeMap, of, switchMap, tap } from 'rxjs';
 import {
@@ -137,7 +136,6 @@ export class messageEffects {
       switchMap(({ messageId, userId }) =>
         this.messageService.deleteMessageForMe(messageId, userId).pipe(
           tap((data) => {
-            // console.log('Delete message for me:', data);
             this.socketService.deleteMessageForMe(data);
           }),
           map((data) => deleteMessageForMeSuccess({ message: data })),
@@ -265,7 +263,6 @@ export class messageEffects {
                 data.result.userId
               );
             }
-            console.log(data)
             this.socketService.sendMessage(
               data.message._id,
               data.message.senderId,

@@ -21,10 +21,22 @@
   <ng-container *ngIf="isLoading; else loadedContent">
     <ng-container *ngFor="let item of [1, 2, 3]">
       <div class="d-flex gap-2 align-items-center mb-4">
-        <app-loading-skeleton height="45px" width="45px" borderRadius="50%"></app-loading-skeleton>
+        <app-loading-skeleton
+          height="45px"
+          width="45px"
+          borderRadius="50%"
+        ></app-loading-skeleton>
         <div class="d-flex flex-column gap-1">
-          <app-loading-skeleton height="13px" width="100px" borderRadius="20px"></app-loading-skeleton>
-          <app-loading-skeleton height="10px" width="150px" borderRadius="20px"></app-loading-skeleton>
+          <app-loading-skeleton
+            height="13px"
+            width="100px"
+            borderRadius="20px"
+          ></app-loading-skeleton>
+          <app-loading-skeleton
+            height="10px"
+            width="150px"
+            borderRadius="20px"
+          ></app-loading-skeleton>
         </div>
       </div>
     </ng-container>

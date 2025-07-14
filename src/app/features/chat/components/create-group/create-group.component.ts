@@ -118,6 +118,7 @@ export class CreateGroupComponent implements OnInit {
       this.action$.pipe(ofType(createGroupSuccess), take(1)).subscribe(() => {
         this.store.dispatch(loadNoti({ userId }));
         this.toastService.success('Create group successful!');
+        this.nameGroup = ''
         this.modalComponent?.closeModal();
       });
     }

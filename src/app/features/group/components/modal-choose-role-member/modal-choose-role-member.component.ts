@@ -20,11 +20,9 @@ import {
   deleteMemberInGroupSuccess,
   leaveGroup,
   leaveGroupSuccess,
-  loadMessage,
 } from '../../../../core/store/message/message.actions';
 import { take } from 'rxjs';
 import { loadNoti } from '../../../../core/store/notification/notification.actions';
-import { SocketIOService } from '../../../../core/services/socket.service';
 import { Router } from '@angular/router';
 import { loadGroup } from '../../../../core/store/group/group.actions';
 
@@ -86,6 +84,7 @@ export class ModalChooseRoleMemberComponent implements OnInit {
       confirmButtonText: 'Yes, delete it!',
     }).then((result) => {
       if (result.isConfirmed) {
+        this.handleNotiAndTag();
         this.store.dispatch(
           leaveGroup({
             groupId: this.groupData._id,
@@ -111,6 +110,15 @@ export class ModalChooseRoleMemberComponent implements OnInit {
     this.chooseAdmin = user._id;
   }
 
+  handleNotiAndTag() {
+    const notification = JSON.parse(localStorage.getItem('notification'));
+    if (notification) {
+      notification[this.groupData._id] = true;
+      localStorage.setItem('notification', JSON.stringify(notification));
+    }
+    localStorage.removeItem('tagMap');
+  }
+
   handleLeaveGroup(content: TemplateRef<any>) {
     if (this.groupData.ownerId === this.userId) {
       this.modalService
@@ -134,6 +142,7 @@ export class ModalChooseRoleMemberComponent implements OnInit {
         confirmButtonText: 'Yes, delete it!',
       }).then((result) => {
         if (result.isConfirmed) {
+          this.handleNotiAndTag();
           this.store.dispatch(
             deleteMemberInGroup({
               groupId: this.groupData._id,

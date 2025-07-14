@@ -13,52 +13,17 @@ import { Subscription } from 'rxjs';
 import {
   addMemberInGroupSuccess,
   deleteMemberInGroupSuccess,
+  updateIsRead,
 } from '../../../../core/store/message/message.actions';
 import {
   addTagForGroup,
-  addTagForGroupSuccess,
+  updateThemeGroup,
 } from '../../../../core/store/group/group.actions';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-
-const listTheme = [
-  '/assets/public/img/Theme-cloud.webp',
-  '/assets/public/img/Theme-family.webp',
-  '/assets/public/img/Theme-flower.webp',
-  '/assets/public/img/Theme-green.webp',
-  '/assets/public/img/Theme-halloween.webp',
-];
-export const listTag = [
-  {
-    tag: 'Family',
-    background: '#ffd6e8',
-    color: '#a01854',
-  },
-  {
-    tag: 'Friendly',
-    background: '#bae6ff',
-    color: '#06579d',
-  },
-  {
-    tag: 'Class',
-    background: '#e8daff',
-    color: '#6929c4',
-  },
-  {
-    tag: 'Company',
-    background: '#9ef0f0',
-    color: '#066262',
-  },
-  {
-    tag: 'Travel',
-    background: '#d0e2ff',
-    color: '#0043ce',
-  },
-  {
-    tag: 'Customer',
-    background: '#ffe0b2',
-    color: '#e65100',
-  },
-];
+import Swal from 'sweetalert2';
+import { ITheme } from '../../model/theme';
+import { listTheme } from '../../model/listTheme';
+import { listTag } from '../../model/listTag';
 
 @Component({
   selector: 'app-group-detail-bar',
@@ -134,7 +99,9 @@ export class GroupDetailBarComponent implements OnInit, OnDestroy {
         if (members) {
           this.isLoadingMembers = false;
           this.listUserByGroup = members;
-          this.listUserByGroupLeave = members.filter((member) => member._id !== this.userId)
+          this.listUserByGroupLeave = members.filter(
+            (member) => member._id !== this.userId
+          );
           this.socketService.onlineUser$.subscribe((userIds) => {
             this.userOnlineGroup = this.listUserByGroup
               .filter((u) => userIds.includes(u._id))
@@ -226,6 +193,28 @@ export class GroupDetailBarComponent implements OnInit, OnDestroy {
       );
     }
     localStorage.setItem('tagMap', JSON.stringify(this.tagForm.value));
+  }
+
+  onChangeTheme(theme: ITheme) {
+    if (theme.name !== this.groupData.theme) {
+      Swal.fire({
+        text: 'Do you want to change this theme?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#00D601',
+        cancelButtonColor: '#ccc',
+        confirmButtonText: 'Choose',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.store.dispatch(
+            updateThemeGroup({ groupId: this.groupData._id, theme: theme.name })
+          );
+          this.store.dispatch(
+            updateIsRead({ groupId: this.groupData._id, userId: this.userId })
+          );
+        }
+      });
+    }
   }
 
   handleSearchMessageGroup() {

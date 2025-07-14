@@ -127,15 +127,25 @@
         <h5>Themes</h5>
         <div class="group-detail-barBodyList">
           <div
-            *ngFor="let src of listTheme"
-            class="group-detail-barBodyListItem"
+            *ngFor="let theme of listTheme"
+            class="group-detail-barBodyListItem cursor-point"
+            (click)="onChangeTheme(theme)"
           >
-            <img [src]="src" alt="" />
+            <ng-container *ngIf="theme.name !== 'default'; else defaultTheme">
+              <img [src]="theme.image" alt="" />
+            </ng-container>
+            <ng-template #defaultTheme>
+              <div
+                class="w-100 h-100 d-flex align-items-center justify-content-center"
+                style="
+                  background-color: #f4f4f4;
+                  border: 1px solid #ccc;
+                  border-radius: 10px;
+                "
+              >
+              </div>
+            </ng-template>
           </div>
-          <div
-            class="group-detail-barBodyListItem"
-            style="background-color: #f4f4f4; border: 1px solid #d4d3d3"
-          ></div>
         </div>
       </div>
       <div>

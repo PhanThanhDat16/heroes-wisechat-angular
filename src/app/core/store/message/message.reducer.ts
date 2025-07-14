@@ -197,31 +197,6 @@ export const messageReducer = createReducer(
     error,
   })),
 
-  // on(updateIsReadSuccess, (state, { message }) => {
-  //   if (!message) {
-  //     return {
-  //       ...state,
-  //       loading: false,
-  //     };
-  //   }
-
-  //   return {
-  //     ...state,
-  //     loading: false,
-  //     messageDetail: state.messageDetail
-  //       ? {
-  //           ...state.messageDetail,
-  //           senderId:
-  //             state.messageDetail.senderId.length === 0
-  //               ? [message]
-  //               : state.messageDetail.senderId.map((m) =>
-  //                   m._id === message._id ? message : m
-  //                 ),
-  //         }
-  //       : state.messageDetail,
-  //   };
-  // }),
-
   on(uploadFiles, (state) => ({
     ...state,
     loading: true,
@@ -337,24 +312,3 @@ export const messageReducer = createReducer(
     };
   })
 );
-
-// on(reactToMessageSuccess, (state, { messageId, reactions }) => {
-//   if (!state.messageDetail) return state;
-//   const updatedMessages = state.messageDetail.senderId.map((msg) =>
-//     msg._id === messageId
-//       ? {
-//           ...msg,
-//           reactions,
-//         }
-//       : msg
-//   );
-
-//   return {
-//     ...state,
-//     loading: false,
-//     messageDetail: {
-//       ...state.messageDetail,
-//       senderId: updatedMessages,
-//     },
-//   };
-// }),

@@ -14,7 +14,6 @@ import { debounceTime, fromEvent, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
 import {
   selectGroupDetail,
-  selectGroupLoading,
 } from '../../../../core/store/group/group.selector';
 import {
   selectMessage,
@@ -123,6 +122,8 @@ export class ChatMessageComponent implements AfterViewInit, OnInit, AfterViewChe
       this.shouldScrollToBottom = true;
     });
     this.subscriptions.add(receiveDeleteForMeSub)
+
+    
   }
 
   ngAfterViewInit(): void {

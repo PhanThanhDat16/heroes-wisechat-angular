@@ -4,14 +4,18 @@ import { Store } from '@ngrx/store';
 import { UserService } from '../../../core/services/user.service';
 import { logout } from '../../../core/store/hero/hero.actions';
 import { SocketIOService } from '../../../core/services/socket.service';
-import { Subscription } from 'rxjs';
+import { Subscription, take } from 'rxjs';
 import { selectNoti } from '../../../core/store/notification/notification.selector';
 import {
   deleteAllNoti,
+  deleteAllNotiSuccess,
   loadNoti,
   readAllNoti,
+  updateReadNoti,
+  updateReadNotiSuccess,
 } from '../../../core/store/notification/notification.actions';
 import { INotification } from '../../../core/model/notification';
+import { Actions, ofType } from '@ngrx/effects';
 
 @Component({
   selector: 'app-header',
@@ -30,7 +34,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private store: Store,
     private router: Router,
     private userService: UserService,
-    private socketService: SocketIOService
+    private socketService: SocketIOService,
+    private action$: Actions
   ) {}
 
   ngOnInit(): void {
@@ -77,6 +82,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
   handleClearAll() {
     if (this.listNoti.length > 0) {
       this.store.dispatch(deleteAllNoti({ userId: this.userId }));
+      this.action$.pipe(ofType(deleteAllNotiSuccess), take(1)).subscribe(() => {
+        this.totalUnread = 0;
+      });
+    }
+  }
+
+  handleReadNoti(noti: INotification) {
+    if (!noti.isRead) {
+      this.store.dispatch(updateReadNoti({ notiId: noti._id }));
+      this.action$
+        .pipe(ofType(updateReadNotiSuccess), take(1))
+        .subscribe(() => {
+          this.router.navigate(['/messages', noti.groupId]);
+        });
     }
   }
 

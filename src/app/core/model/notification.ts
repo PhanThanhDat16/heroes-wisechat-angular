@@ -3,6 +3,7 @@ export class INotification {
   content: string;
   userId: string;
   isRead: boolean;
+  groupId: string;
   createdAt: string;
   updatedAt: string;
 }

@@ -16,7 +16,7 @@ export const loadNotiFailure = createAction(
 
 export const updateReadNoti = createAction(
   '[Notification] Update read notification',
-  props<{ notiId: string; userId: string }>()
+  props<{ notiId: string }>()
 );
 export const updateReadNotiSuccess = createAction(
   '[Notification] Update read notification success',

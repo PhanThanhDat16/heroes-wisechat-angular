@@ -8,14 +8,13 @@ import {
   selectGroupDetail,
   selectGroups,
 } from '../../../../core/store/group/group.selector';
-import {
-  loadMessage,
-  updateIsRead,
-} from '../../../../core/store/message/message.actions';
+import { loadMessage } from '../../../../core/store/message/message.actions';
 import { selectMembersGroup } from '../../../../core/store/message/message.selector';
 import { IUser } from '../../../auth/model/user';
 import { Subscription } from 'rxjs';
-import { listTag } from '../group-detail-bar/group-detail-bar.component';
+import { ITheme } from '../../model/theme';
+import { listTheme } from '../../model/listTheme';
+import { listTag } from '../../model/listTag';
 
 @Component({
   selector: 'app-group-detail',
@@ -27,6 +26,7 @@ export class GroupDetailComponent implements OnInit, OnDestroy {
   userOnlineGroup: IUser[] = [];
   isGroupDetailBarVisible = true;
   tag;
+  theme: ITheme | null = null;
   isLoading = false;
   groupId: string | null = null;
   userId = localStorage.getItem('userId');
@@ -58,14 +58,25 @@ export class GroupDetailComponent implements OnInit, OnDestroy {
       }
     });
 
+    this.socketService
+      .receiveKickedFromGroup()
+      .subscribe(({ groupId, userId }) => {
+        if (this.groupId === groupId) {
+          this.store.dispatch(loadGroupDetail({ groupId: this.groupId }));
+        }
+      });
+
     const groupSub = this.store
       .select(selectGroupDetail)
       .subscribe((groupDetail) => {
-        this.groupData = groupDetail;
-        this.isLoading = false;
-        this.store.dispatch(
-          loadMessage({ groupId: this.groupId, page: 1, limit: 10 })
-        );
+        if (groupDetail) {
+          this.theme = listTheme.find((t) => t.name === groupDetail.theme);
+          this.groupData = groupDetail;
+          this.isLoading = false;
+          this.store.dispatch(
+            loadMessage({ groupId: this.groupId, page: 1, limit: 10 })
+          );
+        }
       });
     this.subscriptions.add(groupSub);
 
@@ -110,6 +121,11 @@ export class GroupDetailComponent implements OnInit, OnDestroy {
     //     }
     //   });
     // this.subscriptions.add(receiveSub);
+    this.socketService.receiveChangeTheme().subscribe((data) => {
+      if (data.groupId === this.groupData._id) {
+        this.theme = data.theme;
+      }
+    });
   }
 
   toggleGroupDetailBar() {

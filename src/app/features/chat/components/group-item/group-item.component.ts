@@ -1,17 +1,23 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+} from '@angular/core';
 import { SocketIOService } from '../../../../core/services/socket.service';
 import { IGroupMessage } from '../../../group/model/group';
 import { Store } from '@ngrx/store';
 import {
   loadGroup,
-  loadGroupDetail,
   loadUsersByGroup,
 } from '../../../../core/store/group/group.actions';
 import { selectUsersByGroup } from '../../../../core/store/group/group.selector';
 import { updateIsRead } from '../../../../core/store/message/message.actions';
 import { selectMessage } from '../../../../core/store/message/message.selector';
 import { combineLatest, Subscription } from 'rxjs';
-import { listTag } from '../group-detail-bar/group-detail-bar.component';
+import { listTag } from '../../model/listTag';
 
 @Component({
   selector: 'app-group-item',
@@ -21,20 +27,20 @@ import { listTag } from '../group-detail-bar/group-detail-bar.component';
 export class GroupItemComponent implements OnInit, OnDestroy {
   @Input() itemGroup: IGroupMessage;
   @Input() currentGroupId: string;
+  @Input() checkGroupIdRead;
+  @Output() emitcheckGroupIdRead = new EventEmitter<string>();
   userId = localStorage.getItem('userId');
   userOnlineGroup: string[] = [];
   isRead = false;
   wasReadManually = false;
   wasReadGroupId = '';
+  membersOfGroup: string[] = [];
   private subscriptions = new Subscription();
-
   constructor(private store: Store, private socketService: SocketIOService) {}
 
   ngOnInit(): void {
     this.isRead = this.itemGroup.readUsers.includes(this.userId || '') || false;
     this.store.dispatch(loadUsersByGroup({ groupId: this.itemGroup._id }));
-    // this.store.select(selectGroupDetail).subscribe((data) => {
-    // })
 
     const onlineSub = combineLatest([
       this.store.select(selectUsersByGroup),
@@ -44,6 +50,7 @@ export class GroupItemComponent implements OnInit, OnDestroy {
       this.userOnlineGroup = users
         .filter((m) => onlineUserIds.includes(m._id))
         .map((u) => u._id);
+      this.membersOfGroup = users.map((u) => u._id);
     });
     this.subscriptions.add(onlineSub);
 
@@ -64,42 +71,47 @@ export class GroupItemComponent implements OnInit, OnDestroy {
       .subscribe(({ groupId, userId }) => {
         if (this.itemGroup._id === groupId) {
           this.store.dispatch(loadGroup({ userId: this.userId }));
-          this.store.dispatch(loadGroupDetail({ groupId }));
           this.userOnlineGroup = this.userOnlineGroup.filter(
             (uId) => uId !== userId
           );
+          if (userId === this.userId) {
+            this.itemGroup.readUsers = this.itemGroup.readUsers.filter(
+              (id) => id !== this.userId
+            );
+            this.membersOfGroup = this.membersOfGroup.filter(
+              (id) => id !== this.userId
+            );
+            this.isRead = false;
+          }
         }
       });
 
     this.store.select(selectMessage).subscribe((message) => {
       if (message && message.group._id === this.itemGroup._id) {
-        const userId = localStorage.getItem('userId');
-
+        const userId = this.userId;
         const visibleMessages = message.senderId.filter(
           (msg) => !msg.deleteForUser?.includes(userId)
         );
-
         const lastVisibleMessage = visibleMessages[visibleMessages.length - 1];
+        this.itemGroup = {
+          ...this.itemGroup,
+          lastMessage: lastVisibleMessage
+            ? {
+                content: lastVisibleMessage.content,
+                senderId: lastVisibleMessage.senderId,
+                senderName: lastVisibleMessage.senderName,
+                createdAt: lastVisibleMessage.createdAt,
+              }
+            : null,
+        };
 
-        if (lastVisibleMessage) {
-          this.itemGroup = {
-            ...this.itemGroup,
-            lastMessage: {
-              content: lastVisibleMessage.content,
-              senderId: lastVisibleMessage.senderId,
-              senderName: lastVisibleMessage.senderName,
-              createdAt: lastVisibleMessage.createdAt,
-            },
-          };
-        } else {
-          this.itemGroup = {
-            ...this.itemGroup,
-            lastMessage: null,
-          };
-        }
-
-        if (message.group._id === this.wasReadGroupId && this.wasReadManually) {
+        if (
+          message.group._id === this.checkGroupIdRead &&
+          this.wasReadGroupId &&
+          this.membersOfGroup.includes(this.userId || '')
+        ) {
           this.isRead = true;
+          this.wasReadGroupId = '';
         }
       }
     });
@@ -115,9 +127,14 @@ export class GroupItemComponent implements OnInit, OnDestroy {
           createdAt: message.createdAt,
         },
       };
+      const isStillInGroup = this.membersOfGroup.includes(this.userId || '');
+      if (!isStillInGroup) {
+        this.isRead = false;
+        return;
+      }
 
       if (message.senderId !== this.userId) {
-        if (this.currentGroupId === this.itemGroup._id) {
+        if (this.currentGroupId === message.groupId) {
           this.store.dispatch(
             updateIsRead({
               groupId: this.itemGroup._id,
@@ -151,14 +168,30 @@ export class GroupItemComponent implements OnInit, OnDestroy {
       }
     });
     this.subscriptions.add(msgSub);
+
+    const addMemberGroupSub = this.socketService
+      .receiveAddMemberFromGroup()
+      .subscribe(({ group, listUser, userId, listMemberOnline }) => {
+        if (this.itemGroup._id === group._id && userId === this.userId) {
+          this.userOnlineGroup = [...this.userOnlineGroup, ...listMemberOnline];
+          this.membersOfGroup = [...this.membersOfGroup, ...listMemberOnline];
+        }
+      });
+    this.subscriptions.add(addMemberGroupSub);
+
+    this.socketService.receiveDeleteMessage().subscribe((data) => {
+      if (
+        data.senderId !== this.userId &&
+        this.currentGroupId !== data.groupId
+      ) {
+        this.store.dispatch(loadGroup({ userId: this.userId }));
+      }
+    });
   }
 
-  // checkIsRead() {
-  //   this.isRead =
-  //     this.itemGroup?.readUsers?.includes(this.userId || '') || false;
-  // }
-
   handleReadMessage(groupId: string) {
+    this.emitcheckGroupIdRead.emit(groupId);
+    this.wasReadGroupId = groupId;
     if (!this.itemGroup.readUsers.includes(this.userId || '')) {
       this.store.dispatch(updateIsRead({ groupId, userId: this.userId }));
     }
@@ -196,167 +229,127 @@ export class GroupItemComponent implements OnInit, OnDestroy {
   }
 }
 
-// ngOnInit(): void {
-//   this.checkIsRead();
-//   this.store.dispatch(loadUsersByGroup({ groupId: this.itemGroup._id }));
+// const onlineSub = combineLatest([
+//   this.store.select(selectUsersByGroup),
+//   this.socketService.onlineUser$,
+// ]).subscribe(([usersInGroup, onlineUserIds]) => {
+//   const users = usersInGroup?.[this.itemGroup._id] || [];
+//   this.userOnlineGroup = users
+//     .filter((m) => onlineUserIds.includes(m._id))
+//     .map((u) => u._id);
+// });
+// this.subscriptions.add(onlineSub);
 
-//   const onlineSub = combineLatest([
-//     this.store.select(selectUsersByGroup),
-//     this.socketService.onlineUser$,
-//   ]).subscribe(([usersInGroup, onlineUserIds]) => {
-//     const users = usersInGroup?.[this.itemGroup._id] || [];
-//     this.userOnlineGroup = users
-//       .filter((m) => onlineUserIds.includes(m._id))
-//       .map((u) => u._id);
-//   });
-//   this.subscriptions.add(onlineSub);
+// this.socketService
+//   .receiveKickedFromGroup()
+//   .subscribe(({ groupId, userId }) => {
+//     if (this.itemGroup._id === groupId) {
+//       this.store.dispatch(loadGroup({ userId: this.userId }));
 
-//   this.socketService.receiveEditGroup().subscribe((data) => {
-//     if (this.itemGroup._id === data.groupId) {
-//       this.itemGroup = {
-//         ...this.itemGroup,
-//         name: data.name,
-//       };
-//     }
-//   });
-
-//   this.store.select(selectMessage).subscribe((message) => {
-//     if (message && message.senderId.length > 0) {
-//       const lastMessage = message.senderId[message.senderId.length - 1];
-//       if (message.group._id !== this.currentGroupId) {
-//         if (lastMessage.senderId !== this.userId) {
-//           this.isRead = false;
-//         } else {
-//           if (
-//             this.wasReadManually &&
-//             message.group._id === this.currentGroupId
-//           ) {
-//             this.wasReadManually = false;
-//             this.isRead = true;
-//             return;
-//           }
-//         }
-//       } else if (message.group._id === this.currentGroupId) {
-//         if (lastMessage.senderId !== this.userId) {
-//           this.isRead = true;
-//         } else {
-//           if (
-//             this.wasReadManually &&
-//             message.group._id === this.currentGroupId
-//           ) {
-//             this.wasReadManually = false;
-//             this.isRead = true;
-//             return;
-//           }
-//         }
+//       this.userOnlineGroup = this.userOnlineGroup.filter(
+//         (uId) => uId !== userId
+//       );
+//       if (userId === this.userId) {
+//         this.itemGroup.readUsers = this.itemGroup.readUsers.filter(
+//           (id) => id !== this.userId
+//         );
 //       }
 //     }
 //   });
 
-//   this.socketService.receiveMessage().subscribe((message) => {
-//     if (message.groupId === this.itemGroup._id) {
+// this.store.select(selectMessage).subscribe((message) => {
+//   if (message && message.group._id === this.itemGroup._id) {
+//     const userId = localStorage.getItem('userId');
+//     const visibleMessages = message.senderId.filter(
+//       (msg) => !msg.deleteForUser?.includes(userId)
+//     );
+//     const lastVisibleMessage = visibleMessages[visibleMessages.length - 1];
+//     if (lastVisibleMessage) {
 //       this.itemGroup = {
 //         ...this.itemGroup,
 //         lastMessage: {
-//           content: message.content,
-//           senderId: message.senderId,
-//           senderName: message.senderName,
-//           createdAt: message.createdAt,
+//           content: lastVisibleMessage.content,
+//           senderId: lastVisibleMessage.senderId,
+//           senderName: lastVisibleMessage.senderName,
+//           createdAt: lastVisibleMessage.createdAt,
 //         },
+//       };
+//     } else {
+//       this.itemGroup = {
+//         ...this.itemGroup,
+//         lastMessage: null,
 //       };
 //     }
 //     if (
-//       this.userId !== message.senderId &&
-//       message.groupId === this.itemGroup._id
+//       message.group._id === this.checkGroupIdRead && this.wasReadGroupId
 //     ) {
-//       const isCurrentGroup = this.currentGroupId === message.groupId;
-//       const isNotSender = message.senderId !== this.userId;
-//       const hasNotRead = !message.isRead.includes(this.userId || '');
-//       if (isCurrentGroup && isNotSender && hasNotRead) {
-//         this.store.dispatch(
-//           updateIsRead({ groupId: this.itemGroup._id, userId: this.userId })
-//         );
-//         this.itemGroup.isRead = [...this.itemGroup.isRead, this.userId || ''];
-//         this.isRead = true;
-//       } else if (!isCurrentGroup && isNotSender && hasNotRead) {
-//         this.isRead = false;
+//       this.isRead = true;
+//       this.wasReadGroupId = '';
+//     }
+//   }
+// });
+
+// const msgSub = this.socketService.receiveMessage().subscribe((message) => {
+//   if (message.groupId !== this.itemGroup._id) return;
+//   this.itemGroup = {
+//     ...this.itemGroup,
+//     lastMessage: {
+//       content: message.content,
+//       senderId: message.senderId,
+//       senderName: message.senderName,
+//       createdAt: message.createdAt,
+//     },
+//   };
+
+//   if (message.senderId !== this.userId) {
+//     console.log(this.itemGroup)
+//     console.log(message)
+//     console.log(this.currentGroupId)
+//     if (this.itemGroup._id === message.groupId && this.currentGroupId === message.groupId ) {
+//       this.store.dispatch(
+//         updateIsRead({
+//           groupId: this.itemGroup._id,
+//           userId: this.userId,
+//         })
+//       );
+//       if (!this.itemGroup.readUsers.includes(this.userId || '')) {
+//         this.itemGroup.readUsers = [
+//           ...this.itemGroup.readUsers,
+//           this.userId || '',
+//         ];
 //       }
+//       this.isRead = true;
+//     }  else if(this.itemGroup._id === message.groupId) {
+//       this.isRead = false;
+//     }
+//   } else {
+//     console.log(this.itemGroup)
+
+//     if (!this.itemGroup.readUsers.includes(this.userId || '')) {
+
+//       console.log('aaaaaaa')
+
+//       this.store.dispatch(
+//         updateIsRead({
+//           groupId: this.itemGroup._id,
+//           userId: this.userId,
+//         })
+//       );
+//       this.itemGroup.readUsers = [
+//         ...this.itemGroup.readUsers,
+//         this.userId || '',
+//       ];
+//       this.isRead = true;
+//     }
+//   }
+// });
+// this.subscriptions.add(msgSub);
+
+// const addMemberGroupSub = this.socketService
+//   .receiveAddMemberFromGroup()
+//   .subscribe(({ group, listUser, userId, listMemberOnline }) => {
+//     if (this.itemGroup._id === group._id && userId === this.userId) {
+//       this.userOnlineGroup = [...this.userOnlineGroup, ...listMemberOnline];
 //     }
 //   });
-
-//   // this.store.select(selectMessage).subscribe((message) => {
-//   //   if (!message || !message.group) return;
-
-//   //   const isCurrentGroup = message.group._id === this.itemGroup._id;
-//   //   const isSelectedGroup = this.itemGroup._id === this.currentGroupId;
-
-//   //   // if (message.senderId.length === 0) {
-//   //   //   // Group chưa có tin nhắn
-//   //   //   this.isRead = isSelectedGroup && message.group.ownerId === this.userId;
-//   //   //   return;
-//   //   // }
-//   //   console.log(message)
-//   //   const lastMessage = message.senderId[message.senderId.length - 1];
-//   //   const isNotSender = lastMessage.senderId !== this.userId;
-//   //   const hasNotRead = !lastMessage.isRead.includes(this.userId);
-
-//   //   if (isCurrentGroup && isSelectedGroup && isNotSender && hasNotRead) {
-//   //     if (this.wasReadManually) {
-//   //       this.wasReadManually = false;
-//   //       this.isRead = true;
-//   //     } else {
-//   //       this.isRead = true;
-//   //     }
-//   //   } else {
-//   //     this.isRead = false;
-//   //   }
-//   // });
-
-//   // this.socketService.receiveMessage().subscribe((message) => {
-//   //   if (message.groupId !== this.itemGroup._id) return;
-
-//   //   this.itemGroup = {
-//   //     ...this.itemGroup,
-//   //     lastMessage: {
-//   //       content: message.content,
-//   //       senderId: message.senderId,
-//   //       senderName: message.senderName,
-//   //       createdAt: message.createdAt,
-//   //     },
-//   //   };
-
-//   //   const isCurrentGroup = this.currentGroupId === message.groupId;
-//   //   const isNotSender = message.senderId !== this.userId;
-//   //   const hasNotRead = !message.isRead.includes(this.userId || '');
-
-//   //   if (isNotSender && hasNotRead) {
-//   //     if (isCurrentGroup) {
-//   //       this.store.dispatch(
-//   //         updateIsRead({ groupId: this.itemGroup._id, userId: this.userId })
-//   //       );
-//   //       this.itemGroup.isRead = [...this.itemGroup.isRead, this.userId || ''];
-//   //       this.isRead = true;
-//   //     } else {
-//   //       this.isRead = false;
-//   //     }
-//   //   }
-
-//   //   // Group mới tạo, gửi tin nhắn đầu tiên (mặc định currentUser là người gửi)
-//   //   if (message.senderId === this.userId) {
-//   //     this.isRead = true;
-//   //     if (!this.itemGroup.isRead.includes(this.userId || '')) {
-//   //       this.itemGroup.isRead = [...this.itemGroup.isRead, this.userId || ''];
-//   //     }
-//   //   }
-//   // });
-
-//   this.socketService
-//     .receiveKickedFromGroup()
-//     .subscribe(({ groupId, userId }) => {
-//       if (this.itemGroup._id === groupId) {
-//         this.userOnlineGroup = this.userOnlineGroup.filter(
-//           (uId) => uId !== userId
-//         );
-//       }
-//     });
-// }
+// this.subscriptions.add(addMemberGroupSub);

@@ -85,3 +85,15 @@ export const addTagForGroupFailure = createAction(
   props<{error: any}>()
 )
 
+export const updateThemeGroup = createAction(
+  '[Group] Update Theme Group',
+  props<{ groupId: string; theme: string }>()
+);
+export const updateThemeGroupSuccess = createAction(
+  '[Group] Update Theme Group Success',
+  props<{ group: IGroup }>()
+);
+export const updateThemeGroupFailure = createAction(
+  '[Group] Update Theme Group Failure',
+  props<{ error: any }>()
+);

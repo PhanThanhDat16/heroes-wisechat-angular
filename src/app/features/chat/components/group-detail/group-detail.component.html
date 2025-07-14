@@ -3,9 +3,26 @@
   class="flex-fill group-detail-wrapper"
   style="background-color: #f4f4f4"
 >
-  <div class="h-100 d-flex flex-column">
+  <div
+    class="h-100 d-flex flex-column"
+    [ngStyle]="
+      theme
+        ? {
+            'background-image': 'url(' + theme.image + ')',
+            'background-repeat': 'no-repeat',
+            'background-size': 'cover'
+          }
+        : {}
+    "
+  >
     <div
       class="py-3 px-4 chat-header d-flex align-items-center justify-content-between position-relative"
+      [ngClass]="{
+        'chat-header-default': !theme || theme.name === 'default',
+        'chat-header-cloud': theme?.name === 'cloud',
+        'chat-header-family': theme?.name === 'family',
+        'chat-header-green': theme?.name === 'green'
+      }"
     >
       <div class="d-flex align-items-center gap-2">
         <img
@@ -42,9 +59,15 @@
                     : 'status-offline'
                 "
               ></span>
-              <span class="fw-6 fs-7 text-primary-chat">{{
-                userOnlineGroup.length > 0 ? "Online" : "Offline"
-              }}</span>
+              <span
+                class="fw-6 fs-7"
+                [ngClass]="
+                  !theme || (theme && theme.name !== 'default')
+                    ? ''
+                    : 'text-primary-chat'
+                "
+                >{{ userOnlineGroup.length > 0 ? "Online" : "Offline" }}</span
+              >
             </span>
           </div>
         </ng-template>
@@ -63,9 +86,7 @@
         </span>
       </div>
     </div>
-
     <app-chat-message></app-chat-message>
-
     <app-chat-input></app-chat-input>
   </div>
   <app-group-detail-bar></app-group-detail-bar>

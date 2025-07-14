@@ -10,8 +10,6 @@ export class NotiService {
   private URL = 'http://localhost:3002/api/notification';
   constructor(private http: HttpClient, private authService: AuthService) {}
 
-  // router.put('/:id/user/:userId/read', notificationController.updateReadNotification)
-
   getNotiByUser(userId: string) {
     return this.http
       .get<any>(`${this.URL}/user/${userId}`, {
@@ -30,19 +28,19 @@ export class NotiService {
     });
   }
 
-  updateReadNoti(notiId: string, userId: string) {
+  updateReadAllNoti(userId: string) {
     return this.http
-      .put<any>(`${this.URL}/${notiId}/user/${userId}/read`, {
+      .put<any>(`${this.URL}/user/${userId}/read-all`, {
         headers: {
           authorization: `Bearer ${this.authService.getAccessToken()}`,
         },
       })
       .pipe(map((res) => res.data));
   }
-  
-  updateReadAllNoti(userId: string) {
+
+  updateReadNoti(notiId: string) {
     return this.http
-      .put<any>(`${this.URL}/user/${userId}/read-all`, {
+      .put<any>(`${this.URL}/${notiId}/user/read`, {
         headers: {
           authorization: `Bearer ${this.authService.getAccessToken()}`,
         },

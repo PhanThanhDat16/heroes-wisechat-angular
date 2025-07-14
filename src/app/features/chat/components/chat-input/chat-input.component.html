@@ -1,163 +1,120 @@
 <div class="position-relative">
-  <!-- <ng-container *ngIf="uploaded">
-  <div class="uploaded-images-preview mb-2 px-5">
-    <div class="d-flex flex-nowrap gap-2 overflow-auto">
-      <div class="image-item position-relative rounded shadow-sm">
-        <ng-container [ngSwitch]="getFileType(uploaded.mimetype)">
-          <img
-            *ngSwitchCase="'image'"
-            [src]="uploaded.url"
-            [alt]="uploaded.originalname"
-            class="preview-img"
-          />
+  <ng-container *ngIf="uploaded">
+    <div class="uploaded-images-preview mb-2 px-5 position-absolute">
+      <div class="d-flex flex-nowrap gap-2 overflow-auto">
+        <div class="image-item position-relative rounded shadow-sm">
+          <ng-container [ngSwitch]="getFileType(uploaded.mimetype)">
+            <img
+              *ngSwitchCase="'image'"
+              [src]="uploaded.url"
+              [alt]="uploaded.originalname"
+              class="preview-img"
+            />
 
-          <img
-            *ngSwitchCase="'excel'"
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTroU91FLk1e5CTmveZCstER9A-qLpJGNtZvA&s"
-            alt="Excel file"
-            class="preview-img"
-          />
+            <img
+              *ngSwitchCase="'excel'"
+              src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTroU91FLk1e5CTmveZCstER9A-qLpJGNtZvA&s"
+              alt="Excel file"
+              class="preview-img"
+            />
 
-          <img
-            *ngSwitchCase="'word'"
-            src="https://thehanoichamomile.com/wp-content/uploads/2019/06/12-121390_new-microsoft-word-icon.jpg"
-            alt="Word file"
-            class="preview-img"
-          />
+            <img
+              *ngSwitchCase="'word'"
+              src="https://thehanoichamomile.com/wp-content/uploads/2019/06/12-121390_new-microsoft-word-icon.jpg"
+              alt="Word file"
+              class="preview-img"
+            />
 
-          <div
-            *ngSwitchDefault
-            class="w-100 h-100 d-flex justify-content-center align-items-center bg-light text-secondary"
-          >
-            File
+            <div
+              *ngSwitchDefault
+              class="w-100 h-100 d-flex justify-content-center align-items-center bg-light text-secondary"
+            >
+              File
+            </div>
+          </ng-container>
+
+          <div class="image-filename">
+            {{ uploaded.originalname }}
           </div>
-        </ng-container>
 
-        <div class="image-filename">
-          {{ uploaded.originalname }}
+          <button
+            type="button"
+            (click)="removeImage()"
+            class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 py-0 px-2"
+          >
+            ×
+          </button>
         </div>
-
-        <button
-          type="button"
-          (click)="removeImage()"
-          class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 py-0 px-2"
-        >
-          ×
-        </button>
       </div>
     </div>
-  </div>
-</ng-container> -->
-<ng-container *ngIf="uploaded">
-  <div class="uploaded-images-preview mb-2 px-5 position-absolute">
-    <div class="d-flex flex-nowrap gap-2 overflow-auto">
-      <div class="image-item position-relative rounded shadow-sm">
-        <ng-container [ngSwitch]="getFileType(uploaded.mimetype)">
-          <img
-            *ngSwitchCase="'image'"
-            [src]="uploaded.url"
-            [alt]="uploaded.originalname"
-            class="preview-img"
-          />
+  </ng-container>
 
-          <img
-            *ngSwitchCase="'excel'"
-            src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTroU91FLk1e5CTmveZCstER9A-qLpJGNtZvA&s"
-            alt="Excel file"
-            class="preview-img"
-          />
-
-          <img
-            *ngSwitchCase="'word'"
-            src="https://thehanoichamomile.com/wp-content/uploads/2019/06/12-121390_new-microsoft-word-icon.jpg"
-            alt="Word file"
-            class="preview-img"
-          />
-
-          <div
-            *ngSwitchDefault
-            class="w-100 h-100 d-flex justify-content-center align-items-center bg-light text-secondary"
-          >
-            File
-          </div>
-        </ng-container>
-
-        <div class="image-filename">
-          {{ uploaded.originalname }}
-        </div>
-
-        <button
-          type="button"
-          (click)="removeImage()"
-          class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 py-0 px-2"
-        >
-          ×
-        </button>
+  <div class="input-message position-relative bg-white mt-auto">
+    <div *ngIf="replyToMessage" class="reply">
+      <div class="d-flex justify-content-between">
+        <span class="reply-title">
+          Replying to {{replyToMessage.senderId === userId ? 'You' : replyToMessage.senderName}}
+        </span>
+        <span class="cursor-point" (click)="replyToMessage = null">
+          <i class="fa-solid fa-xmark"></i>
+        </span>
       </div>
+      <span class="text-truncate d-block reply-content" style="width: 97%">{{
+        replyToMessage.type === "image"
+          ? "Image"
+          : replyToMessage.type === "excel" || replyToMessage.type === "word"
+          ? "File"
+          : replyToMessage.content
+      }}</span>
     </div>
-  </div>
-</ng-container>
 
-<div class="input-message position-relative bg-white mt-auto">
-  <div *ngIf="replyToMessage" class="reply">
-    <span class="reply-close" (click)="replyToMessage = null">
-      <i class="fa-solid fa-xmark"></i>
-    </span>
-    <span class="text-truncate d-block" style="width: 97%">{{
-      replyToMessage.type === "image"
-        ? "Image"
-        : replyToMessage.type === "excel" || replyToMessage.type === "word"
-        ? "File"
-        : replyToMessage.content
-    }}</span>
-  </div>
+    <div *ngIf="editToMessage" class="position-absolute edit-message">
+      <span class="text-white" style="font-size: 13px;">Edit Message</span>
+      <span class="edit-close" (click)="handleCloseEdit()"
+        ><i class="fa-solid fa-xmark"></i
+      ></span>
+    </div>
 
-  <div *ngIf="editToMessage" class="position-absolute edit-message">
-    <span class="text-white">Edit Message</span>
-    <span class="edit-close" (click)="handleCloseEdit()"
-      ><i class="fa-solid fa-xmark"></i
-    ></span>
-  </div>
-
-  <div class="d-flex gap-3 align-items-center form-control py-3">
-    <label
-      for="file-upload"
-      class="mb-0 cursor-pointer"
-      *ngIf="!editToMessage && !replyToMessage"
-    >
-      <input
-        type="file"
-        id="file-upload"
-        hidden
-        (change)="handleChooseFileAndImage($event)"
-      />
-      <i class="fa-solid fa-paperclip"></i>
-    </label>
-
-    <input
-      [ngClass]="uploaded ? 'disable-input' : ''"
-      placeholder="Type message..."
-      class="border-0 flex-fill"
-      [(ngModel)]="messageInput"
-      [disabled]="uploaded !== null ? true : false"
-      (keydown.enter)="handleSendMessage()"
-    />
-
-    <button (click)="handleSendMessage()">
-      <i
-        *ngIf="!editToMessage"
-        class="fa-solid fa-paper-plane fs-5 btn-send"
-        style="color: #1b93ee"
-      ></i>
-      <span
-        *ngIf="editToMessage"
-        style="padding: 4px 7px; border-radius: 50%; background: #1b93ee"
+    <div class="d-flex gap-3 align-items-center form-control py-3">
+      <label
+        for="file-upload"
+        class="mb-0 cursor-pointer"
+        *ngIf="!editToMessage && !replyToMessage"
       >
-        <i class="fa-solid fa-check" style="color: white"></i>
-      </span>
-    </button>
+        <input
+          type="file"
+          id="file-upload"
+          hidden
+          (change)="handleChooseFileAndImage($event)"
+        />
+        <i class="fa-solid fa-paperclip"></i>
+      </label>
+
+      <input
+        [ngClass]="uploaded ? 'disable-input' : ''"
+        placeholder="Type message..."
+        class="border-0 flex-fill"
+        [(ngModel)]="messageInput"
+        [disabled]="uploaded !== null ? true : false"
+        (keydown.enter)="handleSendMessage()"
+      />
+
+      <button (click)="handleSendMessage()">
+        <i
+          *ngIf="!editToMessage"
+          class="fa-solid fa-paper-plane fs-5 btn-send"
+          style="color: #1b93ee"
+        ></i>
+        <span
+          *ngIf="editToMessage"
+          class="d-flex align-items-center"
+          style="padding: 6px 7px; border-radius: 50%; background: #1b93ee"
+        >
+          <i class="fa-solid fa-check" style="color: white; font-size: 12px;"></i>
+        </span>
+      </button>
+    </div>
   </div>
-</div>
 </div>
 
 <div *ngIf="editToMessage" class="overlay-edit"></div>

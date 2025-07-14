@@ -35,6 +35,8 @@
             <app-group-item
               [currentGroupId]="currentGroupId"
               [itemGroup]="item"
+              [checkGroupIdRead]="checkGroupIdRead"
+              (emitcheckGroupIdRead)="handleResetGroupIdRead($event)"
             ></app-group-item>
           </div>
         </ng-container>
