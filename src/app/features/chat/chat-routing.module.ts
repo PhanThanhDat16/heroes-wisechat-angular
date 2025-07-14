@@ -3,6 +3,7 @@ import { ChatappComponent } from './components/chatapp/chatapp.component';
 import { RouterModule } from '@angular/router';
 import { NgModule } from '@angular/core';
 import { GroupDetailComponent } from './components/group-detail/group-detail.component';
+import { permissionGroupGuard } from '../../core/guard/permissionGroup.guard';
 
 const router: Routes = [
   {
@@ -12,6 +13,7 @@ const router: Routes = [
       {
         path: ':id',
         component: GroupDetailComponent,
+        canActivate: [permissionGroupGuard],
       },
     ],
   },

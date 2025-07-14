@@ -1,8 +1,8 @@
 <div
   #scrollableChatRef
   [ngClass]="uploaded ? 'chat-box-img' : 'chat-box'"
-  class="scroll-y flex-grow-1 my-3 h-100"
-  style="padding: 8px"
+  class="scroll-y flex-grow-1 h-100"
+  style="padding: 25px"
 >
   <div *ngIf="isLoadingMessages" class="text-center py-4">
     <div class="spinner-border text-primary" role="status">
@@ -12,23 +12,13 @@
 
   <app-message [messagesGroup]="messagesGroup"></app-message>
 
-  <ng-container *ngIf="messagesGroup.length === 0 && !isLoadingMessages">
+  <ng-container
+    *ngIf="
+      messagesGroup.length === 0 && !isLoadingMessages && !checkMessageGroup
+    "
+  >
     <div class="d-flex flex-column align-items-center gap-5 mt-5">
       <i class="fa-solid fa-users" style="color: #8b95a7; font-size: 180px"></i>
-      <div class="d-flex nmessage-wrapper gap-5">
-        <div class="d-flex flex-column gap-3 align-items-center">
-          <span class="shadow nmessage-icon">
-            <i class="fa-solid fa-eye" style="color: #8b95a7"></i>
-          </span>
-          <span class="nmessage-content">View Member</span>
-        </div>
-        <div class="d-flex flex-column gap-3 align-items-center">
-          <span class="shadow nmessage-icon">
-            <i class="fa-solid fa-user-plus" style="color: #8b95a7"></i>
-          </span>
-          <span class="nmessage-content">Add Member</span>
-        </div>
-      </div>
       <span class="nmessage-title">
         {{
           userId === groupData?.ownerId
@@ -39,3 +29,4 @@
     </div>
   </ng-container>
 </div>
+

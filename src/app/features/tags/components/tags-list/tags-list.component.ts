@@ -10,8 +10,8 @@ import { TagService } from '../../service/tag.service';
 })
 export class TagsListComponent implements OnInit {
   tags: ITag[] = [];
-  nametag: string = '';
-  isLoading: boolean = false;
+  nametag = '';
+  isLoading = false;
 
   constructor(
     private tagService: TagService,

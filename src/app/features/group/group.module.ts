@@ -10,6 +10,8 @@ import { UtilsRenameGroupComponent } from './components/utils-rename-group/utils
 import { UtilsFindMessageGroupComponent } from './components/utils-find-message-group/utils-find-message-group.component';
 import { UtilsAddTagGroupComponent } from './components/utils-add-tag-group/utils-add-tag-group.component';
 import { SharedModule } from '../../shared/shared.module';
+import { AddMemberGroupComponent } from './components/add-member-group/add-member-group.component';
+import { ModalChooseRoleMemberComponent } from './components/modal-choose-role-member/modal-choose-role-member.component';
 
 @NgModule({
   declarations: [
@@ -17,6 +19,8 @@ import { SharedModule } from '../../shared/shared.module';
     UtilsRenameGroupComponent,
     UtilsFindMessageGroupComponent,
     UtilsAddTagGroupComponent,
+    AddMemberGroupComponent,
+    ModalChooseRoleMemberComponent,
   ],
   imports: [
     CommonModule,
@@ -31,6 +35,8 @@ import { SharedModule } from '../../shared/shared.module';
     UtilsRenameGroupComponent,
     UtilsFindMessageGroupComponent,
     UtilsAddTagGroupComponent,
+    AddMemberGroupComponent,
+    ModalChooseRoleMemberComponent,
   ],
 })
 export class GroupModule {}

@@ -11,7 +11,6 @@ import {
 import { Actions, ofType } from '@ngrx/effects';
 import { take } from 'rxjs';
 import { ModalUtilsMessageComponent } from '../../../../shared/components/modal-utils-message/modal-utils-message.component';
-import { SocketIOService } from '../../../../core/services/socket.service';
 
 @Component({
   selector: 'app-utils-message-delete',
@@ -24,11 +23,7 @@ export class UtilsMessageDeleteComponent {
   @ViewChild(ModalUtilsMessageComponent)
   modalComponent!: ModalUtilsMessageComponent;
 
-  constructor(
-    private store: Store,
-    private action$: Actions,
-    private socketService: SocketIOService
-  ) {}
+  constructor(private store: Store, private action$: Actions) {}
 
   handleDeleteEveryone() {
     Swal.fire({
@@ -54,10 +49,6 @@ export class UtilsMessageDeleteComponent {
                 icon: 'success',
               }).then(() => {
                 this.modalComponent?.closeModal();
-                this.socketService.deleteMessage(
-                  this.message._id,
-                  this.message.groupId
-                );
               });
             });
         }
@@ -78,7 +69,10 @@ export class UtilsMessageDeleteComponent {
       if (result.isConfirmed) {
         if (this.message && this.message._id && this.userId) {
           this.store.dispatch(
-            deleteMessageForMe({ messageId: this.message._id, userId: this.userId })
+            deleteMessageForMe({
+              messageId: this.message._id,
+              userId: this.userId,
+            })
           );
 
           this.action$
@@ -89,7 +83,6 @@ export class UtilsMessageDeleteComponent {
                 icon: 'success',
               }).then(() => {
                 this.modalComponent?.closeModal();
-                // this.socketService.deleteMessage(this.message._id, this.message.groupId)
               });
             });
         }

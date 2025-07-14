@@ -15,3 +15,60 @@
   border: none !important;
   box-shadow: 0px 6px 20px 0px rgba(0, 0, 0, 0.2) !important;
 }
+
+.group-detail-wrapper {
+  display: grid;
+  grid-template-columns: 3fr 1fr;
+  transition: grid-template-columns 0.2s ease;
+  &.collapsed {
+    grid-template-columns: 1fr 0fr;
+  }
+}
+
+app-group-detail-bar {
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.chat {
+  &-header {
+    box-shadow: 0px 3px 8px 0px rgba(0, 0, 0, 0.175);
+    &-img {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      object-fit: cover;
+
+      &-item {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid #787878;
+        i {
+          font-size: 15px;
+        }
+      }
+    }
+  }
+}
+
+.chat {
+  &-header {
+    &-default {
+      background-color: white;
+    }
+
+    &-cloud {
+      background-color: #5ccdff;
+    }
+
+    &-green {
+      background-color: #48cc5b;
+    }
+
+    &-family {
+      background-color: #fc6c35;
+    }
+  }
+}

@@ -1,24 +1,42 @@
-.btn-create{
-  padding: 10px 13px;
+.btn-create {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  border: 1px solid #5a5656;
+  color: #2b2b2b;
+  i{
+    font-weight: bold;
+    font-size: 20px;
+  }
+
+  &-title{
+    font-size: 15px;
+  color: #0d0d0d;
+  font-weight: 500;
+  }
 }
 
-
-.p-10{
+.p-10 {
   padding: 10px;
 }
 
-.btn-next{
+.btn-next {
   color: #ccc;
   pointer-events: none;
 }
 
-.btn-next-access{
+.btn-next-access {
   pointer-events: all;
-  color: #0080FF;
+  color: white;
+  background-color: #5046e4;
+}
+
+.btn-back {
+  color: #ccc;
+  pointer-events: none;
 }
 
 .card {
-
   &-avatar {
     width: 60px;
     height: 60px;
@@ -26,13 +44,13 @@
     margin-right: 10px;
     object-fit: cover;
   }
- 
+
   &-text {
     color: #a2b1bf;
   }
 
   &-search {
-    padding: 15px ;
+    padding: 15px;
     color: #c1c1c1;
     input::placeholder {
       color: #c1c1c1;
@@ -40,11 +58,9 @@
   }
 }
 
-.text-next{
+.text-next {
   color: #ccc;
 }
-
-
 
 .custom-checkbox-wrapper {
   position: relative;
@@ -74,10 +90,16 @@
 .check-icon {
   font-size: 14px;
   color: white;
-  display: none; 
+  display: none;
 }
 
 .custom-checkbox:checked + .checkmark .check-icon {
   display: block;
+}
+
+  
+.modal-text-title{
+    font-weight: 700 !important;
+    color: #12131e !important;
 }
 

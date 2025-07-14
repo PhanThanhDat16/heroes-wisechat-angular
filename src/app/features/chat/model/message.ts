@@ -1,5 +1,5 @@
-import { IUser } from "../../auth/model/user";
-import { IGroup } from "../../group/model/group";
+import { IUser } from '../../auth/model/user';
+import { IGroup } from '../../group/model/group';
 
 export interface IMessageGroup {
   _id?: string;
@@ -16,8 +16,40 @@ export interface IMessageGroup {
   replyToSenderName: string | null;
   replyToType: string | null;
   type: string;
-  isRead: string[]
-  deleteForUser: string[]
+  readUsers: string[];
+  deleteForUser: string[];
+  status: string;
+  reactions?: Record<string, {
+      count: number;
+      users: string[];
+    }>;
+}
+
+export interface IMessageGeneral {
+  _id?: string;
+  content: string;
+  createdAt: string;
+  groupId: {
+    _id: string,
+    name: string
+  };
+  quantityReact: number;
+  senderId: string;
+  senderName: string;
+  updatedAt: string;
+  isEdited: boolean;
+  replyToMessageId: string | null;
+  replyToContent: string | null;
+  replyToSenderName: string | null;
+  replyToType: string | null;
+  type: string;
+  readUsers: string[];
+  deleteForUser: string[];
+  status: string;
+  reactions?: Record<string, {
+      count: number;
+      users: string[];
+    }>;
 }
 
 export interface IMessageCreate {
@@ -32,7 +64,6 @@ export interface IMessageCreate {
   type: string;
 }
 
-
 export interface IUploadedFile {
   url: string;
   originalname: string;
@@ -40,11 +71,13 @@ export interface IUploadedFile {
 }
 
 export interface IMessageGroupDetail {
-  group: IGroup,
-  limit: number,
-  members: IUser[],
-  page: number,
-  senderId: IMessageGroup[],
-  total: number,
-  totalPages: number
+  group: IGroup;
+  limit: number;
+  members: IUser[];
+  page: number;
+  senderId: IMessageGroup[];
+  total: number;
+  totalPages: number;
+  mediaImageCount?: number;
+  mediaFileCount?: number;
 }

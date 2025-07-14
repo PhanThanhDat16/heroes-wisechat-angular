@@ -24,10 +24,15 @@
 
   &-time {
     font-size: 14px;
+    color: #3a3a3a;
   }
 
   &-notRead {
-    background-color: #edf4fc;
+    background-color: #f4f4f4c7;
+  }
+
+  &-read {
+    background-color: white;
   }
 
   &-title {
@@ -37,4 +42,20 @@
   &-text {
     color: #a2b1bf;
   }
+}
+
+.icon-check{
+  color: #2780C4;
+}
+
+.check-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 5px;       
+  height: 5px;
+  border-radius: 50%; 
+  background-color: #007bff; 
+  color: white;      
+  font-size: 12px;    
 }

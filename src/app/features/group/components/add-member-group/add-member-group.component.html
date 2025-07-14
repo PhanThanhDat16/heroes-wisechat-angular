@@ -1,0 +1,92 @@
+<app-modal-add-chat (stepEmitter)="onResetStep($event)">
+  <div
+    modal-btn
+    class="group-detail-AddMember px-4 py-2 cursor-point d-flex align-items-center justify-content-between"
+  >
+    <span
+      style="width: 30px; height: 30px; border-radius: 50%"
+      class="d-flex justify-content-center align-items-center bg-white"
+    >
+      <i class="fa-solid fa-plus fs-6" style="color: #4178e2"></i>
+    </span>
+    <span class="fw-bold fs-6"> Add Member </span>
+    <span>
+      <i class="fa-regular fa-user fs-6"></i>
+    </span>
+  </div>
+
+  <div modal-header>
+    <h4 class="modal-title" id="modal-basic-title text-primary-m">
+      Add Member
+    </h4>
+  </div>
+
+  <button
+    modal-header-action
+    class="modal-title btn-next lh-1 px-4 py-3 border rounded-pill"
+    id="modal-basic-title"
+    [ngClass]="listAddUser.length >= 1 ? 'btn-next-access fw-bold' : ''"
+    (click)="handleAddMember()"
+  >
+    Add
+  </button>
+  <div modal-body class="text-primary-m">
+    <div
+      class="d-flex card-search align-items-center mb-4 p-10 border rounded-pill gap-2"
+    >
+      <i class="fa-solid fa-magnifying-glass"></i>
+      <input
+        type="text"
+        class="border-0 flex-fill"
+        placeholder="Search user..."
+        [formControl]="nameUser"
+      />
+    </div>
+
+    <div *ngIf="listAddUser.length > 0" class="d-flex gap-4 mb-3 p-10 scroll-x">
+      <ng-container *ngFor="let user of listAddUser">
+        <div class="d-flex flex-column align-items-center gap-2 flex-shrink-0">
+          <img
+            src="https://images.unsplash.com/photo-1631913290783-490324506193?q=80"
+            alt=""
+            class="card-avatar"
+          />
+          <span class="fw-bold">{{ user.username }}</span>
+        </div>
+      </ng-container>
+    </div>
+
+    <ng-container>
+      <span class="fw-bold">Users</span>
+      <div class="d-flex flex-column gap-2 mt-2">
+        <ng-container *ngFor="let user of users">
+          <label
+            class="custom-checkbox-wrapper d-flex align-items-center justify-content-between py-2 px-3"
+          >
+            <div class="d-flex align-items-center gap-2">
+              <img
+                src="https://images.unsplash.com/photo-1631913290783-490324506193?q=80"
+                alt=""
+                class="card-avatar"
+              />
+              <span class="fw-bold">{{ user.username }}</span>
+            </div>
+            <input
+              #userCheckbox
+              type="checkbox"
+              class="custom-checkbox"
+              [checked]="isUserSelected(user._id)"
+              (change)="handleAddUser(user, $event)"
+            />
+            <span class="checkmark">
+              <i class="fa-solid fa-check check-icon"></i>
+            </span>
+          </label>
+        </ng-container>
+        <div *ngIf="users && users.length === 0" class="text-center">
+          Not found
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</app-modal-add-chat>

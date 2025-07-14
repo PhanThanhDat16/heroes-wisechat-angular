@@ -1,6 +1,5 @@
 import {
   Component,
-  Input,
   ViewChild,
   ElementRef,
   AfterViewInit,
@@ -13,38 +12,41 @@ import { IGroup } from '../../../group/model/group';
 import { IUser } from '../../../auth/model/user';
 import { debounceTime, fromEvent, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { selectGroupDetail } from '../../../../core/store/group/group.selector';
+import {
+  selectGroupDetail,
+} from '../../../../core/store/group/group.selector';
 import {
   selectMessage,
   selectUploadedFiles,
 } from '../../../../core/store/message/message.selector';
 import { SocketIOService } from '../../../../core/services/socket.service';
 import { MessageService } from '../../service/message.service';
-import { loadMessage } from '../../../../core/store/message/message.actions';
+import {
+  createMessageSuccess,
+  deleteMessageEveryoneSuccess,
+  deleteMessageForMeSuccess,
+} from '../../../../core/store/message/message.actions';
 
 @Component({
   selector: 'app-chat-message',
   templateUrl: './chat-message.component.html',
   styleUrls: ['./chat-message.component.scss'],
 })
-export class ChatMessageComponent
-  implements AfterViewInit, OnInit, AfterViewChecked, OnDestroy
-{
-  // check again
-  @Input() checkMessageGroup;
-
+export class ChatMessageComponent implements AfterViewInit, OnInit, AfterViewChecked, OnDestroy {
+  checkMessageGroup = true;
   @ViewChild('scrollableChatRef') scrollableChatRef: ElementRef;
   groupData: IGroup;
   messagesGroup: IMessageGroup[] = [];
   user: IUser;
   userId = localStorage.getItem('userId');
-  messageSub: Subscription;
   currentPage = 1;
   hasMoreMessages = true;
   isLoadingMessages = false;
   shouldScrollToBottom = false;
   uploaded: { url?: string; originalname?: string; mimetype?: string } | null =
     null;
+
+  private subscriptions = new Subscription();
 
   constructor(
     private store: Store,
@@ -53,54 +55,75 @@ export class ChatMessageComponent
   ) {}
 
   ngOnInit(): void {
-    this.store.select(selectGroupDetail).subscribe((groupDetail) => {
-      if (groupDetail) {
-        this.groupData = groupDetail;
-        this.user = groupDetail.user as IUser;
-        this.messagesGroup = [];
-        this.currentPage = 1;
-        this.hasMoreMessages = true;
-        this.isLoadingMessages = false;
-      }
-    });
+    const groupSub = this.store
+      .select(selectGroupDetail)
+      .subscribe((groupDetail) => {
+        this.checkMessageGroup = true;
+        if (groupDetail) {
+          this.groupData = groupDetail;
+          this.user = groupDetail.user as IUser;
+          this.messagesGroup = [];
+          this.currentPage = 1;
+          this.hasMoreMessages = true;
+          this.isLoadingMessages = false;
+        }
+      });
+    this.subscriptions.add(groupSub);
 
+    // const loadingSub = this.store.select(selectGroupLoading).subscribe((loading) => {
+    //   this.isLoadingMessages = loading;
+    // });
+    // this.subscriptions.add(loadingSub);
 
-    this.store.select(selectMessage).subscribe((message) => {
+    const selectMessageSub = this.store.select(selectMessage).subscribe((message) => {
       if (message) {
-        // console.log('message', message.senderId);
         this.messagesGroup = message.senderId;
         this.shouldScrollToBottom = true;
+        this.checkMessageGroup = false;
       }
     });
-    
-    this.store.select(selectUploadedFiles).subscribe((data) => {
+    this.subscriptions.add(selectMessageSub);
+
+    const selectFileSub = this.store.select(selectUploadedFiles).subscribe((data) => {
       this.uploaded = data;
     });
+    this.subscriptions.add(selectFileSub)
 
-    if (this.messageSub) {
-      this.messageSub.unsubscribe();
-    }
-    this.messageSub = this.socketService
+    // if (this.messageSub) {
+    //   this.messageSub.unsubscribe();
+    // }
+    const socketMessageSub = this.socketService
       .receiveMessage()
       .subscribe((message) => {
-        if (this.userId !== message.senderId && this.groupData?._id === message.groupId) {
-          // check
-          // this.messagesGroup = [...this.messagesGroup, message];
-          this.store.dispatch(loadMessage({ groupId: this.groupData?._id, page: this.currentPage, limit: 10 }));
-
+        if (
+          this.userId !== message.senderId &&
+          this.groupData?._id === message.groupId
+        ) {
+          this.store.dispatch(createMessageSuccess({ message }));
         }
         this.shouldScrollToBottom = true;
       });
+    this.subscriptions.add(socketMessageSub);
 
-    this.socketService.receiveDeleteMessage().subscribe((data) => {
-      this.messagesGroup = this.messagesGroup.filter(
-        (msg) => msg._id !== data.messageId
-      );
+    const receiveDeleteMeSub = this.socketService.receiveDeleteMessage().subscribe((data) => {
+      this.store.dispatch(deleteMessageEveryoneSuccess({ messages: data }));
       this.currentPage = 1;
       this.hasMoreMessages = true;
       this.isLoadingMessages = false;
       this.shouldScrollToBottom = true;
     });
+    this.subscriptions.add(receiveDeleteMeSub)
+
+    const receiveDeleteForMeSub = this.socketService.receiveDeleteMessageForMe().subscribe((data) => {
+      this.store.dispatch(deleteMessageForMeSuccess({ message: data }));
+      this.currentPage = 1;
+      this.hasMoreMessages = true;
+      this.isLoadingMessages = false;
+      this.shouldScrollToBottom = true;
+    });
+    this.subscriptions.add(receiveDeleteForMeSub)
+
+    
   }
 
   ngAfterViewInit(): void {
@@ -132,6 +155,12 @@ export class ChatMessageComponent
     if (!scrollElement) return;
     const prevScrollHeight = scrollElement.scrollHeight;
     this.isLoadingMessages = true;
+
+    if (this.messagesGroup.length < 10) {
+      this.isLoadingMessages = false;
+      return;
+    }
+
     this.messageService
       .getMessageByGroupService(this.groupData._id, this.currentPage + 1, 10)
       .subscribe({
@@ -141,8 +170,12 @@ export class ChatMessageComponent
             this.isLoadingMessages = false;
             return;
           }
-          this.messagesGroup = [...data.senderId, ...this.messagesGroup];
+          const newMessages = data.senderId.filter(
+  (newMsg) => !this.messagesGroup.some((oldMsg) => oldMsg._id === newMsg._id)
+);
+this.messagesGroup = [...newMessages, ...this.messagesGroup];
           this.currentPage++;
+
           setTimeout(() => {
             const newScrollHeight = scrollElement.scrollHeight;
             scrollElement.scrollTop = newScrollHeight - prevScrollHeight;
@@ -162,11 +195,7 @@ export class ChatMessageComponent
     }
   }
 
-  getScrollElement(): ElementRef {
-    return this.scrollableChatRef;
-  }
-
   ngOnDestroy(): void {
-    this.messageSub.unsubscribe();
+    this.subscriptions.unsubscribe();
   }
 }

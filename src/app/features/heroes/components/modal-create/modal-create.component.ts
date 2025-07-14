@@ -10,7 +10,7 @@ import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: 'modal-create',
   templateUrl: './modal-create.component.html',
-  styleUrl: './modal-create.component.scss'
+  styleUrl: './modal-create.component.scss',
 })
 export class ModalCreateComponent {
   private modalService = inject(NgbModal);

@@ -1,14 +1,25 @@
+:host {
+  background-color: transparent;
+  padding: 31px;
+}
 
 .uploaded-images-preview {
   max-width: 100%;
 }
 
 .uploaded-images-preview .image-item {
-  width: 120px;
-  height: 120px;
+  width: 100px;
+  height: 100px;
   flex: 0 0 auto;
   overflow: hidden;
   position: relative;
+  z-index: 11;
+}
+
+.disable-input{
+  &::placeholder{
+    color: #dadadacc;
+  }
 }
 
 .preview-img {
@@ -41,11 +52,14 @@
   }
 }
 
-
+.input-message {
+  border-radius: 22px;
+  z-index: 2;
+}
 
 .input-message .form-control {
   background-color: #fff;
-  border-radius: 999px;
+  border-radius: 22px;
   border: 1px solid #ddd;
   padding: 10px 16px;
   display: flex;
@@ -67,27 +81,92 @@
   color: #0d6efd;
 }
 
-
 .reply {
-  bottom: 64px;
   padding: 15px;
-  left: 29px;
   border-radius: 20px;
-  right: 29px;
-  background-color: #eeeeee !important;
-  color: #9d9d9d;
-  &-close{
-    right: 0;
-    top: -12px;
-    background-color: white;
-    padding: 5px;
-    border-radius: 50%;
-    box-shadow: 0 0 20px 0px rgba(0, 0, 0, 0.5);
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
+  background: white;
+  position: absolute;
+  top: -66px;
+  left: 0;
+  right: 0;
+  box-shadow: 0 0 3px 0px rgba(0, 0, 0, 0.1);
+  &-title{
+    font-size: 13px;
+    color: #838383;
+    font-weight: 500;
+    margin-bottom: 6px;
   }
+  &-content{
+    font-size: 13px;
+  }
+}
+
+.edit {
+  &-message {
+    top: -45%;
+    padding: 5px 34px;
+    background: #9E9E9E;
+    width: max-content;
+    border-top-right-radius: 38px;
+    border-top-left-radius: 38px;
+    left: 19px;
+  }
+
+  span {
+    color: white;
+    font-size: 14px;
+  }
+
+  &-close {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background-color: #f1f1f1;
+    box-shadow: 0 0 0px 3px rgba(0, 0, 0, 0.3);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: -6px;
+    right: 0;
+    cursor: pointer;
+    i {
+      font-size: 14px;
+    }
+  }
+}
+
+
+.overlay-edit{
+  position: fixed;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  z-index: 1;
+}
+
+.preview-img {
+  max-width: 120px;
+  max-height: 120px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+}
+
+.image-filename {
+  text-align: center;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  word-break: break-all;
+}
+
+.uploaded-images-preview{
+  left: 0;
+    right: 0;
+    bottom: 66px;
+}
+
+
+.input-message {
+  border-radius: 22px;
+  z-index: 2;
+  position: relative;
 }

@@ -4,6 +4,8 @@
     overflow-y: auto;
     height: 700px;
     max-height: max-content;
+    border-radius: 26px;
+    box-shadow: 0 0 0px 6px rgba(255, 255, 255, 0.4);
     &::-webkit-scrollbar {
       width: 6px;
       border-radius: 8px;

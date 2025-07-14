@@ -1,10 +1,10 @@
-import { IUser } from "../../../features/auth/model/user";
-import { IGroup, IGroupMessage } from "../../../features/group/model/group";
+import { IUser } from '../../../features/auth/model/user';
+import { IGroup, IGroupMessage } from '../../../features/group/model/group';
 
 export interface IGroupState {
   groups: IGroupMessage[] | [];
   groupDetail: IGroup | null;
-  usersInGroup: IUser[];
+  usersInGroup: Record<string, IUser[]>;
   loading: boolean;
   error: any;
 }
@@ -12,7 +12,7 @@ export interface IGroupState {
 export const initialState: IGroupState = {
   groups: [],
   groupDetail: null,
-  usersInGroup: [],
+  usersInGroup: {},
   loading: false,
   error: null,
 };

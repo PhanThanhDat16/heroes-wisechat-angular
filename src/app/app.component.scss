@@ -62,8 +62,8 @@ body {
 }
 
 .main {
-  max-width: 1300px;
-  margin: 0 auto;
+  // max-width: 1300px;
+  // margin: 0 auto;
   min-height: 100vh;
 }
 
@@ -111,16 +111,16 @@ body {
   color: #336699;
 }
 
-.align-items-end{
+.align-items-end {
   align-items: end;
 }
 
-.align-items-start{
+.align-items-start {
   align-items: start;
 }
 
 .text-black {
-  color: black;
+  color: #0d0d0d !important;
 }
 
 .text-white {
@@ -206,6 +206,10 @@ body {
   }
 }
 
+.width-maxcontent {
+  width: max-content;
+}
+
 .text-twoLine {
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -215,11 +219,15 @@ body {
   text-overflow: ellipsis;
 }
 
-.pointer-none{
+.flex-shrink {
+  flex-shrink: 0;
+}
+
+.pointer-none {
   pointer-events: none;
 }
 
-.max-content{
+.max-content {
   width: max-content;
 }
 
@@ -237,6 +245,10 @@ body {
   display: inline-block;
   background-image: linear-gradient(180deg, #ffff, #b3b3b3);
   border: 1px solid #909090;
+}
+
+.z-max {
+  z-index: 1111;
 }
 
 .custom-checkbox-wrapper {
@@ -267,4 +279,9 @@ body {
     background-color: #001aff8c;
     border-color: #1012c059;
   }
+}
+
+.z-max-relative{
+  z-index: 111;
+  position: relative;
 }

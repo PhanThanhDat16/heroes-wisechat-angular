@@ -1,286 +1,456 @@
 <div *ngFor="let msg of messagesGroup; let index = index">
-  <div
-    *ngIf="getDateAndTimeStamp(msg, index) !== null && !checkDeleteForMe(msg)"
-    class="text-center py-3"
-    style="color: #ccc"
-  >
-    {{ getDateAndTimeStamp(msg, index) | smartDate }}
+  <div *ngIf="msg.type === 'system'" class="w-100 text-center my-2 p-1">
+    <span
+      class="text-system fst-italic"
+      [ngClass]="{
+        'text-bg-default': !theme || theme.name === 'default',
+        'text-bg-cloud': theme?.name === 'cloud',
+        'text-bg-family': theme?.name === 'family',
+        'text-bg-green': theme?.name === 'green'
+      }"
+      >{{ msg.content }}</span
+    >
   </div>
 
-  <div
-    *ngIf="!checkDeleteForMe(msg)"
-    class="message mb-2 d-flex position-relative"
-    [ngClass]="
-      msg.senderId === userId ? 'justify-content-end' : 'justify-content-start'
-    "
-  >
+  <div *ngIf="msg.type !== 'system'">
     <div
-      class="d-flex align-items-center"
-      [ngClass]="{ 'justify-content-end': msg.senderId === userId }"
+      *ngIf="getDateAndTimeStamp(msg, index) !== null && !checkDeleteForMe(msg)"
+      class="text-center py-3 text-bg-default"
+      [ngClass]="{
+        'text-bg-default': !theme || theme.name === 'default',
+        'text-bg-cloud': theme?.name === 'cloud',
+        'text-bg-family': theme?.name === 'family',
+        'text-bg-green': theme?.name === 'green'
+      }"
+    >
+      {{ getDateAndTimeStamp(msg, index) | smartDate }}
+    </div>
+
+    <div
+      *ngIf="!checkDeleteForMe(msg)"
+      class="message mb-2 d-flex position-relative"
+      [ngClass]="
+        msg.senderId === userId
+          ? 'justify-content-end'
+          : 'justify-content-start'
+      "
     >
       <div
-        *ngIf="msg.senderId !== userId"
-        [ngClass]="onlineUserIds.includes(msg.senderId) ? 'avatar-online' : ''"
+        class="d-flex align-items-center"
+        [ngClass]="{ 'justify-content-end': msg.senderId === userId }"
       >
-        <img
-          class="card-avatar"
-          src="https://images.unsplash.com/photo-1728887823143-d92d2ebbb53a?q=80&w=2080..."
-          alt=""
-        />
-      </div>
-
-      <div class="d-flex flex-column gap-1 flex-fill">
-        <span *ngIf="msg.senderId !== userId" class="text-name">{{
-          msg.senderName | capitalizeWords
-        }}</span>
         <div
-          [ngClass]="msg.senderId !== userId ? 'f-row' : 'f-row-reverse'"
-          class="text-wrapper d-flex align-items-center gap-3"
+          *ngIf="msg.senderId !== userId && msg.senderName !== 'System'"
+          [ngClass]="
+            onlineUserIds.includes(msg.senderId) ? 'avatar-online' : ''
+          "
         >
-          <div placement="top" [ngbTooltip]="msg.createdAt | formatTime">
-            <!-- Text -->
-            <p
-              *ngIf="msg.type === 'text' && !msg.replyToMessageId"
-              [ngClass]="{
-                'bg-primary text-white align-self-end': msg.senderId === userId,
-                'bg-customer text-dark align-self-start':
-                  msg.senderId !== userId
-              }"
-              class="mb-0 text-message fs-6 text-content message-item"
-            >
-              {{ msg.content }}
-            </p>
+          <img
+            class="card-avatar"
+            src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+            alt=""
+          />
+        </div>
 
-            <div
-              *ngIf="msg.replyToType === 'text' && msg.replyToMessageId"
-              [ngClass]="{
-                'align-items-end': msg.senderId === userId,
-                'align-items-start': msg.senderId !== userId
-              }"
-              class="d-flex flex-column mb-2 position-relative"
-            >
-              <span class="reply-text message-item">{{
-                msg.replyToContent
-              }}</span>
-
-              <p
-                [ngClass]="{
-                  'bg-primary text-white': msg.senderId === userId,
-                  'bg-customer text-dark': msg.senderId !== userId
-                }"
-                *ngIf="msg.replyToType === 'text'"
-                class="mb-0 text-message fs-6 text-content message-item overlay-content"
-              >
-                {{ msg.content }}
-              </p>
-            </div>
-
-            <!-- Img -->
-            <img
-              *ngIf="msg.type === 'image' && !msg.replyToMessageId"
-              [src]="msg.content"
-              class="img-fluid rounded cursor-pointer message-item"
-              style="max-width: 300px; height: auto"
-              alt="Image"
-              (click)="selectedImageUrl = msg.content"
-            />
-
-            <div
-              *ngIf="msg.replyToType === 'image' && msg.replyToMessageId"
-              [ngClass]="{
-                'align-items-end': msg.senderId === userId,
-                'align-items-start': msg.senderId !== userId
-              }"
-              class="d-flex flex-column mb-2"
-            >
-              <img
-                [src]="msg.replyToContent"
-                class="img-fluid rounded reply-text cursor-pointer message-item"
-                style="max-width: 300px; height: auto"
-                alt="Image"
-                (click)="selectedImageUrl = msg.content"
-              />
-              <p
-                [ngClass]="{
-                  'bg-primary text-white': msg.senderId === userId,
-                  'bg-customer text-dark': msg.senderId !== userId
-                }"
-                *ngIf="msg.replyToType === 'image'"
-                class="mb-0 text-message fs-6 text-content message-item"
-              >
-                {{ msg.content }}
-              </p>
-            </div>
-
-            <!-- Word -->
-            <div
-              *ngIf="msg.type === 'word' && !msg.replyToMessageId"
-              class="file-card"
-            >
-              <div class="file-icon-wrapper bg-word">
-                <img
-                  src="https://thehanoichamomile.com/wp-content/uploads/2019/06/12-121390_new-microsoft-word-icon.jpg"
-                  alt=""
-                />
-              </div>
-              <div class="file-info">
-                <div class="file-name">{{ extractFileName(msg.content) }}</div>
-                <div class="file-meta">Word Document</div>
-              </div>
-              <a
-                class="download-btn"
-                [href]="msg.content"
-                download
-                target="_blank"
-                ngbTooltip="Download"
-              >
-                <i class="fa-solid fa-arrow-down"></i>
-              </a>
-            </div>
-
-            <div
-              *ngIf="msg.replyToType === 'word' && msg.replyToMessageId"
-              [ngClass]="{
-                'align-items-end': msg.senderId === userId,
-                'align-items-start': msg.senderId !== userId
-              }"
-              class="d-flex flex-column mb-2"
-            >
-              <span class="reply-text message-item">{{
-                msg.replyToContent
-              }}</span>
-
-              <div class="file-card">
-                <div class="file-icon-wrapper bg-word">
-                  <img
-                    src="https://thehanoichamomile.com/wp-content/uploads/2019/06/12-121390_new-microsoft-word-icon.jpg"
-                    alt=""
-                  />
-                </div>
-                <div class="file-info">
-                  <div class="file-name">
-                    {{ extractFileName(msg.replyToContent) }}
-                  </div>
-                  <div class="file-meta">Word Document</div>
-                </div>
-                <a
-                  class="download-btn"
-                  [href]="msg.content"
-                  download
-                  target="_blank"
-                  ngbTooltip="Download"
-                >
-                  <i class="fa-solid fa-arrow-down"></i>
-                </a>
-              </div>
-              <p
-                [ngClass]="{
-                  'bg-primary text-white': msg.senderId === userId,
-                  'bg-customer text-dark': msg.senderId !== userId
-                }"
-                *ngIf="msg.replyToType === 'word'"
-                class="mb-0 text-message fs-6 text-content message-item"
-              >
-                {{ msg.content }}
-              </p>
-            </div>
-
-            <!-- Excel -->
-            <div
-              *ngIf="msg.type === 'excel' && !msg.replyToMessageId"
-              class="file-card"
-            >
-              <div class="file-icon-wrapper bg-excel">
-                <img
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTroU91FLk1e5CTmveZCstER9A-qLpJGNtZvA&s"
-                  alt=""
-                />
-              </div>
-              <div class="file-info">
-                <div class="file-name">{{ extractFileName(msg.content) }}</div>
-                <div class="file-meta">Excel Spreadsheet</div>
-              </div>
-              <a
-                class="download-btn"
-                [href]="msg.content"
-                download
-                target="_blank"
-                ngbTooltip="Download"
-              >
-                <i class="fa-solid fa-arrow-down"></i>
-              </a>
-            </div>
-
-            <div
-              *ngIf="msg.replyToType === 'excel' && msg.replyToMessageId"
-              [ngClass]="{
-                'align-items-end': msg.senderId === userId,
-                'align-items-start': msg.senderId !== userId
-              }"
-              class="d-flex flex-column mb-2"
-            >
-              <div class="file-card">
-                <div class="file-icon-wrapper bg-excel">
-                  <img
-                    src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTroU91FLk1e5CTmveZCstER9A-qLpJGNtZvA&s"
-                    alt=""
-                  />
-                </div>
-                <div class="file-info">
-                  <div class="file-name">
-                    {{ extractFileName(msg.replyToContent) }}
-                  </div>
-                  <div class="file-meta">Excel Spreadsheet</div>
-                </div>
-              </div>
-
-              <p
-                [ngClass]="{
-                  'bg-primary text-white': msg.senderId === userId,
-                  'bg-customer text-dark': msg.senderId !== userId
-                }"
-                *ngIf="msg.replyToType === 'excel'"
-                class="mb-0 text-message fs-6 text-content message-item"
-              >
-                {{ msg.content }}
-              </p>
-            </div>
-          </div>
-
+        <div class="d-flex flex-column gap-1 flex-fill">
+          <span
+            *ngIf="msg.senderId !== userId && msg.senderName !== 'System'"
+            class="text-name text-bg-default"
+            [ngClass]="{
+              'text-bg-default': !theme || theme.name === 'default',
+              'text-bg-cloud': theme?.name === 'cloud',
+              'text-bg-family': theme?.name === 'family',
+              'text-bg-green': theme?.name === 'green'
+            }"
+            >{{ msg.senderName | capitalizeWords }}</span
+          >
           <div
             [ngClass]="msg.senderId !== userId ? 'f-row' : 'f-row-reverse'"
-            class="text-react d-flex gap-3"
+            class="text-wrapper d-flex align-items-center gap-3"
           >
-            <span
-              class="cursor-point"
-              (click)="handleReply(msg)"
-              style="padding: 5px"
+            <div placement="top" [ngbTooltip]="msg.createdAt | formatTime">
+              <!-- Have reply -->
+              <ng-container *ngIf="msg.replyToMessageId">
+                <div
+                  [ngClass]="{
+                    'align-items-end': msg.senderId === userId,
+                    'align-items-start': msg.senderId !== userId,
+                    'z-max-relative':
+                      showMessageEdit && showMessageEdit._id === msg._id
+                  }"
+                  class="d-flex flex-column gap-1"
+                >
+                  <!-- Reply Text -->
+                  <span
+                    *ngIf="
+                      msg.replyToType === 'text' || msg.replyToType === 'delete'
+                    "
+                    class="reply-text message-item fst-italic text-muted"
+                  >
+                    {{
+                      msg.replyToType === "delete"
+                        ? "Message has been recalled"
+                        : msg.replyToContent
+                    }}
+                  </span>
+
+                  <!-- Reply Image -->
+                  <img
+                    *ngIf="msg.replyToType === 'image'"
+                    [src]="msg.replyToContent"
+                    class="img-fluid rounded reply-text cursor-pointer message-item z-0"
+                    style="max-height: 100px; padding: 0"
+                    alt="Image"
+                  />
+
+                  <!-- Reply File -->
+                  <div
+                    *ngIf="
+                      msg.replyToType === 'word' || msg.replyToType === 'excel'
+                    "
+                    class="file-card"
+                    style="margin-bottom: -12px"
+                  >
+                    <div
+                      class="file-icon-wrapper"
+                      [ngClass]="{
+                        'bg-word': msg.replyToType === 'word',
+                        'bg-excel': msg.replyToType === 'excel'
+                      }"
+                    >
+                      <img
+                        [src]="
+                          msg.replyToType === 'word'
+                            ? 'https://thehanoichamomile.com/wp-content/uploads/2019/06/12-121390_new-microsoft-word-icon.jpg'
+                            : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTroU91FLk1e5CTmveZCstER9A-qLpJGNtZvA&s'
+                        "
+                        alt=""
+                      />
+                    </div>
+                    <div class="file-info">
+                      <div class="file-name">
+                        {{ extractFileName(msg.replyToContent) }}
+                      </div>
+                      <div class="file-meta">
+                        {{
+                          msg.replyToType === "word"
+                            ? "Word Document"
+                            : "Excel Spreadsheet"
+                        }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Message content reply -->
+                  <div
+                    [ngClass]="{
+                      'theme-default':
+                        !theme ||
+                        (theme.name === 'default' && msg.senderId === userId),
+                      'theme-default-orther':
+                        !theme ||
+                        (theme.name === 'default' && msg.senderId !== userId),
+                      'theme-cloud':
+                        theme?.name === 'cloud' && msg.senderId === userId,
+                      'theme-cloud-orther':
+                        theme?.name === 'cloud' && msg.senderId !== userId,
+                      'theme-family':
+                        theme?.name === 'family' && msg.senderId === userId,
+                      'theme-family-orther':
+                        theme?.name === 'family' && msg.senderId !== userId,
+                      'theme-green':
+                        theme?.name === 'green' && msg.senderId === userId,
+                      'theme-green-orther':
+                        theme?.name === 'green' && msg.senderId !== userId
+                    }"
+                    class="mb-0 text-message fs-6 text-content message-item"
+                    style="z-index: 1"
+                  >
+                    {{ msg.content }}
+                    <div
+                      *ngIf="msg.replyToMessageId && msg.quantityReact > 0"
+                      class="reaction-pill d-flex align-items-center gap-1 mt-1 width-maxcontent"
+                      [ngClass]="{
+                        'justify-content-end': msg.senderId === userId,
+                        'justify-content-start': msg.senderId !== userId
+                      }"
+                    >
+                      <ng-container *ngFor="let emoji of getReactions(msg)">
+                        <span class="emoji-item-type">{{
+                          getEmojiIcon(emoji.type)
+                        }}</span>
+                      </ng-container>
+
+                      <span class="emoji-item-count">{{
+                        msg.quantityReact
+                      }}</span>
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
+
+              <!-- Not reply -->
+              <ng-container *ngIf="!msg.replyToMessageId">
+                <!-- Text -->
+
+                <ng-container *ngIf="msg.type === 'text'">
+                  <div
+                    [ngClass]="{
+                      'theme-default align-self-end':
+                        !theme ||
+                        (theme.name === 'default' && msg.senderId === userId),
+                      'theme-default-orther align-self-start':
+                        !theme ||
+                        (theme.name === 'default' && msg.senderId !== userId),
+                      'theme-cloud align-self-end':
+                        theme?.name === 'cloud' && msg.senderId === userId,
+                      'theme-cloud-orther align-self-start':
+                        theme?.name === 'cloud' && msg.senderId !== userId,
+                      'theme-family align-self-end':
+                        theme?.name === 'family' && msg.senderId === userId,
+                      'theme-family-orther align-self-start':
+                        theme?.name === 'family' && msg.senderId !== userId,
+                      'theme-green align-self-end':
+                        theme?.name === 'green' && msg.senderId === userId,
+                      'theme-green-orther align-self-start':
+                        theme?.name === 'green' && msg.senderId !== userId,
+                      'z-max-relative':
+                        showMessageEdit && showMessageEdit._id === msg._id
+                    }"
+                    class="mb-0 text-message fs-6 text-content message-item"
+                  >
+                    {{ msg.content }}
+                    <div
+                      *ngIf="msg.type === 'text' && msg.quantityReact > 0"
+                      class="reaction-pill d-flex align-items-center gap-1 mt-1"
+                      [ngClass]="{
+                        'justify-content-end': msg.senderId === userId,
+                        'justify-content-start': msg.senderId !== userId
+                      }"
+                      style="background-color: #ccc"
+                    >
+                      <ng-container *ngFor="let emoji of getReactions(msg)">
+                        <span class="emoji-item-type">{{
+                          getEmojiIcon(emoji.type)
+                        }}</span>
+                      </ng-container>
+
+                      <span class="emoji-item-count">{{
+                        msg.quantityReact
+                      }}</span>
+                    </div>
+                  </div>
+                </ng-container>
+
+                <!-- Image -->
+                <div
+                  *ngIf="msg.type === 'image'"
+                  [ngClass]="
+                    msg.quantityReact > 0 && msg.senderId === userId
+                      ? 'd-flex flex-column align-items-end'
+                      : 'd-flex flex-column align-items-start'
+                  "
+                >
+                  <img
+                    *ngIf="msg.type === 'image'"
+                    [src]="msg.content"
+                    class="img-fluid rounded cursor-pointer message-item"
+                    style="max-width: 300px; height: auto"
+                    alt="Image"
+                    (click)="selectedImageUrl = msg.content"
+                  />
+                  <div
+                    *ngIf="msg.type === 'image' && msg.quantityReact > 0"
+                    class="reaction-pill d-flex align-items-center gap-1 mt-1 width-maxcontent"
+                    [ngClass]="{
+                      'justify-content-end': msg.senderId === userId,
+                      'justify-content-start': msg.senderId !== userId
+                    }"
+                    style="background-color: #ccc"
+                  >
+                    <ng-container *ngFor="let emoji of getReactions(msg)">
+                      <span class="emoji-item-type">{{
+                        getEmojiIcon(emoji.type)
+                      }}</span>
+                    </ng-container>
+
+                    <span class="emoji-item-count">{{
+                      msg.quantityReact
+                    }}</span>
+                  </div>
+                </div>
+
+                <!-- Word / Excel -->
+                <div
+                  *ngIf="msg.type === 'word' || msg.type === 'excel'"
+                  [ngClass]="
+                    msg.quantityReact > 0 && msg.senderId === userId
+                      ? 'd-flex flex-column align-items-end'
+                      : 'd-flex flex-column align-items-start'
+                  "
+                >
+                  <div class="file-card">
+                    <div
+                      class="file-icon-wrapper"
+                      [ngClass]="{
+                        'bg-word': msg.type === 'word',
+                        'bg-excel': msg.type === 'excel'
+                      }"
+                    >
+                      <img
+                        [src]="
+                          msg.type === 'word'
+                            ? 'https://thehanoichamomile.com/wp-content/uploads/2019/06/12-121390_new-microsoft-word-icon.jpg'
+                            : 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTroU91FLk1e5CTmveZCstER9A-qLpJGNtZvA&s'
+                        "
+                        alt=""
+                      />
+                    </div>
+                    <div class="file-info">
+                      <div class="file-name">
+                        {{ extractFileName(msg.content) }}
+                      </div>
+                      <div class="file-meta">
+                        {{
+                          msg.type === "word"
+                            ? "Word Document"
+                            : "Excel Spreadsheet"
+                        }}
+                      </div>
+                    </div>
+                    <a
+                      class="download-btn"
+                      [href]="msg.content"
+                      download
+                      target="_blank"
+                      ngbTooltip="Download"
+                    >
+                      <i class="fa-solid fa-arrow-down"></i>
+                    </a>
+                  </div>
+
+                  <div
+                    *ngIf="
+                      (msg.type === 'word' || msg.type === 'excel') &&
+                      msg.quantityReact > 0
+                    "
+                    class="reaction-pill d-flex align-items-center gap-1 mt-1 width-maxcontent"
+                    [ngClass]="{
+                      'justify-content-end': msg.senderId === userId,
+                      'justify-content-start': msg.senderId !== userId
+                    }"
+                  >
+                    <ng-container *ngFor="let emoji of getReactions(msg)">
+                      <span class="emoji-item-type">{{
+                        getEmojiIcon(emoji.type)
+                      }}</span>
+                    </ng-container>
+
+                    <span class="emoji-item-count">{{
+                      msg.quantityReact
+                    }}</span>
+                  </div>
+                </div>
+              </ng-container>
+
+              <p
+                *ngIf="msg.isEdited"
+                class="text-edit mb-0 mt-1"
+                [ngClass]="{
+                  'text-end text-edit-right': msg.senderId === userId,
+                  'text-start text-edit-left': msg.senderId !== userId,
+                  'text-bg-default': !theme || theme.name === 'default',
+                  'text-bg-cloud': theme?.name === 'cloud',
+                  'text-bg-family': theme?.name === 'family',
+                  'text-bg-green': theme?.name === 'green'
+                }"
+              >
+                Edited
+              </p>
+              <p
+                *ngIf="!msg.isEdited"
+                class="text-edit mb-0 mt-1"
+                [ngClass]="{
+                  'text-end text-edit-right': msg.senderId === userId,
+                  'text-start text-edit-left': msg.senderId !== userId,
+                  'text-bg-default': !theme || theme.name === 'default',
+                  'text-bg-cloud': theme?.name === 'cloud',
+                  'text-bg-family': theme?.name === 'family',
+                  'text-bg-green': theme?.name === 'green'
+                }"
+              >
+                <!-- {{ getStatusMessage(msg, index) }} -->
+                {{ msg.status }}
+              </p>
+            </div>
+
+            <div
+              [ngClass]="[
+                msg.senderId !== userId ? 'f-row' : 'f-row-reverse',
+                !theme || theme.name === 'default'
+                  ? 'text-react-default'
+                  : theme.name === 'cloud'
+                  ? 'text-react-cloud'
+                  : theme.name === 'family'
+                  ? 'text-react-family'
+                  : theme.name === 'green'
+                  ? 'text-react-green'
+                  : ''
+              ]"
+              class="text-react d-flex gap-3"
             >
-              <i class="fa-solid fa-share"></i>
-            </span>
-            <span class="cursor-point" style="padding: 5px">
-              <i class="fa-solid fa-face-smile"></i>
-            </span>
-            <span
-              class="cursor-point item-option position-relative"
-              style="padding: 5px"
-            >
-              <i class="fa-solid fa-ellipsis-vertical"></i>
-              <div class="position-absolute item-option-child">
-                <span class="item-option-children text-primary-m">
-                  <i
-                    class="fa-solid fa-pen"
-                    style="font-size: 13px; margin-right: 4px"
-                  ></i>
-                  Edit
-                </span>
-                <app-utils-message-delete
-                  *ngIf="msg"
-                  class="item-option-children"
-                  [message]="msg"
-                ></app-utils-message-delete>
-              </div>
-            </span>
+              <span
+                class="cursor-point"
+                (click)="handleReply(msg)"
+                style="padding: 5px"
+              >
+                <i class="fa-solid fa-share"></i>
+              </span>
+              <span
+                class="cursor-point position-relative emoji-wrapper"
+                style="padding: 5px"
+              >
+                <i class="fa-solid fa-face-smile"></i>
+                <div
+                  class="position-absolute emoji-list d-flex align-items-center"
+                >
+                  <div *ngFor="let emo of listEmoji" class="emoji-item">
+                    <span
+                      (click)="handleEmoji(msg._id, emo.type, msg.groupId)"
+                      >{{ emo.icon }}</span
+                    >
+                  </div>
+                </div>
+              </span>
+              <span
+                class="cursor-point item-option position-relative"
+                style="padding: 5px"
+              >
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+                <div class="position-absolute item-option-child">
+                  <span
+                    *ngIf="msg.type === 'text' && msg.senderId === userId"
+                    class="item-option-children text-primary-m"
+                    (click)="handleEdit(msg)"
+                  >
+                    <i
+                      class="fa-solid fa-pen"
+                      style="
+                        font-size: 13px;
+                        margin-right: 4px;
+                        color: black !important;
+                      "
+                    ></i>
+                    Edit
+                  </span>
+                  <app-utils-message-delete
+                    *ngIf="msg"
+                    class="item-option-children"
+                    [message]="msg"
+                  ></app-utils-message-delete>
+                </div>
+              </span>
+            </div>
           </div>
         </div>
       </div>

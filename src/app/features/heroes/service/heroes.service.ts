@@ -8,67 +8,6 @@ import { IHero, IHeroUpdate } from '../model/heroes';
   providedIn: 'root',
 })
 export class HeroService {
-  // private heroesSubject = new BehaviorSubject<IHero[]>([]);
-  // public heroes$: Observable<IHero[]> = this.heroesSubject.asObservable();
-
-  // private URL = 'http://localhost:3000/api/heroes';
-
-  // constructor(private http: HttpClient) {}
-
-  // loadHeroesService(): void {
-  //   this.http
-  //     .get<{ message: string; data: IHero[] }>(this.URL)
-  //     .pipe(map((res) => res.data))
-  //     .subscribe((data) => this.heroesSubject.next(data));
-  // }
-
-  // getHeroesService(): Observable<IHero[]> {
-  //   return this.heroes$;
-  // }
-
-  // getHeroDetailService(id: string): Observable<IHero> {
-  //   return this.http
-  //     .get<{ message: string; data: IHero }>(`${this.URL}/${id}`)
-  //     .pipe(map((res) => res.data));
-  // }
-
-  // createHeroService(hero: IHeroUpdate): Observable<IHero> {
-  //   return this.http
-  //     .post<{ message: string; data: IHero }>(this.URL, hero)
-  //     .pipe(
-  //       map((res) => res.data),
-  //       tap((newHero) => {
-  //         console.log(newHero);
-  //         this.heroesSubject.next([...this.heroesSubject.getValue(), newHero]);
-  //       })
-  //     );
-  // }
-
-  // updateHeroService(id: string, hero: IHeroUpdate): Observable<IHero> {
-  //   return this.http
-  //     .put<{ message: string; data: IHero }>(`${this.URL}/${id}`, hero)
-  //     .pipe(
-  //       map((res) => res.data),
-  //       tap((updatedHero) => {
-  //         const current = this.heroesSubject.getValue();
-  //         const updatedList = current.map((h) =>
-  //           h._id === id ? updatedHero : h
-  //         );
-  //         this.heroesSubject.next(updatedList);
-  //       })
-  //     );
-  // }
-
-  // deleteHeroService(id: string): Observable<{ message: string }> {
-  //   return this.http.delete<{ message: string }>(`${this.URL}/${id}`).pipe(
-  //     tap(() => {
-  //       const current = this.heroesSubject.getValue();
-  //       const updatedList = current.filter((h) => h._id !== id);
-  //       this.heroesSubject.next(updatedList);
-  //     })
-  //   );
-  // }
-
   private URL = 'http://localhost:3000/api/heroes';
   private URL2 = 'http://localhost:3000/api';
 

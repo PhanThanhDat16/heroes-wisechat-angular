@@ -1,0 +1,231 @@
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Store } from '@ngrx/store';
+import { selectGroupDetail } from '../../../../core/store/group/group.selector';
+import { IGroup, IGroupMember } from '../../../group/model/group';
+import {
+  selectMembersGroup,
+  selectMessage,
+} from '../../../../core/store/message/message.selector';
+import { IUser } from '../../../auth/model/user';
+import { SocketIOService } from '../../../../core/services/socket.service';
+import { ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
+import {
+  addMemberInGroupSuccess,
+  deleteMemberInGroupSuccess,
+  updateIsRead,
+} from '../../../../core/store/message/message.actions';
+import {
+  addTagForGroup,
+  updateThemeGroup,
+} from '../../../../core/store/group/group.actions';
+import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import Swal from 'sweetalert2';
+import { ITheme } from '../../model/theme';
+import { listTheme } from '../../model/listTheme';
+import { listTag } from '../../model/listTag';
+
+@Component({
+  selector: 'app-group-detail-bar',
+  templateUrl: './group-detail-bar.component.html',
+  styleUrl: './group-detail-bar.component.scss',
+})
+export class GroupDetailBarComponent implements OnInit, OnDestroy {
+  step: 'SEARCH_MESSAGE' | 'GROUP_BAR' = 'GROUP_BAR';
+  tagForm: FormGroup;
+  listTheme = listTheme;
+  listTagGroup = listTag;
+  notification: Record<string, boolean> = {};
+  notificationOn: boolean;
+  userOnlineGroup: string[];
+  groupData: IGroup;
+  listUserByGroup: IUser[] = [];
+  listUserByGroupLeave: IUser[] = [];
+  userId = localStorage.getItem('userId');
+  isLoadingMembers = true;
+  quantityImgAndFile: {
+    image: number;
+    file: number;
+  } = {
+    image: 0,
+    file: 0,
+  };
+  private subscriptions = new Subscription();
+
+  constructor(
+    private store: Store,
+    private socketService: SocketIOService,
+    private route: ActivatedRoute,
+    private fb: FormBuilder
+  ) {}
+
+  ngOnInit(): void {
+    const controls = {};
+    const savedTagMap = JSON.parse(localStorage.getItem('tagMap') || '{}');
+    for (const tag of this.listTagGroup) {
+      controls[tag.tag] = new FormControl(savedTagMap[tag.tag] ?? false);
+    }
+    this.tagForm = this.fb.group(controls);
+
+    const routeSub = this.route.params.subscribe((params) => {
+      this.quantityImgAndFile.file = 0;
+      this.quantityImgAndFile.image = 0;
+    });
+    this.subscriptions.add(routeSub);
+
+    const groupSub = this.store
+      .select(selectGroupDetail)
+      .subscribe((groupDetail) => {
+        this.groupData = groupDetail;
+        if (this.groupData) {
+          const stored = localStorage.getItem('notification');
+          try {
+            const parsed = JSON.parse(stored || '{}');
+            this.notification =
+              typeof parsed === 'object' && !Array.isArray(parsed)
+                ? parsed
+                : {};
+          } catch (err) {
+            this.notification = {};
+          }
+          this.notificationOn = this.notification[this.groupData._id] ?? true;
+        }
+      });
+    this.subscriptions.add(groupSub);
+
+    const selectMemberSub = this.store
+      .select(selectMembersGroup)
+      .subscribe((members) => {
+        if (members) {
+          this.isLoadingMembers = false;
+          this.listUserByGroup = members;
+          this.listUserByGroupLeave = members.filter(
+            (member) => member._id !== this.userId
+          );
+          this.socketService.onlineUser$.subscribe((userIds) => {
+            this.userOnlineGroup = this.listUserByGroup
+              .filter((u) => userIds.includes(u._id))
+              .map((u) => u._id);
+          });
+        }
+      });
+    this.subscriptions.add(selectMemberSub);
+
+    const receiveKickSub = this.socketService
+      .receiveKickedFromGroup()
+      .subscribe(({ groupId, userId }) => {
+        if (this.listUserByGroup) {
+          this.listUserByGroup = this.listUserByGroup.filter(
+            (u) => u?._id !== userId
+          );
+          this.store.dispatch(
+            deleteMemberInGroupSuccess({
+              user: { userId: userId } as IGroupMember,
+            })
+          );
+        }
+      });
+    this.subscriptions.add(receiveKickSub);
+
+    const receiveAddMemberSub = this.socketService
+      .receiveAddMemberFromGroup()
+      .subscribe(({ group, listUser, userId }) => {
+        if (this.userId !== userId && this.groupData._id === group._id) {
+          // this.listUserByGroup = [...listUser, ...this.listUserByGroup]
+          this.store.dispatch(addMemberInGroupSuccess({ newMember: listUser }));
+        }
+      });
+    this.subscriptions.add(receiveAddMemberSub);
+
+    const selectMessageSub = this.store
+      .select(selectMessage)
+      .subscribe((message) => {
+        if (message) {
+          if (message) {
+            // this.quantityImgAndFile = { image: 0, file: 0 };
+            this.quantityImgAndFile.image = message.mediaImageCount;
+            this.quantityImgAndFile.file = message.mediaFileCount;
+          }
+        }
+      });
+    this.subscriptions.add(selectMessageSub);
+
+    const editGroupSub = this.socketService
+      .receiveEditGroup()
+      .subscribe((data) => {
+        if (data.senderId !== this.userId) {
+          this.groupData = { ...this.groupData, name: data.name };
+        }
+      });
+    this.subscriptions.add(editGroupSub);
+  }
+
+  handleNotificationChange(value: boolean) {
+    if (!this.groupData?._id) return;
+    this.notification[this.groupData._id] = value;
+    this.notificationOn = value;
+    localStorage.setItem('notification', JSON.stringify(this.notification));
+  }
+
+  handleTagChange(selectedTag: string, e: MouseEvent) {
+    e.stopImmediatePropagation();
+    const currentValue = this.tagForm.get(selectedTag)?.value;
+    if (currentValue) {
+      this.tagForm.get(selectedTag)?.setValue(false, { emitEvent: false });
+      this.store.dispatch(
+        addTagForGroup({
+          groupId: this.groupData._id,
+          userId: this.userId,
+          tag: '',
+        })
+      );
+    } else {
+      for (const tag of this.listTagGroup) {
+        this.tagForm.get(tag.tag)?.setValue(false, { emitEvent: false });
+      }
+      this.tagForm.get(selectedTag)?.setValue(true, { emitEvent: false });
+      this.store.dispatch(
+        addTagForGroup({
+          groupId: this.groupData._id,
+          userId: this.userId,
+          tag: selectedTag.toLocaleLowerCase(),
+        })
+      );
+    }
+    localStorage.setItem('tagMap', JSON.stringify(this.tagForm.value));
+  }
+
+  onChangeTheme(theme: ITheme) {
+    if (theme.name !== this.groupData.theme) {
+      Swal.fire({
+        text: 'Do you want to change this theme?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#00D601',
+        cancelButtonColor: '#ccc',
+        confirmButtonText: 'Choose',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.store.dispatch(
+            updateThemeGroup({ groupId: this.groupData._id, theme: theme.name })
+          );
+          this.store.dispatch(
+            updateIsRead({ groupId: this.groupData._id, userId: this.userId })
+          );
+        }
+      });
+    }
+  }
+
+  handleSearchMessageGroup() {
+    this.step = 'SEARCH_MESSAGE';
+  }
+
+  handleStep(value: 'SEARCH_MESSAGE' | 'GROUP_BAR') {
+    this.step = value;
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
+}

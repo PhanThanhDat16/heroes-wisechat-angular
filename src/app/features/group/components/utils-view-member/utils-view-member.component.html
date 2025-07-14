@@ -1,12 +1,17 @@
-<app-modal-utils-chat (stepEmitter)="onResetStep($event)">
-  <button modal-btn class="d-flex gap-2 align-items-center">
-    <i class="px-1 py-2 fa-solid fa-users-viewfinder"></i>
-    <span>Member</span>
-  </button>
-  <h2 *ngIf="step === 1" modal-header>Member</h2>
-  <div *ngIf="step === 1" modal-body>
+<app-modal-utils-chat
+  (stepEmitter)="onResetStep($event)"
+  class="w-100 d-block text-center"
+>
+  <span
+    modal-btn
+    class="w-100 text-center d-inline-block text-decoration-underline cursor-point"
+    style="color: #4e81e4; font-size: 14px"
+    >View more</span
+  >
+  <h2 *ngIf="step === 'VIEW_MEMBER'" modal-header>Member</h2>
+  <div *ngIf="step === 'VIEW_MEMBER'" modal-body>
     <div
-      class="d-flex card-search align-items-center mb-4 border rounded gap-2"
+      class="d-flex card-search align-items-center mb-4 border rounded-pill gap-2"
       style="padding: 15px"
     >
       <i class="fa-solid fa-magnifying-glass"></i>
@@ -16,9 +21,6 @@
         placeholder="Search user..."
         [formControl]="nameUser"
       />
-    </div>
-    <div class="d-flex justify-content-end">
-      <button class="btn btn-outline-primary">Add member</button>
     </div>
     <div class="d-flex flex-column gap-3 mt-2">
       <ng-container *ngFor="let user of listUserByGroup">
@@ -87,6 +89,7 @@
                   <button
                     ngbDropdownItem
                     class="d-flex gap-2 align-items-center"
+                    (click)="handleDeletUserInGroup(user)" 
                   >
                     <i class="fa-regular fa-trash-can px-1 py-2"></i>
                     <span>Delete User</span>
@@ -100,8 +103,8 @@
     </div>
   </div>
 
-  <h2 *ngIf="step === 2" modal-header class="header-info">Infomation Member</h2>
-  <div *ngIf="step === 2 && user" modal-body class="h-100 d-flex flex-column">
+  <h2 *ngIf="step === 'VIEW_DETAIL'" modal-header class="header-info">Infomation Member</h2>
+  <div *ngIf="step === 'VIEW_DETAIL' && user" modal-body class="h-100 d-flex flex-column">
     <div class="d-flex justify-content-center step-2-avatar">
       <img
         src="https://plus.unsplash.com/premium_photo-1671656349218-5218444643d8?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
@@ -140,9 +143,9 @@
     </div>
 
     <div class="text-end mt-auto">
-      <button class="btn btn-primary " (click)="handleBackView()">
-        <i class="fa-solid fa-arrow-left"></i> 
-        <span style="margin-left: 12px;">Back</span>
+      <button class="btn btn-primary" (click)="handleBackView()">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span style="margin-left: 12px">Back</span>
       </button>
     </div>
   </div>

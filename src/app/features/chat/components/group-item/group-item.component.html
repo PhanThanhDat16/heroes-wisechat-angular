@@ -1,20 +1,27 @@
 <div
   [routerLink]="['/messages', itemGroup._id]"
-  class="px-4 py-3 cursor-point d-flex align-items-center card-notRead"
+  [ngClass]="isRead ? 'card-read' : 'card-notRead'"
+  class="px-4 py-3 cursor-point d-flex align-items-center"
+  (click)="handleReadMessage(itemGroup._id)"
 >
   <div
-    class="card-avatar-wrapper position-relative"
+    class="card-avatar-wrapper position-relative flex-shrink"
     [class.online-indicator]="userOnlineGroup.length > 1"
   >
     <img
-      src="https://images.unsplash.com/photo-1740252117013-4fb21771e7ca?q=80&w=2080&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+      src="https://images.unsplash.com/photo-1527525443983-6e60c75fff46?q=80&w=685&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
       alt=""
       class="card-avatar"
     />
   </div>
   <div class="flex-fill">
     <div class="d-flex justify-content-between align-items-center">
-      <h5 class="card-title fs-6 fw-bold mb-2">{{ itemGroup.name }}</h5>
+      <h5 class="card-title fs-6 fw-bold mb-2 d-flex align-items-center gap-2">
+        {{ itemGroup.name }}
+        <span [ngStyle]="getTagStyle(itemGroup.tag)">{{
+          itemGroup.tag | capitalizeWords
+        }}</span>
+      </h5>
       <span class="text-primary-chat card-time">
         {{
           itemGroup.lastMessage?.createdAt ?? itemGroup.createdAt
@@ -24,18 +31,35 @@
         }}
       </span>
     </div>
-    <p
-      class="card-text fs-6 d-inline-block text-truncate"
-      style="max-width: 273px"
-    >
-      {{
-        itemGroup.lastMessage && itemGroup.lastMessage.senderName
-          ? itemGroup.lastMessage.senderId === userId
-            ? "You: "
-            : itemGroup.lastMessage.senderName + ": "
-          : ""
-      }}
-      {{ itemGroup.lastMessage?.content ?? itemGroup.lastMessage ?? "" }}
-    </p>
+    <div class="d-flex align-items-center justify-content-between gap-2">
+      <p
+        class="card-text fs-6 d-inline-block text-truncate m-0"
+        style="max-width: 188px; color: #3a3a3a66"
+      >
+        {{
+          itemGroup.lastMessage && itemGroup.lastMessage.senderName
+            ? (itemGroup.lastMessage.senderId === userId
+                ? 'You: '
+                : (itemGroup.lastMessage.senderName !== 'System'
+                    ? itemGroup.lastMessage.senderName + ': '
+                    : ''))
+            : ''
+        }}
+        <!-- {{ itemGroup.lastMessage?.content ?? itemGroup.lastMessage ?? "" }} -->
+        <ng-container
+          *ngIf="isURL(itemGroup.lastMessage?.content); else normalContent"
+        >
+          <ng-container
+            *ngIf="isImage(itemGroup.lastMessage?.content); else fileText"
+            >Image</ng-container
+          >
+          <ng-template #fileText>File</ng-template>
+        </ng-container>
+        <ng-template #normalContent>{{
+          itemGroup.lastMessage?.content ?? "New Group"
+        }}</ng-template>
+      </p>
+      <span *ngIf="!isRead" class="me-3 check-wrapper"> </span>
+    </div>
   </div>
 </div>

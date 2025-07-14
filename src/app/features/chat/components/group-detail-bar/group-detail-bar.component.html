@@ -1,0 +1,239 @@
+<div
+  *ngIf="step === 'GROUP_BAR'"
+  class="group-detail-bar bg-white d-flex flex-column h-100"
+>
+  <div
+    class="group-detail-barHeader p-4"
+    style="border-bottom: 1px solid #f3f3f3"
+  >
+    <div
+      class="group-detail-barHeaderItem left justify-content-between align-items-center mb-5"
+    >
+      <div class="avatar-group">
+        <img
+          src="https://images.unsplash.com/photo-1527525443983-6e60c75fff46?q=80&w=685&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+          alt="Group"
+        />
+        <div class="group-info gap-2">
+          <span class="group-name">{{ groupData?.name }}</span>
+          <span class="group-members"
+            >{{ listUserByGroup.length || 0 }} Members</span
+          >
+        </div>
+      </div>
+      <div class="edit-icon position-relative detailbar-dropdown-wrapper">
+        <span
+          class="fw-bold pointer d-flex align-items-center gap-1 detailbar-dropdown-header"
+        >
+          <i class="fa-solid fa-gear"></i>
+        </span>
+        <div class="p-0 detailbar-dropdown position-absolute">
+          <span
+            class="d-flex gap-2 align-items-center w-100 detailbar-dropdown-item position-relative"
+          >
+            <i class="fa-solid fa-tag"></i>
+            <span>Tag</span>
+            <form
+              [formGroup]="tagForm"
+              class="position-absolute tag-list d-flex flex-column gap-3"
+            >
+              <div
+                *ngFor="let tag of listTagGroup"
+                class="tag-item d-flex justify-content-between"
+              >
+                <span
+                  class="tag-title"
+                  [ngStyle]="{
+                    'background-color': tag.background,
+                    color: tag.color
+                  }"
+                >
+                  {{ tag.tag }}
+                </span>
+                <label class="toggle-switch-tag">
+                  <input
+                    type="checkbox"
+                    [formControlName]="tag.tag"
+                    [checked]="tagForm.get(tag.tag)?.value"
+                    (click)="handleTagChange(tag.tag, $event)"
+                  />
+                  <span class="slider-tag"></span>
+                </label>
+              </div>
+            </form>
+          </span>
+          <app-utils-rename-group></app-utils-rename-group>
+          <span
+            class="d-flex align-items-center gap-2 d-inline-block detailbar-dropdown-item"
+            (click)="handleSearchMessageGroup()"
+          >
+            <i class="fa-solid fa-magnifying-glass text-black"></i>
+            <span>Search</span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="group-detail-barHeaderItem right justify-content-between align-items-center"
+    >
+      <div class="d-flex align-items-center gap-2">
+        <span class="icon">
+          <i
+            [ngClass]="
+              notificationOn ? 'fa-solid fa-bell' : 'fa-regular fa-bell'
+            "
+          ></i>
+        </span>
+        <span class="label">Notification</span>
+      </div>
+
+      <label class="toggle-switch">
+        <input
+          type="checkbox"
+          [(ngModel)]="notificationOn"
+          (ngModelChange)="handleNotificationChange($event)"
+        />
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <div class="group-detail-barBody mt-auto">
+    <div class="d-flex gap-4 px-4 py-2">
+      <div
+        class="group-detail-barBodyTopItem flex-fill rounded flex-column gap-2 d-flex align-items-center justify-content-center"
+      >
+        <div class="d-flex gap-2 align-items-center">
+          <i class="fa-regular fa-file-lines" style="color: #b0b315"></i>
+          <span>Files</span>
+        </div>
+        <span class="fw-bold">{{ quantityImgAndFile.file || 0 }}</span>
+      </div>
+
+      <div
+        class="flex-fill group-detail-barBodyTopItem rounded flex-column gap-2 d-flex align-items-center justify-content-center"
+      >
+        <div class="d-flex gap-2 align-items-center">
+          <i class="fa-regular fa-image" style="color: #7da8fd"></i>
+          <span>Images</span>
+        </div>
+        <span class="fw-bold">{{ quantityImgAndFile.image || 0 }}</span>
+      </div>
+    </div>
+
+    <div class="group-detail-barBodyCenter">
+      <div class="p-4">
+        <h5>Themes</h5>
+        <div class="group-detail-barBodyList">
+          <div
+            *ngFor="let theme of listTheme"
+            class="group-detail-barBodyListItem cursor-point"
+            (click)="onChangeTheme(theme)"
+          >
+            <ng-container *ngIf="theme.name !== 'default'; else defaultTheme">
+              <img [src]="theme.image" alt="" />
+            </ng-container>
+            <ng-template #defaultTheme>
+              <div
+                class="w-100 h-100 d-flex align-items-center justify-content-center"
+                style="
+                  background-color: #f4f4f4;
+                  border: 1px solid #ccc;
+                  border-radius: 10px;
+                "
+              >
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+      <div>
+        <app-add-member-group
+          [groupData]="groupData"
+          [listUserByGroup]="listUserByGroup"
+        ></app-add-member-group>
+
+        <div class="p-4">
+          <ng-container *ngIf="isLoadingMembers; else memberList">
+            <div
+              class="mb-3 d-flex justify-content-between align-items-center"
+              *ngFor="let i of [1, 2]"
+            >
+              <div class="d-flex align-items-center gap-3 w-100">
+                <div style="position: relative; width: 50px; height: 50px">
+                  <app-loading-skeleton
+                    width="50px"
+                    height="50px"
+                    borderRadius="50%"
+                  ></app-loading-skeleton>
+                </div>
+                <div class="w-100">
+                  <app-loading-skeleton
+                    width="120px"
+                    height="18px"
+                  ></app-loading-skeleton>
+                  <div class="mt-1">
+                    <app-loading-skeleton
+                      width="180px"
+                      height="14px"
+                    ></app-loading-skeleton>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-template #memberList>
+            <div
+              class="mb-3 d-flex justify-content-between align-items-center"
+              *ngFor="let member of listUserByGroup.slice(0, 2)"
+            >
+              <div class="d-flex align-items-center gap-3">
+                <div style="position: relative; width: 50px; height: 50px">
+                  <img
+                    src="https://images.unsplash.com/photo-1740252117012-bb53ad05e370?q=80&w=880&auto=format&fit=crop"
+                    alt=""
+                    style="width: 50px; height: 50px; border-radius: 50%"
+                  />
+                  <span
+                    [ngClass]="
+                      userOnlineGroup.includes(member._id) ? 'online-user' : ''
+                    "
+                  ></span>
+                </div>
+                <div class="d-flex flex-column gap-2 text-black">
+                  <span class="fw-bold">{{ member.username }}</span>
+                  <span style="font-size: 13px">{{ member.email }}</span>
+                </div>
+              </div>
+              <span class="text-black" style="font-size: 12px">
+                {{ groupData?.ownerId === member._id ? "Admin" : "Member" }}
+              </span>
+            </div>
+          </ng-template>
+
+          <app-utils-view-member class="w-100 d-block"></app-utils-view-member>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="group-detail-barBottom p-4"
+      style="border-top: 1px solid #f3f3f3"
+    >
+      <p style="font-size: 14px" class="text-center">
+        Group was created on the 05-2025
+      </p>
+      <modal-choose-role-member
+        [groupData]="groupData"
+        [listUserByGroupLeave]="listUserByGroupLeave"
+      ></modal-choose-role-member>
+    </div>
+  </div>
+</div>
+
+<app-search-group-detail-bar
+  *ngIf="step === 'SEARCH_MESSAGE'"
+  (stepEmitter)="handleStep($event)"
+></app-search-group-detail-bar>

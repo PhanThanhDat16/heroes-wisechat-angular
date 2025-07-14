@@ -16,7 +16,7 @@ import { TagsListComponent } from './components/tags-list/tags-list.component';
     ReactiveFormsModule,
     NgbDropdownModule,
     TagsRoutingModule,
-    FormsModule
+    FormsModule,
   ],
 })
 export class TagModule {}

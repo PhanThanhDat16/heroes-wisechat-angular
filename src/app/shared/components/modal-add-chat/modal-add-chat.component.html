@@ -1,4 +1,4 @@
-<ng-template #content let-modal>
+<!-- <ng-template #content let-modal>
   <div class="modal-header">
     <div class="d-flex justify-content-between align-items-center w-100">
       <div class="d-flex align-items-center gap-3">
@@ -10,15 +10,39 @@
         ></button>
         <ng-content select="[modal-header]"></ng-content>
       </div>
-        <ng-content select="[modal-header-action]"></ng-content>
+      <ng-content select="[modal-header-action]"></ng-content>
     </div>
   </div>
   <div class="modal-body">
-    <!-- <app-create [modalRef]="modal"></app-create> -->
     <ng-content select="[modal-body]"></ng-content>
   </div>
 </ng-template>
 
-<button class="custom-modal-btn cursor-point" (click)="open(content)">
+<button class="custom-modal-btn cursor-point flex-fill" (click)="open(content)">
+  <ng-content select="[modal-btn]"></ng-content>
+</button> -->
+
+
+<ng-template #content let-modal>
+  <div class="modal-header">
+    <div class="d-flex justify-content-between align-items-center w-100">
+      <ng-content select="[modal-header]"></ng-content>
+      <button
+        type="button"
+        class="btn-close"
+        aria-label="Close"
+        (click)="modal.dismiss('Cross click')"
+      ></button>
+    </div>
+  </div>
+  <div class="modal-body">
+    <ng-content select="[modal-body]"></ng-content>
+  </div>
+  <div class="modal-footer">
+    <ng-content select="[modal-header-action]"></ng-content>
+  </div>
+</ng-template>
+
+<button class="custom-modal-btn cursor-point flex-fill" (click)="open(content)">
   <ng-content select="[modal-btn]"></ng-content>
 </button>

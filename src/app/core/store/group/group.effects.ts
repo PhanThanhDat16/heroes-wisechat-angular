@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import {
+  addTagForGroup,
+  addTagForGroupFailure,
+  addTagForGroupSuccess,
   createGroup,
   createGroupFailure,
   createGroupSuccess,
@@ -16,18 +19,26 @@ import {
   updateGroup,
   updateGroupFailure,
   updateGroupSuccess,
+  updateThemeGroup,
+  updateThemeGroupFailure,
+  updateThemeGroupSuccess,
 } from './group.actions';
 import { catchError, map, mergeMap, of, switchMap, tap } from 'rxjs';
 import { IGroup } from '../../../features/group/model/group';
 import { GroupService } from '../../../features/group/service/group.service';
 import { SocketIOService } from '../../services/socket.service';
+import { Router } from '@angular/router';
+import { ToastService } from 'angular-toastify';
+import { listTheme } from '../../../features/chat/model/listTheme';
 
 @Injectable()
 export class GroupEffects {
   constructor(
     private action$: Actions,
     private groupService: GroupService,
-    private socketService: SocketIOService
+    private socketService: SocketIOService,
+    private router: Router,
+    private toastService: ToastService
   ) {}
 
   loadGroup$ = createEffect(() =>
@@ -48,7 +59,9 @@ export class GroupEffects {
       switchMap(({ groupId }) =>
         this.groupService.getGroupDetail(groupId).pipe(
           map((group) => loadGroupDetailSuccess({ group })),
-          catchError((error) => of(loadGroupDetailFailure({ error })))
+          catchError((error) => {
+            return of(loadGroupDetailFailure({ error }))
+          })
         )
       )
     )
@@ -57,9 +70,9 @@ export class GroupEffects {
   loadUsersByGroup$ = createEffect(() =>
     this.action$.pipe(
       ofType(loadUsersByGroup),
-      switchMap(({ groupId, search }) =>
+      mergeMap(({ groupId, search }) =>
         this.groupService.getListUserByGroup(groupId, search).pipe(
-          map((users) => loadUsersByGroupSuccess({ users })),
+          map((users) => loadUsersByGroupSuccess({ groupId, users })),
           catchError((error) => of(loadUsersByGroupFailure({ error })))
         )
       )
@@ -91,18 +104,84 @@ export class GroupEffects {
         const userId = localStorage.getItem('userId');
         const username = localStorage.getItem('username');
         return this.groupService.updateGroup(groupId, name).pipe(
-          tap((group) => {
+          tap((data) => {
             this.socketService.sendUpdateEditGroup({
               senderId: userId,
               senderName: username,
-              groupId: group._id,
-              name: group.name,
+              groupId: data.result._id,
+              name: data.result.name,
             });
+
+            this.socketService.sendMessage(
+              data.message._id,
+              data.message.senderId,
+              data.message.senderName,
+              data.message.content,
+              data.message.groupId,
+              data.message.replyToMessageId,
+              data.message.replyToContent,
+              data.message.replyToSenderName,
+              data.message.replyToType,
+              data.message.messageType,
+              data.message.readUsers
+            );
           }),
-          map((group) => updateGroupSuccess({ group })),
+          map((group) => updateGroupSuccess({ group: group.result })),
           catchError((error) => of(updateGroupFailure({ error })))
         );
       })
     )
   );
+
+  addTagForGroup$ = createEffect(() =>
+    this.action$.pipe(
+      ofType(addTagForGroup),
+      switchMap(({ userId, groupId, tag }) =>
+        this.groupService.addTagGroup(groupId, userId, tag).pipe(
+          map((groupMember) => addTagForGroupSuccess({ groupMember })),
+          catchError((error) => of(addTagForGroupFailure({ error })))
+        )
+      )
+    )
+  );
+
+  updateThemeGroup$ = createEffect(() =>
+  this.action$.pipe(
+    ofType(updateThemeGroup),
+    mergeMap(({ groupId, theme }) => {
+      const senderId   = localStorage.getItem('userId');
+      const senderName = localStorage.getItem('username');
+
+      return this.groupService.updateThemeGroup(groupId, theme).pipe(
+        tap((data) => {
+          this.socketService.changeTheme({
+            senderId,
+            senderName,
+            groupId: data.result._id,
+            theme: listTheme.find((t) => t.name === data.result.theme),
+          });
+
+          if (data.message) {
+            this.socketService.sendMessage(
+              data.message._id,
+              data.message.senderId,
+              data.message.senderName,
+              data.message.content,
+              data.message.groupId,
+              data.message.replyToMessageId,
+              data.message.replyToContent,
+              data.message.replyToSenderName,
+              data.message.replyToType,
+              data.message.messageType,
+              data.message.readUsers
+            );
+          }
+        }),
+        map((data) => updateThemeGroupSuccess({ group: data.result })),
+        catchError((error) => of(updateThemeGroupFailure({ error })))
+      );
+    })
+  )
+);
+
 }

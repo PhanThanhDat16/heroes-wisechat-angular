@@ -1,95 +1,87 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { IMessageGroup } from '../../model/message';
 import { Store } from '@ngrx/store';
+import { Actions, ofType } from '@ngrx/effects';
 import {
   clearUploadedFile,
   createMessage,
-  uploadFiles,
+  createMessageSuccess,
+  updateEditMessage,
+  updateIsRead,
 } from '../../../../core/store/message/message.actions';
 import { selectUploadedFiles } from '../../../../core/store/message/message.selector';
 import { selectGroupDetail } from '../../../../core/store/group/group.selector';
 import { IGroup } from '../../../group/model/group';
 import { MessageShareService } from '../../../../shared/service/message-share.service';
+import { Subscription, take } from 'rxjs';
+import { ActivatedRoute } from '@angular/router';
+import { MessageService } from '../../service/message.service';
+import { loadGroup } from '../../../../core/store/group/group.actions';
 
 @Component({
   selector: 'app-chat-input',
   templateUrl: './chat-input.component.html',
   styleUrl: './chat-input.component.scss',
 })
-export class ChatInputComponent implements OnInit {
+export class ChatInputComponent implements OnInit, OnDestroy {
   selectedFiles: File[] = [];
-  messageInput: string = '';
+  messageInput = '';
   uploaded: { url?: string; originalname?: string; mimetype?: string } | null =
     null;
+  previewFile: { url: string; file: File; mimetype: string } | null = null;
   replyToMessage: IMessageGroup | null = null;
+  editToMessage: IMessageGroup | null = null;
   groupData: IGroup;
+  userId = localStorage.getItem("userId")
 
-  constructor(private store: Store, private messageShareService: MessageShareService) {}
+  private subscriptions = new Subscription();
+
+  constructor(
+    private store: Store,
+    private messageShareService: MessageShareService,
+    private messageService: MessageService,
+    private action$: Actions,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
-    this.store.select(selectGroupDetail).subscribe((data) => {
+    this.route.params.subscribe((params) => {
+      this.messageInput = '';
+      this.replyToMessage = null;
+    });
+
+    const groupSub = this.store.select(selectGroupDetail).subscribe((data) => {
       if (data) {
         this.groupData = data;
       }
     });
+    this.subscriptions.add(groupSub);
 
-    this.messageShareService.replyMessage$.subscribe((msg) => {
-      this.replyToMessage = msg;
-    })
+    const messageSub = this.messageShareService.replyMessage$.subscribe(
+      (msg) => {
+        this.replyToMessage = msg;
+        console.log(msg)
+      }
+    );
+    this.subscriptions.add(messageSub);
+
+    const messageShareSub = this.messageShareService.editMessage$.subscribe(
+      (msg) => {
+        this.messageInput = msg.content || '';
+        this.editToMessage = msg;
+      }
+    );
+    this.subscriptions.add(messageShareSub);
+
+    const uploadSub = this.store
+      .select(selectUploadedFiles)
+      .subscribe((data) => {
+        this.uploaded = data;
+      });
+    this.subscriptions.add(uploadSub);
   }
 
-  handleSendMessage() {
-    const senderId = localStorage.getItem('userId');
-    const username = localStorage.getItem('username');
-    const content = this.messageInput.trim();
-    const file = this.uploaded;
-
-    if (!content && !file?.url) return;
-
-    let messageType: 'text' | 'image' | 'excel' | 'word' | 'other' = 'text';
-    let messageContent = content;
-
-    if (file?.url) {
-      messageType = this.getFileType(file.mimetype || '');
-      messageContent = file.url;
-    }
-
-    if (!this.replyToMessage) {
-      this.store.dispatch(
-        createMessage({
-          groupId: this.groupData._id,
-          senderId,
-          content: messageContent,
-          senderName: username,
-          replyToMessageId: null,
-          replyToContent: null,
-          replyToSenderName: null,
-          replyToType: null,
-          messageType,
-        })
-      );
-    } else {
-      this.store.dispatch(
-        createMessage({
-          groupId: this.groupData._id,
-          senderId,
-          content: messageContent,
-          senderName: username,
-          replyToMessageId: this.replyToMessage._id,
-          replyToContent: this.replyToMessage.content,
-          replyToSenderName: this.replyToMessage.senderName,
-          replyToType: this.replyToMessage.type,
-          messageType,
-        })
-      );
-    }
-
-    this.messageInput = '';
-    this.uploaded = null;
-    this.replyToMessage = null;
-  }
-
-  getFileType(mimetype: string): 'image' | 'excel' | 'word' | 'other' {
+  getFileType(mimetype: string) {
     if (mimetype.startsWith('image/')) {
       return 'image';
     }
@@ -110,87 +102,198 @@ export class ChatInputComponent implements OnInit {
     return 'other';
   }
 
-  handleChooseFileAndImage(event) {
+  private dispatchCreateMessage(content: string, type: string) {
+    const senderId = localStorage.getItem('userId');
+    const username = localStorage.getItem('username');
+
+    this.store.dispatch(
+      createMessage({
+        groupId: this.groupData._id,
+        senderId,
+        content,
+        senderName: username,
+        replyToMessageId: this.replyToMessage?._id ?? null,
+        replyToContent: this.replyToMessage?.content ?? null,
+        replyToSenderName: this.replyToMessage?.senderName ?? null,
+        replyToType: this.replyToMessage?.type ?? null,
+        messageType: type as any,
+        readUsers: [senderId],
+      })
+    );
+
+    const isReadSub = this.action$
+      .pipe(ofType(createMessageSuccess))
+      .subscribe(() => {
+        this.store.dispatch(
+          updateIsRead({ groupId: this.groupData._id, userId: senderId })
+        );
+      });
+    this.subscriptions.add(isReadSub);
+
+    this.editToMessage = null;
+    this.messageInput = '';
+    this.uploaded = null;
+    this.selectedFiles = [];
+    this.replyToMessage = null;
+  }
+
+  handleSendMessage() {
+    const senderId = localStorage.getItem('userId');
+    const username = localStorage.getItem('username');
+    const content = this.messageInput.trim();
+    const file = this.uploaded;
+    if (!content && !file?.url) return;
+    let messageType: 'text' | 'image' | 'excel' | 'word' | 'other' = 'text';
+    let messageContent = content;
+
+    if (this.selectedFiles.length > 0) {
+      const fileToUpload = this.selectedFiles[0];
+      messageType = this.getFileType(fileToUpload.type);
+
+      this.messageService.uploadFiles([fileToUpload]).subscribe((res) => {
+        messageContent = res.url;
+        this.dispatchCreateMessage(messageContent, messageType);
+      });
+
+      return;
+    }
+    
+    if (this.editToMessage) {
+      this.store.dispatch(
+        updateEditMessage({
+          messageId: this.editToMessage._id,
+          data: { content: messageContent },
+        })
+      );
+    } else {
+      this.store.dispatch(
+        createMessage({
+          groupId: this.groupData._id,
+          senderId,
+          content: messageContent,
+          senderName: username,
+          replyToMessageId: this.replyToMessage?._id ?? null,
+          replyToContent: this.replyToMessage?.content ?? null,
+          replyToSenderName: this.replyToMessage?.senderName ?? null,
+          replyToType: this.replyToMessage?.type ?? null,
+          messageType,
+          readUsers: [senderId],
+        })
+      );
+    }
+    const isReadSub = this.action$
+      .pipe(ofType(createMessageSuccess))
+      .subscribe(() => {
+        this.store.dispatch(
+          updateIsRead({ groupId: this.groupData._id, userId: senderId })
+        );
+      });
+    this.subscriptions.add(isReadSub);
+    this.editToMessage = null;
+    this.messageInput = '';
+    this.store.dispatch(clearUploadedFile());
+    this.replyToMessage = null;
+    this.action$.pipe(
+      ofType(createMessageSuccess), take(1)
+    ).subscribe(() => {
+      this.store.dispatch(loadGroup({userId: this.userId}))
+    })
+  }
+
+  handleChooseFileAndImage(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.selectedFiles = Array.from(input.files);
-      this.store.dispatch(uploadFiles({ files: this.selectedFiles }));
-      this.store.select(selectUploadedFiles).subscribe((data) => {
-        this.uploaded = data;
-      });
+      const file = input.files[0]; 
+      this.selectedFiles = [file];
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.uploaded = {
+          url: reader.result as string,
+          originalname: file.name,
+          mimetype: file.type,
+        };
+      };
+      reader.readAsDataURL(file);
     }
+
+    input.value = '';
   }
 
   removeImage() {
+    this.store.dispatch(clearUploadedFile());
     this.uploaded = null;
-    this.store.dispatch(clearUploadedFile())
+    this.selectedFiles = [];
   }
 
   handleReply(msg: IMessageGroup) {
     this.replyToMessage = msg;
   }
+
+  handleCloseEdit() {
+    this.editToMessage = null;
+    this.messageInput = '';
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
+  }
 }
 
-//   this.messageService
-//     .createMessageByGroupService(
-//       this.groupData._id as string,
-//       senderId,
-//       messageContent,
-//       username,
-//       null,
-//       null,
-//       null,
-//       null,
-//       messageType
-//     )
-//     .subscribe({
-//       next: (data) => {
-//         // console.log(data)
-//         this.socketService.sendMessage(
-//           this.groupData._id as string,
-//           senderId,
-//           username,
-//           data.content,
-//           null,
-//           null,
-//           null,
-//           null,
-//           messageType
-//         );
-//       },
-//       error: (err) => {
-//         console.error('Send message failed', err);
-//       },
-//     });
+// handleChooseFileAndImage(event) {
+//   const input = event.target as HTMLInputElement;
+//   if (input.files && input.files.length > 0) {
+//     this.selectedFiles = Array.from(input.files);
+//     this.store.dispatch(uploadFiles({ files: this.selectedFiles }));
+//   }
+//   input.value = '';
+// }
 
-//   this.messageService
-//     .createMessageByGroupService(
-//       this.groupData._id as string,
-//       senderId,
-//       messageContent,
-//       username,
-//       this.replyToMessage._id,
-//       this.replyToMessage.content,
-//       this.replyToMessage.senderName,
-//       this.replyToMessage.type,
-//       messageType
-//     )
-//     .subscribe({
-//       next: (data) => {
-//         this.socketService.sendMessage(
-//           senderId,
-//           username,
-//           data.content,
-//           this.groupData._id as string,
-//           this.replyToMessage._id,
-//           this.replyToMessage.content,
-//           this.replyToMessage.senderName,
-//           this.replyToMessage.type,
-//           messageType
-//         );
-//         this.replyToMessage = null;
-//       },
-//       error: (err) => {
-//         console.error('Send message failed', err);
-//       },
-//     });
+// handleSendMessage() {
+  //   const senderId = localStorage.getItem('userId');
+  //   const username = localStorage.getItem('username');
+  //   const content = this.messageInput.trim();
+  //   const file = this.uploaded;
+  //   if (!content && !file?.url) return;
+  //   let messageType: 'text' | 'image' | 'excel' | 'word' | 'other' = 'text';
+  //   let messageContent = content;
+
+  //   if (file?.url) {
+  //     messageType = this.getFileType(file.mimetype || '');
+  //     messageContent = file.url;
+  //   }
+  //   if (this.editToMessage) {
+  //     this.store.dispatch(
+  //       updateEditMessage({
+  //         messageId: this.editToMessage._id,
+  //         data: { content: messageContent },
+  //       })
+  //     );
+  //   } else {
+  //     this.store.dispatch(
+  //       createMessage({
+  //         groupId: this.groupData._id,
+  //         senderId,
+  //         content: messageContent,
+  //         senderName: username,
+  //         replyToMessageId: this.replyToMessage?._id ?? null,
+  //         replyToContent: this.replyToMessage?.content ?? null,
+  //         replyToSenderName: this.replyToMessage?.senderName ?? null,
+  //         replyToType: this.replyToMessage?.type ?? null,
+  //         messageType,
+  //         readUsers: [senderId],
+  //       })
+  //     );
+  //   }
+  //   const isReadSub = this.action$.pipe(ofType(createMessageSuccess)).subscribe(() => {
+  //     this.store.dispatch(
+  //       updateIsRead({ groupId: this.groupData._id, userId: senderId })
+  //     );
+  //   });
+  //   this.subscriptions.add(isReadSub)
+
+  //   this.editToMessage = null;
+  //   this.messageInput = '';
+  //   this.store.dispatch(clearUploadedFile());
+  //   this.replyToMessage = null;
+  // }

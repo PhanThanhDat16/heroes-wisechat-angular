@@ -11,7 +11,7 @@ import { IAuth } from '../../model/auth';
   styleUrl: './login.component.scss',
 })
 export class LoginComponent implements OnInit {
-  isLoading: boolean = false;
+  isLoading = false;
 
   constructor(
     private authService: AuthService,

@@ -1,6 +1,9 @@
 import { createReducer, on } from '@ngrx/store';
 import { initialState } from './group.state';
 import {
+  addTagForGroup,
+  addTagForGroupFailure,
+  addTagForGroupSuccess,
   createGroup,
   createGroupFailure,
   createGroupSuccess,
@@ -16,6 +19,9 @@ import {
   updateGroup,
   updateGroupFailure,
   updateGroupSuccess,
+  updateThemeGroup,
+  updateThemeGroupFailure,
+  updateThemeGroupSuccess,
 } from './group.actions';
 import { IGroupMessage } from '../../../features/group/model/group';
 
@@ -47,9 +53,12 @@ export const groupReducer = createReducer(
   })),
 
   on(loadUsersByGroup, (state) => ({ ...state, loading: true })),
-  on(loadUsersByGroupSuccess, (state, { users }) => ({
+  on(loadUsersByGroupSuccess, (state, { groupId, users }) => ({
     ...state,
-    usersInGroup: users,
+    usersInGroup: {
+      ...state.usersInGroup,
+      [groupId]: users,
+    },
     loading: false,
   })),
   on(loadUsersByGroupFailure, (state, { error }) => ({
@@ -63,18 +72,15 @@ export const groupReducer = createReducer(
     ...state,
     groups: state.groups
       ? [
+          {
+            ...group,
+            readUsers: [],
+            tag: null,
+            lastMessage: (group as any).lastMessage ?? 'New Group',
+          } as IGroupMessage,
           ...state.groups,
-          {
-            ...group,
-            lastMessage: (group as any).lastMessage ?? 'New Group',
-          } as IGroupMessage,
         ]
-      : [
-          {
-            ...group,
-            lastMessage: (group as any).lastMessage ?? 'New Group',
-          } as IGroupMessage,
-        ],
+      : state.groups,
     loading: false,
   })),
   on(createGroupFailure, (state, { error }) => ({
@@ -86,10 +92,43 @@ export const groupReducer = createReducer(
   on(updateGroup, (state) => ({ ...state, loading: true })),
   on(updateGroupSuccess, (state, { group }) => ({
     ...state,
+    groups: state.groups.map((g) =>
+      g._id === group._id ? { ...g, ...group } : g
+    ),
     groupDetail: group,
     loading: false,
   })),
   on(updateGroupFailure, (state, { error }) => ({
+    ...state,
+    error,
+    loading: false,
+  })),
+
+  on(addTagForGroup, (state) => ({ ...state })),
+  on(addTagForGroupSuccess, (state, { groupMember }) => ({
+    ...state,
+    groups: state.groups.map((g) =>
+      g._id === groupMember.groupId ? { ...g, tag: groupMember.tag } : g
+    ),
+  })),
+  on(addTagForGroupFailure, (state, { error }) => ({
+    ...state,
+    error,
+  })),
+
+  on(updateThemeGroup, (state) => ({
+    ...state,
+    loading: true,
+  })),
+  on(updateThemeGroupSuccess, (state, { group }) => ({
+    ...state,
+    groups: state.groups.map((g) =>
+      g._id === group._id ? { ...g, ...group } : g
+    ),
+    groupDetail: group,
+    loading: false,
+  })),
+  on(updateThemeGroupFailure, (state, { error }) => ({
     ...state,
     error,
     loading: false,

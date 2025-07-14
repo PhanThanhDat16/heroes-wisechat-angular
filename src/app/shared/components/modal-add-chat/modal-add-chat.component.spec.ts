@@ -8,7 +8,7 @@ describe('ModalAddChatComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ModalAddChatComponent]
+      declarations: [ModalAddChatComponent],
     })
     .compileComponents();
     

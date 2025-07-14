@@ -13,6 +13,8 @@ import { ModalUtilsChatComponent } from './components/modal-utils-chat/modal-uti
 import { SmartDatePipe } from './pipes/smartDate.pipe';
 import { FormatTimePipe } from './pipes/getTimeStamp.pipe';
 import { ModalUtilsMessageComponent } from './components/modal-utils-message/modal-utils-message.component';
+import { ClickOutsideDirective } from './directive/click-outside.directive';
+import { LoadingSkeletonComponent } from './components/loading-skeleton/loading-skeleton.component';
 
 @NgModule({
   declarations: [
@@ -26,8 +28,16 @@ import { ModalUtilsMessageComponent } from './components/modal-utils-message/mod
     ModalAddChatComponent,
     ModalUtilsChatComponent,
     ModalUtilsMessageComponent,
+    ClickOutsideDirective,
+    LoadingSkeletonComponent,
   ],
-  imports: [RouterModule, CommonModule, ReactiveFormsModule, NgbDropdown, NgbModule],
+  imports: [
+    RouterModule,
+    CommonModule,
+    ReactiveFormsModule,
+    NgbDropdown,
+    NgbModule,
+  ],
   exports: [
     CapitalizeWordsPipe,
     FormatDatePipe,
@@ -39,6 +49,8 @@ import { ModalUtilsMessageComponent } from './components/modal-utils-message/mod
     ModalAddChatComponent,
     ModalUtilsChatComponent,
     ModalUtilsMessageComponent,
+    ClickOutsideDirective,
+    LoadingSkeletonComponent,
   ],
 })
 export class SharedModule {}

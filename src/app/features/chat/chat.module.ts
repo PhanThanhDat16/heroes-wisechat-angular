@@ -5,7 +5,7 @@ import { ChatappComponent } from './components/chatapp/chatapp.component';
 import { SharedModule } from '../../shared/shared.module';
 import { ChatMessageComponent } from './components/chat-message/chat-message.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgbDropdown, NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbCollapseModule, NgbDropdown, NgbDropdownModule, NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { GroupModule } from '../group/group.module';
 import { GroupItemComponent } from './components/group-item/group-item.component';
 import { CreateGroupComponent } from './components/create-group/create-group.component';
@@ -13,6 +13,9 @@ import { GroupDetailComponent } from './components/group-detail/group-detail.com
 import { MessageComponent } from './components/message/message.component';
 import { ChatInputComponent } from './components/chat-input/chat-input.component';
 import { UtilsMessageDeleteComponent } from './components/utils-message-delete/utils-message-delete.component';
+import { GroupDetailBarComponent } from './components/group-detail-bar/group-detail-bar.component';
+import { SearchGroupDetailBarComponent } from './components/search-group-detail-bar/search-group-detail-bar.component';
+import { SearchGeneralComponent } from './components/search-general/search-general.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +27,9 @@ import { UtilsMessageDeleteComponent } from './components/utils-message-delete/u
     MessageComponent,
     ChatInputComponent,
     UtilsMessageDeleteComponent,
+    GroupDetailBarComponent,
+    SearchGroupDetailBarComponent,
+    SearchGeneralComponent,
   ],
   imports: [
     ChatRoutingModule,
@@ -34,7 +40,8 @@ import { UtilsMessageDeleteComponent } from './components/utils-message-delete/u
     NgbDropdownModule,
     ReactiveFormsModule,
     NgbTooltipModule,
-    GroupModule
+    GroupModule,
+    NgbCollapseModule,
   ],
   exports: [
     ChatappComponent,
@@ -42,6 +49,6 @@ import { UtilsMessageDeleteComponent } from './components/utils-message-delete/u
     GroupDetailComponent,
     CreateGroupComponent,
     ChatMessageComponent,
-  ]
+  ],
 })
 export class ChatModule {}

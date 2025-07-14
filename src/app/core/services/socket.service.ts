@@ -3,6 +3,9 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Socket, io } from 'socket.io-client';
 import { IEditGroup } from '../model/socket';
 import { IGroup } from '../../features/group/model/group';
+import { IMessageGroup } from '../../features/chat/model/message';
+import { IUser } from '../../features/auth/model/user';
+import { IThemeSocket } from '../../features/chat/model/theme';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +17,10 @@ export class SocketIOService {
   public onlineUser$ = this.onlineUsersSubject.asObservable();
 
   constructor() {
+    this.initSocket();
+  }
+
+  initSocket() {
     this.socket = io(this.URL_SOCKET);
 
     // this.socket.on('connect', () => {
@@ -26,6 +33,12 @@ export class SocketIOService {
     this.socket.on('updateOnlineUsers', (users: string[]) => {
       this.onlineUsersSubject.next(users);
     });
+  }
+
+  connect() {
+    if (!this.socket.connected) {
+      this.socket.connect();
+    }
   }
 
   joinGroup(listGroupId: string[]) {
@@ -47,7 +60,7 @@ export class SocketIOService {
   }
 
   sendUserOnline(userId: string) {
-    this.socket.emit('userOnline', userId);
+    this.socket.emit('userOnline', { userId });
   }
 
   sendUpdateEditGroup({ senderId, senderName, name, groupId }: IEditGroup) {
@@ -67,6 +80,7 @@ export class SocketIOService {
   }
 
   sendMessage(
+    _id: string,
     senderId: string,
     senderName: string,
     message: string,
@@ -75,9 +89,11 @@ export class SocketIOService {
     replyToContent: string | null,
     replyToSenderName: string | null,
     replyToType: string | null,
-    type: string
+    type: string,
+    readUsers = []
   ) {
     this.socket.emit('sendMessage', {
+      _id,
       senderId,
       senderName,
       content: message,
@@ -87,6 +103,7 @@ export class SocketIOService {
       replyToSenderName,
       replyToType,
       type,
+      readUsers,
     });
   }
 
@@ -95,19 +112,14 @@ export class SocketIOService {
       this.socket.on('receiveMessage', (data) => {
         observer.next(data);
       });
-
-      return () => {
-        this.socket.off('receiveMessage');
-      };
     });
   }
 
-
-  deleteMessage(messageId: string, groupId: string) {
-    this.socket.emit('deleteMessage', { messageId, groupId });
+  deleteMessage(data) {
+    this.socket.emit('deleteMessage', data);
   }
 
- receiveDeleteMessage(): Observable<any> {
+  receiveDeleteMessage(): Observable<any> {
     return new Observable((observer) => {
       this.socket.on('deleteMessage', (data) => {
         observer.next(data);
@@ -119,7 +131,116 @@ export class SocketIOService {
     });
   }
 
+  deleteMessageForMe(data) {
+    this.socket.emit('deleteMessageForMe', data);
+  }
+
+  receiveDeleteMessageForMe(): Observable<any> {
+    return new Observable((observer) => {
+      this.socket.on('deleteMessageForMe', (data) => {
+        observer.next(data);
+      });
+      return () => {
+        this.socket.off('deleteMessageForMe');
+      };
+    });
+  }
+
+  editMessage(data: IMessageGroup) {
+    this.socket.emit('editMessage', data);
+  }
+
+  receiveEditMessage(): Observable<any> {
+    return new Observable((observer) => {
+      this.socket.on('editMessage', (data) => {
+        observer.next(data);
+      });
+      return () => {
+        this.socket.off('editMessage');
+      };
+    });
+  }
+
+  leaveGroup(groupId: string) {
+    this.socket.emit('leaveGroup', { groupId });
+  }
+
+  kickedFromGroup(userId, groupId, ownerId) {
+    this.socket.emit('kickUserFromGroup', { userId, groupId, ownerId });
+  }
+
+  receiveKickedFromGroup(): Observable<{
+    groupId: string;
+    userId: string;
+    ownerId: string;
+  }> {
+    return new Observable((observer) => {
+      this.socket.on(
+        'kickUserFromGroup',
+        (data: { groupId: string; userId: string; ownerId: string }) => {
+          observer.next(data);
+        }
+      );
+    });
+  }
+
+  addMemberFromGroup(listUser, group, userId) {
+    this.socket.emit('addMemberFromGroup', { listUser, group, userId });
+  }
+
+  receiveAddMemberFromGroup(): Observable<{
+    group: IGroup;
+    listUser: IUser[];
+    userId: string;
+    listMemberOnline?: string[];
+  }> {
+    return new Observable((observer) => {
+      this.socket.on(
+        'addMemberFromGroup',
+        (data: {
+          group: IGroup;
+          listUser: IUser[];
+          userId: string;
+          listMemberOnline?: string[];
+        }) => {
+          observer.next(data);
+        }
+      );
+    });
+  }
+
+  receiveNotification(): Observable<{ content: string; groupId: string }> {
+    return new Observable((observer) => {
+      this.socket.on('newNotification', (data) => {
+        observer.next(data);
+      });
+    });
+  }
+
+  reactMessage(): Observable<{
+    reactions: Record<string, { count: number; users: string[] }>;
+    messageId: string;
+    userId: string;
+    quantityReact: number;
+  }> {
+    return new Observable((observer) => {
+      this.socket.on('reactMessage', (data) => {
+        observer.next(data);
+      });
+    });
+  }
+
+  changeTheme(data: IThemeSocket) {
+    this.socket.emit('changeTheme', data);
+  }
   
+  receiveChangeTheme(): Observable<IThemeSocket> {
+    return new Observable((observer) => {
+      this.socket.on('changeTheme', (data: IThemeSocket) => {
+        observer.next(data);
+      });
+    });
+  }
 
   disconnectSocket() {
     this.socket.disconnect();

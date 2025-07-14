@@ -29,7 +29,7 @@ export class CreateComponent {
   });
 
   constructor(
-    private store: Store,
+    private store: Store
   ) {}
 
   handleSubmit() {

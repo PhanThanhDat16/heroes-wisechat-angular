@@ -8,7 +8,7 @@ describe('ModalUtilsChatComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ModalUtilsChatComponent]
+      declarations: [ModalUtilsChatComponent],
     })
     .compileComponents();
     

@@ -20,9 +20,9 @@ export class HeroesListComponent implements OnInit, OnDestroy {
   heroes: IHero[] = [];
   trackSub: Subscription;
   selectedHeroIds: string[] = [];
-  selectAll: boolean = false;
+  selectAll = false;
   tags: ITag[];
-  isLoading: boolean = false;
+  isLoading = false;
   @ViewChild('dropdownComponent') dropdownComponent: DropdownlableComponent;
 
   constructor(
@@ -100,26 +100,6 @@ export class HeroesListComponent implements OnInit, OnDestroy {
     });
   }
 
-  // handleAddTagsToSelectedHeroes(tags: ITag[]) {
-  //   if (this.selectedHeroIds.length === 0 || tags.length === 0) return;
-
-  //   const userId = localStorage.getItem('userId');
-  //   if (!userId) return;
-
-  //   const result = tags.map((tag) => tag._id);
-
-  //   this.tagService
-  //     .addTagsToMultipleHeroes(this.selectedHeroIds, userId, result as string[])
-  //     .subscribe({
-  //       next: () => {
-  //         this.store.dispatch(loadHeroes());
-  //       },
-  //       error: (error) => {
-  //         console.error(error);
-  //       },
-  //     });
-  // }
-
   handleAddTagsToSelectedHeroes(tags: ITag[]) {
     if (this.selectedHeroIds.length === 0 || tags.length === 0) return;
 
@@ -163,11 +143,6 @@ export class HeroesListComponent implements OnInit, OnDestroy {
     ) {
       return;
     }
-
-    // const tagsToRemove =
-    //   this.dropdownComponent.selectedTags.length !== 0
-    //     ? this.dropdownComponent.selectedTags
-    //     : this.dropdownComponent.allSelectedTags;
 
     const resultCommon = [
       ...this.dropdownComponent.selectedTags,

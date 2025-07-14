@@ -1,12 +1,11 @@
 import { NgModule, Optional, SkipSelf } from '@angular/core';
-// import { HeaderComponent } from '../features/layout/components/header/header.component';
 import { SharedModule } from '../shared/shared.module';
 import { RouterLink } from '@angular/router';
 
 @NgModule({
   declarations: [],
   imports: [SharedModule, RouterLink],
-  exports: []
+  exports: [],
 })
 export class coreModule {
   constructor(@Optional() @SkipSelf() parentModule: coreModule) {

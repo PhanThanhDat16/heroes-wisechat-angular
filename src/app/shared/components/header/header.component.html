@@ -4,7 +4,7 @@
   <div class="d-flex gap-4 p-2">
     <a
       routerLink=""
-      class="d-flex align-items-center text-primary-m fs-5  px-2 py-2 pointer text-hover fw-normal"
+      class="d-flex align-items-center text-primary-m fs-5 px-2 py-2 pointer text-hover fw-normal"
       [routerLinkActive]="['text-primary-1', 'fw-bold']"
       [routerLinkActiveOptions]="{ exact: true }"
     >
@@ -12,7 +12,7 @@
     </a>
     <a
       routerLink="/heroes"
-      class="d-flex align-items-center text-primary-m fs-5  px-2 py-2 pointer text-hover fw-normal"
+      class="d-flex align-items-center text-primary-m fs-5 px-2 py-2 pointer text-hover fw-normal"
       [routerLinkActive]="['text-primary-1', 'fw-bold']"
       [routerLinkActiveOptions]="{ exact: true }"
     >
@@ -20,7 +20,7 @@
     </a>
     <a
       routerLink="/messages"
-      class="d-flex align-items-center text-primary-m fs-5  px-2 py-2 pointer text-hover fw-normal"
+      class="d-flex align-items-center text-primary-m fs-5 px-2 py-2 pointer text-hover fw-normal"
       [routerLinkActive]="['text-primary-1', 'fw-bold']"
       [routerLinkActiveOptions]="{ exact: true }"
     >
@@ -30,8 +30,110 @@
 
   <ng-container *ngIf="username !== 'login'; else loginLink">
     <div class="d-flex gap-4 align-items-center">
-      <div>
-        <i class="fa-regular fa-bell fs-5"></i>
+      <div
+        class="position-relative"
+        (appClickOutside)="isBellDropdownOpen = false"
+      >
+        <div
+          class="bell-wrapper cursor-point"
+          (click)="isBellDropdownOpen = !isBellDropdownOpen"
+        >
+          <i class="fa-regular fa-bell fs-5"></i>
+          <span *ngIf="totalUnread && totalUnread > 0" class="bell-quantity">{{
+            totalUnread
+          }}</span>
+        </div>
+        <div
+          class="bell-wrapper-menu position-absolute z-max p-0 overflow-hidden"
+          *ngIf="isBellDropdownOpen"
+        >
+          <div class="bell-wrapper-header">
+            <div
+              class="d-flex align-items-center justify-content-between border-bottom p-3"
+            >
+              <div class="d-flex align-items-center gap-2">
+                <h5 class="mb-0 fw-bold">Notifications</h5>
+                <span
+                  *ngIf="totalUnread && totalUnread > 0"
+                  class="bell-wrapper-header-new"
+                  >{{ totalUnread }} news</span
+                >
+              </div>
+
+              <div
+                ngbDropdown
+                class="d-flex gap-2 align-items-center notiDropdown-wrapper"
+                #dropdown="ngbDropdown"
+              >
+                <span
+                  id="groupDropDown"
+                  ngbDropdownToggle
+                  class="notiDropdown-toggle"
+                >
+                  <i class="fa-solid fa-gear"></i>
+                </span>
+                <div
+                  ngbDropdownMenu
+                  aria-labelledby="groupDropDown"
+                  class="notiDropdown-menu p-0 overflow-hidden"
+                >
+                  <span ngbDropdownItem (click)="handleReadAll()"
+                    >Read All</span
+                  >
+                  <span ngbDropdownItem (click)="handleClearAll()"
+                    >Clear All</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+          <div
+            [ngClass]="
+              listNoti?.length === 0 || listNoti === null
+                ? 'd-flex flex-column justify-content-center'
+                : ''
+            "
+            class="bell-list scroll-y"
+            style="background-color: white"
+          >
+            <ng-container *ngIf="listNoti?.length > 0; else noNotification">
+              <div
+                *ngFor="let noti of listNoti"
+                class="bell-item cursor-point d-flex align-items-start justify-content-between"
+                [ngClass]="{ unread: !noti.isRead }"
+                (click)="handleReadNoti(noti)"
+              >
+                <div class="d-flex align-items-start gap-2">
+                  <img
+                    class="bell-item-img"
+                    src="https://images.unsplash.com/photo-1527525443983-6e60c75fff46?q=80&w=685&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    alt=""
+                  />
+                  <div class="d-flex flex-column gap-2">
+                    <span class="bell-item-content">{{ noti.content }}</span>
+                    <span class="bell-item-min">
+                      {{ noti.createdAt | date : "short" }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+
+            <ng-template #noNotification>
+              <div
+                class="no-noti d-flex flex-column align-items-center justify-content-center text-center"
+              >
+                <img
+                  src="https://static.vecteezy.com/system/resources/previews/020/936/880/non_2x/notification-icon-for-your-website-design-logo-app-ui-free-vector.jpg"
+                  alt="No notifications"
+                  width="100"
+                  height="100"
+                />
+                <p class="no-noti-text mt-3">You have no notifications</p>
+              </div>
+            </ng-template>
+          </div>
+        </div>
       </div>
       <div
         ngbDropdown
