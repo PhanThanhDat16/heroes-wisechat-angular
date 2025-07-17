@@ -1,11 +1,12 @@
 :host {
   flex: 1;
   background-color: transparent;
-  max-height: 636px;
+  flex-grow: 0;
+  flex-basis: 660px;
 }
 
 .chat-box {
-  max-height: 636px;
+  max-height: 640px;
   overflow-y: auto;
 }
 

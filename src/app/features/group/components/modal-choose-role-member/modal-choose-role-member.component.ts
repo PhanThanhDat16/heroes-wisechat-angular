@@ -11,20 +11,18 @@ import { FormControl } from '@angular/forms';
 import { ModalDismissReasons, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IUser } from '../../../auth/model/user';
 import { IGroup } from '../../model/group';
-import { Store } from '@ngrx/store';
 import { ToastService } from 'angular-toastify';
 import { Actions, ofType } from '@ngrx/effects';
 import Swal from 'sweetalert2';
 import {
-  deleteMemberInGroup,
   deleteMemberInGroupSuccess,
-  leaveGroup,
   leaveGroupSuccess,
 } from '../../../../core/store/message/message.actions';
 import { take } from 'rxjs';
-import { loadNoti } from '../../../../core/store/notification/notification.actions';
 import { Router } from '@angular/router';
-import { loadGroup } from '../../../../core/store/group/group.actions';
+import { GroupService } from '../../service/groupService.service';
+import { notiService } from '../../../../core/services/noti.service';
+import { deleteGroupSuccess } from '../../../../core/store/group/group.actions';
 
 @Component({
   // eslint-disable-next-line @angular-eslint/component-selector
@@ -44,10 +42,11 @@ export class ModalChooseRoleMemberComponent implements OnInit {
   @Input() listUserByGroupLeave: IUser[];
 
   constructor(
-    private store: Store,
     private toastService: ToastService,
     private action$: Actions,
-    private router: Router
+    private router: Router,
+    private groupService: GroupService,
+    private notiService: notiService
   ) {}
 
   ngOnInit(): void {
@@ -85,19 +84,15 @@ export class ModalChooseRoleMemberComponent implements OnInit {
     }).then((result) => {
       if (result.isConfirmed) {
         this.handleNotiAndTag();
-        this.store.dispatch(
-          leaveGroup({
-            groupId: this.groupData._id,
-            userId: this.userId,
-            data: {
-              ownerId: this.chooseAdmin,
-            },
-          })
+        this.groupService.leaveGroup(
+          this.groupData._id,
+          this.userId,
+          this.chooseAdmin
         );
         this.action$.pipe(ofType(leaveGroupSuccess), take(1)).subscribe(() => {
           this.closeModal();
-          this.store.dispatch(loadNoti({ userId: this.userId }));
-          this.store.dispatch(loadGroup({ userId: this.userId }));
+          this.notiService.loadNoti(this.userId);
+          this.groupService.loadGroup(this.userId);
           this.toastService.success('Leave group successful!');
           this.router.navigate(['/messages']);
         });
@@ -143,20 +138,28 @@ export class ModalChooseRoleMemberComponent implements OnInit {
       }).then((result) => {
         if (result.isConfirmed) {
           this.handleNotiAndTag();
-          this.store.dispatch(
-            deleteMemberInGroup({
-              groupId: this.groupData._id,
-              memberId: this.userId,
-            })
+          this.groupService.deleteMemberInGroup(
+            this.groupData._id,
+            this.userId
           );
           this.action$
             .pipe(ofType(deleteMemberInGroupSuccess), take(1))
             .subscribe(() => {
-              this.store.dispatch(loadNoti({ userId: this.userId }));
+              this.notiService.loadNoti(this.userId);
               this.toastService.success('Leave group successful!');
             });
         }
       });
     }
+  }
+
+  handleDeleteGroup() {
+    this.groupService.deleteGroup(this.groupData._id);
+    this.action$.pipe(ofType(deleteGroupSuccess), take(1)).subscribe(() => {
+      this.closeModal();
+      this.router.navigate(['/messages']);
+      this.groupService.loadGroup(this.userId);
+      this.notiService.loadNoti(this.userId);
+    });
   }
 }

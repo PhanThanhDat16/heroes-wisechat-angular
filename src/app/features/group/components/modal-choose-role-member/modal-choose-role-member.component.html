@@ -19,9 +19,14 @@
     </div>
   </div>
   <div class="modal-body">
-    <h4 class="fs-6 px-3">Members</h4>
+    <h4
+      *ngIf="listUserByGroupLeave && listUserByGroupLeave.length > 0"
+      class="fs-6 px-3"
+    >
+      Members
+    </h4>
     <div class="d-flex flex-column gap-3 mt-2">
-      <fieldset>
+      <fieldset *ngIf="listUserByGroupLeave && listUserByGroupLeave.length > 0">
         <ng-container *ngFor="let user of listUserByGroupLeave">
           <label
             class="custom-checkbox-wrapper d-flex align-items-center justify-content-between py-2 px-3"
@@ -43,13 +48,31 @@
           </label>
         </ng-container>
       </fieldset>
+      <div
+        *ngIf="listUserByGroupLeave && listUserByGroupLeave.length === 0"
+        class="no-members text-center"
+      >
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/5006/5006555.png"
+          alt="lonely user"
+          class="empty-group-img mb-3"
+        />
+        <h5 class="text-danger fw-semibold">You're the last member</h5>
+        <p class="text-muted small px-4">
+          If you leave this group, it will be
+          <strong>automatically deleted</strong>.
+        </p>
+        <button class="btn btn-outline-danger mt-2" (click)="handleDeleteGroup()">
+          <i class="bi bi-trash3-fill me-2"></i> Delete group
+        </button>
+      </div>
     </div>
   </div>
 </ng-template>
 
 <span
   modal-btn
-  class="text-danger fw-normal w-100 d-inline-block d-flex align-items-center gap-2 justify-content-center cursor-point "
+  class="text-danger fw-normal w-100 d-inline-block d-flex align-items-center gap-2 justify-content-center cursor-point"
   (click)="handleLeaveGroup(content)"
 >
   <i class="fa-solid fa-arrow-right-from-bracket"></i>

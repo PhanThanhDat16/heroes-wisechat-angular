@@ -13,14 +13,14 @@ import {
 } from './hero.actions';
 import { catchError, map, mergeMap, of, switchMap, tap } from 'rxjs';
 import { ToastService } from 'angular-toastify';
-import { HeroService } from '../../../features/heroes/service/heroes.service';
+import { HeroServiceAPI } from '../../../features/heroes/service/heroesAPI.service';
 import { IHeroUpdate } from '../../../features/heroes/model/heroes';
 
 @Injectable()
 export class HeroEffects {
   constructor(
     private action$: Actions,
-    private heroService: HeroService,
+    private heroServiceAPI: HeroServiceAPI,
     private toastService: ToastService
   ) {}
 
@@ -28,7 +28,7 @@ export class HeroEffects {
     this.action$.pipe(
       ofType(loadHeroes),
       switchMap(() =>
-        this.heroService.getHeroesByUserIdService().pipe(
+        this.heroServiceAPI.getHeroesByUserIdService().pipe(
           map((heroes) => loadHeroesSuccess({ heroes })),
           catchError(({ error }) => {
             this.toastService.error(error.message);
@@ -43,7 +43,7 @@ export class HeroEffects {
     this.action$.pipe(
       ofType(createHero),
       switchMap(({ hero }) =>
-        this.heroService.createHeroService(hero as IHeroUpdate).pipe(
+        this.heroServiceAPI.createHeroService(hero as IHeroUpdate).pipe(
           map(() => {
             this.toastService.success('Create successfully');
             return loadHeroes();
@@ -61,7 +61,7 @@ export class HeroEffects {
     this.action$.pipe(
       ofType(updateHero),
       switchMap(({ id, hero }) =>
-        this.heroService.updateHeroService(id, hero as IHeroUpdate).pipe(
+        this.heroServiceAPI.updateHeroService(id, hero as IHeroUpdate).pipe(
           map(() => {
             this.toastService.success('Update Successfully');
             return loadHeroes();
@@ -79,7 +79,7 @@ export class HeroEffects {
     this.action$.pipe(
       ofType(deleteHero),
       switchMap(({ id }) =>
-        this.heroService.deleteHeroService(id).pipe(
+        this.heroServiceAPI.deleteHeroService(id).pipe(
           map(() => {
             this.toastService.success('Delete Successfully');
             return loadHeroes();

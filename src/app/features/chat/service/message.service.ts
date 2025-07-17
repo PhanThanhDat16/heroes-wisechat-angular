@@ -1,152 +1,111 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { AuthService } from '../../../core/services/auth.service';
-import { map } from 'rxjs';
+import { Store } from '@ngrx/store';
+import {
+  clearUploadedFile,
+  createMessage,
+  createMessageSuccess,
+  deleteMessageEveryone,
+  deleteMessageEveryoneSuccess,
+  deleteMessageForMe,
+  deleteMessageForMeSuccess,
+  loadMessage,
+  reactToMessage,
+  reactToMessageSuccess,
+  updateEditMessage,
+  updateIsRead,
+} from '../../../core/store/message/message.actions';
 
 @Injectable({
   providedIn: 'root',
 })
 export class MessageService {
-  private URL = 'http://localhost:3002/api';
-  constructor(private http: HttpClient, private authService: AuthService) {}
+  constructor(private store: Store) {}
 
-  createMessageByGroupService(
-    groupId: string,
-    senderId: string,
-    content: string,
-    senderName: string,
-    replyToMessageId: string | null,
-    replyToContent: string | null,
-    replyToSenderName: string | null,
-    replyToType: string | null,
-    type = 'text',
-    isRead = []
+  loadMessage(groupId) {
+    this.store.dispatch(loadMessage({ groupId, page: 1, limit: 10 }));
+  }
+
+  createMessage(
+    groupId,
+    senderId,
+    content,
+    senderName,
+    replyToMessageId,
+    replyToContent,
+    replyToSenderName,
+    replyToType,
+    messageType,
+    readUsers
   ) {
-    return this.http
-      .post<any>(
-        `${this.URL}/groups/${groupId}/messages`,
-        {
-          senderId,
-          content,
-          senderName,
-          replyToMessageId,
-          replyToContent,
-          replyToSenderName,
-          replyToType,
-          type,
-          isRead,
-        },
-        {
-          headers: {
-            authorization: `Bearer ${this.authService.getAccessToken()}`,
-          },
-        }
-      )
-      .pipe(map((res) => res.data));
-  }
-
-  getMessageByGroupService(
-    groupId: string,
-    page: number,
-    limit: number,
-    search?: string
-  ) {
-    let params = new HttpParams();
-    if (search && search.trim() !== '') {
-      params = params.set('search', search);
-    }
-    params = params.set('page', page).set('limit', limit);
-
-    return this.http
-      .get<any>(`${this.URL}/groups/${groupId}/messages`, {
-        params,
-        headers: {
-          authorization: `Bearer ${this.authService.getAccessToken()}`,
-        },
+    this.store.dispatch(
+      createMessage({
+        groupId,
+        senderId,
+        content,
+        senderName,
+        replyToMessageId,
+        replyToContent,
+        replyToSenderName,
+        replyToType,
+        messageType,
+        readUsers,
       })
-      .pipe(map((res) => res.data));
+    );
   }
 
-  updateEditMEssage(messageId: string, data: { content: string }) {
-    return this.http
-      .put<any>(`${this.URL}/groups/messages/${messageId}`, data, {
-        headers: {
-          authorization: `Bearer ${this.authService.getAccessToken()}`,
-        },
+  createMessageSuccess(message) {
+    this.store.dispatch(createMessageSuccess({ message }));
+  }
+
+  updateIsReadMessage(groupId, userId) {
+    this.store.dispatch(updateIsRead({ groupId, userId }));
+  }
+
+  updateEditMessage(messageId, data) {
+    this.store.dispatch(
+      updateEditMessage({
+        messageId,
+        data,
       })
-      .pipe(map((res) => res.data));
+    );
   }
 
-  deleteMessageForEveryone(messageId: string) {
-    return this.http
-      .delete<any>(`${this.URL}/groups/message/${messageId}`, {
-        headers: {
-          authorization: `Bearer ${this.authService.getAccessToken()}`,
-        },
+  clearUploadedFile() {
+    this.store.dispatch(clearUploadedFile());
+  }
+
+  deleteMessageEveryone(messageId) {
+    this.store.dispatch(deleteMessageEveryone({ messageId }));
+  }
+
+  deleteMessageEveryoneSuccess(data) {
+    this.store.dispatch(deleteMessageEveryoneSuccess({ messages: data }));
+  }
+
+  deleteMessageForMe(messageId, userId) {
+    this.store.dispatch(
+      deleteMessageForMe({
+        messageId,
+        userId,
       })
-      .pipe(map((res) => res.data));
+    );
   }
 
-  deleteMessageForMe(messageId: string, userId: string) {
-    return this.http
-      .put<any>(`${this.URL}/groups/users/${userId}/message/${messageId}`, {
-        headers: {
-          authorization: `Bearer ${this.authService.getAccessToken()}`,
-        },
+  deleteMessageForMeSuccess(data) {
+    this.store.dispatch(deleteMessageForMeSuccess({ message: data }));
+  }
+
+  reactToMessage(messageId, userId, types, groupId) {
+    this.store.dispatch(reactToMessage({ messageId, userId, types, groupId }));
+  }
+
+  reactToMessageSuccess(messageId, reactions, quantityReact) {
+    this.store.dispatch(
+      reactToMessageSuccess({
+        messageId,
+        reactions,
+        quantityReact,
       })
-      .pipe(map((res) => res.data));
-  }
-
-  updateIsReadMessage(groupId: string, userId: string) {
-    return this.http
-      .put<any>(`${this.URL}/groups/${groupId}/users/${userId}/message/read`, {
-        headers: {
-          authorization: `Bearer ${this.authService.getAccessToken()}`,
-        },
-      })
-      .pipe(map((res) => res.data));
-  }
-
-  uploadFiles(files: File[]) {
-    const formData = new FormData();
-    files.forEach((file) => {
-      formData.append('content', file);
-    });
-
-    return this.http
-      .post<any>(`${this.URL}/upload`, formData)
-      .pipe(map((res) => res.data));
-  }
-
-  reactMessageEmoji(
-    messageId: string,
-    groupId: string,
-    types: { userId: string; type: string }
-  ) {
-    return this.http
-      .post<any>(`${this.URL}/groups/${groupId}/message/${messageId}/react`, types, {
-        headers: {
-          authorization: `Bearer ${this.authService.getAccessToken()}`,
-        },
-      })
-      .pipe(map((res) => res.data));
-  }
-
-  getManyMessage(search?: string) {
-    let params = new HttpParams();
-    if (search && search.trim() !== '') {
-      params = params.set('search', search);
-    }
-    return this.http
-      .get<{ message: string; data: any }>(
-        `${this.URL}/users/messages`,
-        {
-          params,
-          headers: {
-            Authorization: `Bearer ${this.authService.getAccessToken()}`,
-          },
-        }
-      )
-      .pipe(map((res) => res.data));
+    );
   }
 }

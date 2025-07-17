@@ -6,12 +6,11 @@ import {
   Output,
 } from '@angular/core';
 import { forkJoin } from 'rxjs';
-import { Store } from '@ngrx/store';
 import { ITag } from '../../../tags/model/tag';
-import { HeroService } from '../../service/heroes.service';
-import { loadHeroes } from '../../../../core/store/hero/hero.actions';
+import { HeroServiceAPI } from '../../service/heroesAPI.service';
 import { TagService } from '../../../tags/service/tag.service';
 import { IHero } from '../../model/heroes';
+import { HeroService } from '../../service/hero.service';
 
 @Component({
   selector: 'app-dropdownlable',
@@ -29,9 +28,9 @@ export class DropdownlableComponent implements OnChanges {
   availableTags: ITag[] = [];
 
   constructor(
-    private heroSerivce: HeroService,
-    private store: Store,
-    private tagService: TagService
+    private heroSerivceAPI: HeroServiceAPI,
+    private tagService: TagService,
+    private heroService: HeroService
   ) {}
 
   handleAddTag(tag: ITag) {
@@ -57,7 +56,7 @@ export class DropdownlableComponent implements OnChanges {
           );
           this.tags.unshift(tag);
           this.tagsSelected.emit(this.selectedTags);
-          this.store.dispatch(loadHeroes());
+          this.heroService.loadHero();
         },
         error: (error) => console.log(error),
       });
@@ -71,16 +70,15 @@ export class DropdownlableComponent implements OnChanges {
     const userId = localStorage.getItem('userId');
     if (this.selectedHeroIds.length > 0 && userId) {
       const heroRequests = this.selectedHeroIds.map((id) =>
-        this.heroSerivce.getHeroDetailService(id)
+        this.heroSerivceAPI.getHeroDetailService(id)
       );
 
       forkJoin(heroRequests).subscribe((heroes: IHero[]) => {
         const tagsArray: ITag[][] = heroes.map((h) =>
           (h.tags || []).filter(
-            (tag)=> typeof tag === 'object' && tag !== null
+            (tag) => typeof tag === 'object' && tag !== null
           )
         );
-
         const tagMap = new Map<string, ITag>();
         tagsArray.forEach((tags) => {
           tags.forEach((tag) => {

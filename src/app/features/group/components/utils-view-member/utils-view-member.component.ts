@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 import { FormControl } from '@angular/forms';
 import { debounceTime, Subscription, take } from 'rxjs';
 import { UserService } from '../../../../core/services/user.service';
-import { GroupService } from '../../service/group.service';
+import { GroupServiceAPI } from '../../service/groupAPI.service';
 import { IGroup } from '../../model/group';
 import { Store } from '@ngrx/store';
 import {
@@ -16,11 +16,9 @@ import {
 import { ModalUtilsChatComponent } from '../../../../shared/components/modal-utils-chat/modal-utils-chat.component';
 import { Actions, ofType } from '@ngrx/effects';
 import { ToastService } from 'angular-toastify';
-import {
-  deleteMemberInGroup,
-  deleteMemberInGroupSuccess,
-} from '../../../../core/store/message/message.actions';
-import { loadNoti } from '../../../../core/store/notification/notification.actions';
+import { deleteMemberInGroupSuccess } from '../../../../core/store/message/message.actions';
+import { GroupService } from '../../service/groupService.service';
+import { notiService } from '../../../../core/services/noti.service';
 
 @Component({
   selector: 'app-utils-view-member',
@@ -43,11 +41,13 @@ export class UtilsViewMemberComponent implements OnInit, OnDestroy {
   constructor(
     private store: Store,
     private route: ActivatedRoute,
-    private groupService: GroupService,
+    private groupServiceAPI: GroupServiceAPI,
     private userService: UserService,
     private socketService: SocketIOService,
     private action$: Actions,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private groupService: GroupService,
+    private notiService: notiService
   ) {}
 
   ngOnInit(): void {
@@ -69,20 +69,10 @@ export class UtilsViewMemberComponent implements OnInit, OnDestroy {
       this.subscriptions.add(selectMemberGroupSub);
 
       this.store.select(selectMessage).subscribe((message) => {
-        if(message){
+        if (message) {
           this.groupData = message.group;
         }
       });
-
-      // const groupDetailSub = this.groupService
-      //   .getGroupDetail(groupId)
-      //   .subscribe({
-      //     next: (data) => (this.groupData = data),
-      //     error: (error) => {
-      //       // console.log(error);
-      //     },
-      //   });
-      // this.subscriptions.add(groupDetailSub);
 
       if (this.nameUserSub) {
         this.nameUserSub.unsubscribe();
@@ -91,7 +81,7 @@ export class UtilsViewMemberComponent implements OnInit, OnDestroy {
         .pipe(debounceTime(300))
         .subscribe((search) => {
           const query = search.trim() || '';
-          this.groupService.getListUserByGroup(groupId, query).subscribe({
+          this.groupServiceAPI.getListUserByGroup(groupId, query).subscribe({
             next: (data: IUser[]) => {
               this.listUserByGroup = data;
             },
@@ -130,14 +120,11 @@ export class UtilsViewMemberComponent implements OnInit, OnDestroy {
   }
 
   handleDeletUserInGroup(user: IUser) {
-    this.store.dispatch(
-      deleteMemberInGroup({ groupId: this.groupData._id, memberId: user._id })
-    );
-
+    this.groupService.deleteMemberInGroup(this.groupData._id, user._id);
     this.action$
       .pipe(ofType(deleteMemberInGroupSuccess), take(1))
       .subscribe(() => {
-        this.store.dispatch(loadNoti({ userId: this.userId }));
+        this.notiService.loadNoti(this.userId);
         this.toastService.success('Delete member successful!');
         this.modalComponent?.closeModal();
       });

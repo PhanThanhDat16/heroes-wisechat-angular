@@ -2,6 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs';
 import { IAuth } from '../../features/auth/model/auth';
+import { logout } from '../store/hero/hero.actions';
+import { Store } from '@ngrx/store';
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +11,7 @@ import { IAuth } from '../../features/auth/model/auth';
 export class AuthService {
   private URL = 'http://localhost:3001/api/auth';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private store: Store) {}
 
   loginService(auth: IAuth) {
     return this.http
@@ -22,13 +24,13 @@ export class AuthService {
     return accessToken;
   }
 
-  getRefreshToken(){
+  getRefreshToken() {
     const refreshToken = localStorage.getItem('refreshToken');
     return refreshToken;
   }
 
-  verifyAccessToken(accessToken: string){
-    return this.http.post<any>(`${this.URL}/access-token`, {accessToken})
+  verifyAccessToken(accessToken: string) {
+    return this.http.post<any>(`${this.URL}/access-token`, { accessToken });
   }
 
   refreshToken(refreshToken: string) {
@@ -38,8 +40,12 @@ export class AuthService {
   }
 
   logout() {
-    const refreshToken = localStorage.getItem('refreshToken')
-    localStorage.clear()
-    return this.http.post<any>(`${this.URL}/logout` , { refreshToken })
+    const refreshToken = localStorage.getItem('refreshToken');
+    localStorage.clear();
+    return this.http.post<any>(`${this.URL}/logout`, { refreshToken });
+  }
+
+  logoutStore() {
+    this.store.dispatch(logout());
   }
 }

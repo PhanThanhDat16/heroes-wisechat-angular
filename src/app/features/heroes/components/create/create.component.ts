@@ -1,9 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Store } from '@ngrx/store';
-import { createHero } from '../../../../core/store/hero/hero.actions';
 import { IHeroUpdate } from '../../model/heroes';
+import { HeroService } from '../../service/hero.service';
 
 @Component({
   selector: 'app-create',
@@ -28,15 +27,12 @@ export class CreateComponent {
     gender: new FormControl('male', Validators.required),
   });
 
-  constructor(
-    private store: Store
-  ) {}
+  constructor(private heroService: HeroService) {}
 
   handleSubmit() {
     const userId = localStorage.getItem('userId');
     if (userId) {
       this.isLoading = true;
-
       const heroUpdate: IHeroUpdate = {
         name: this.formCreate.value.name || '',
         gender: this.formCreate.value.gender || 'male',
@@ -47,7 +43,7 @@ export class CreateComponent {
       };
 
       try {
-        this.store.dispatch(createHero({ hero: heroUpdate }));
+        this.heroService.createHero(heroUpdate);
         this.modalRef.close();
       } catch (error) {
         console.log(error);

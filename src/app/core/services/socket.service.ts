@@ -22,14 +22,6 @@ export class SocketIOService {
 
   initSocket() {
     this.socket = io(this.URL_SOCKET);
-
-    // this.socket.on('connect', () => {
-    //   const userId = localStorage.getItem('userId');
-    //   if (userId) {
-    //     this.sendUserOnline(userId);
-    //   }
-    // });
-
     this.socket.on('updateOnlineUsers', (users: string[]) => {
       this.onlineUsersSubject.next(users);
     });
@@ -233,7 +225,7 @@ export class SocketIOService {
   changeTheme(data: IThemeSocket) {
     this.socket.emit('changeTheme', data);
   }
-  
+
   receiveChangeTheme(): Observable<IThemeSocket> {
     return new Observable((observer) => {
       this.socket.on('changeTheme', (data: IThemeSocket) => {

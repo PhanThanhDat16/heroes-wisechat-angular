@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { selectGroupDetail } from '../../../../core/store/group/group.selector';
-import { IGroup, IGroupMember } from '../../../group/model/group';
+import { IGroup } from '../../../group/model/group';
 import {
   selectMembersGroup,
   selectMessage,
@@ -10,20 +10,13 @@ import { IUser } from '../../../auth/model/user';
 import { SocketIOService } from '../../../../core/services/socket.service';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
-import {
-  addMemberInGroupSuccess,
-  deleteMemberInGroupSuccess,
-  updateIsRead,
-} from '../../../../core/store/message/message.actions';
-import {
-  addTagForGroup,
-  updateThemeGroup,
-} from '../../../../core/store/group/group.actions';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { ITheme } from '../../model/theme';
 import { listTheme } from '../../model/listTheme';
 import { listTag } from '../../model/listTag';
+import { MessageService } from '../../service/message.service';
+import { GroupService } from '../../../group/service/groupService.service';
 
 @Component({
   selector: 'app-group-detail-bar',
@@ -56,7 +49,9 @@ export class GroupDetailBarComponent implements OnInit, OnDestroy {
     private store: Store,
     private socketService: SocketIOService,
     private route: ActivatedRoute,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private messageService: MessageService,
+    private groupSerivce: GroupService
   ) {}
 
   ngOnInit(): void {
@@ -118,11 +113,7 @@ export class GroupDetailBarComponent implements OnInit, OnDestroy {
           this.listUserByGroup = this.listUserByGroup.filter(
             (u) => u?._id !== userId
           );
-          this.store.dispatch(
-            deleteMemberInGroupSuccess({
-              user: { userId: userId } as IGroupMember,
-            })
-          );
+          this.groupSerivce.deleteMemberInGroupSuccess(userId);
         }
       });
     this.subscriptions.add(receiveKickSub);
@@ -132,7 +123,7 @@ export class GroupDetailBarComponent implements OnInit, OnDestroy {
       .subscribe(({ group, listUser, userId }) => {
         if (this.userId !== userId && this.groupData._id === group._id) {
           // this.listUserByGroup = [...listUser, ...this.listUserByGroup]
-          this.store.dispatch(addMemberInGroupSuccess({ newMember: listUser }));
+          this.groupSerivce.addMemberInGroupSuccess(listUser);
         }
       });
     this.subscriptions.add(receiveAddMemberSub);
@@ -172,24 +163,16 @@ export class GroupDetailBarComponent implements OnInit, OnDestroy {
     const currentValue = this.tagForm.get(selectedTag)?.value;
     if (currentValue) {
       this.tagForm.get(selectedTag)?.setValue(false, { emitEvent: false });
-      this.store.dispatch(
-        addTagForGroup({
-          groupId: this.groupData._id,
-          userId: this.userId,
-          tag: '',
-        })
-      );
+      this.groupSerivce.addTagInGroup(this.groupData._id, this.userId);
     } else {
       for (const tag of this.listTagGroup) {
         this.tagForm.get(tag.tag)?.setValue(false, { emitEvent: false });
       }
       this.tagForm.get(selectedTag)?.setValue(true, { emitEvent: false });
-      this.store.dispatch(
-        addTagForGroup({
-          groupId: this.groupData._id,
-          userId: this.userId,
-          tag: selectedTag.toLocaleLowerCase(),
-        })
+      this.groupSerivce.addTagInGroup(
+        this.groupData._id,
+        this.userId,
+        selectedTag.toLocaleLowerCase()
       );
     }
     localStorage.setItem('tagMap', JSON.stringify(this.tagForm.value));
@@ -206,11 +189,10 @@ export class GroupDetailBarComponent implements OnInit, OnDestroy {
         confirmButtonText: 'Choose',
       }).then((result) => {
         if (result.isConfirmed) {
-          this.store.dispatch(
-            updateThemeGroup({ groupId: this.groupData._id, theme: theme.name })
-          );
-          this.store.dispatch(
-            updateIsRead({ groupId: this.groupData._id, userId: this.userId })
+          this.groupSerivce.updateThemeGroup(this.groupData._id, theme.name);
+          this.messageService.updateIsReadMessage(
+            this.groupData._id,
+            this.userId
           );
         }
       });

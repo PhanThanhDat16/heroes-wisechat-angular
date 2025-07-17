@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { debounceTime } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
-import { MessageService } from '../../service/message.service';
+import { MessageAPIService } from '../../service/messageAPI.service';
 import { IMessageGroup } from '../../model/message';
 
 @Component({
@@ -18,7 +18,7 @@ export class SearchGroupDetailBarComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private messageService: MessageService
+    private messageAPIService: MessageAPIService
   ) {}
 
   ngOnInit(): void {
@@ -30,7 +30,7 @@ export class SearchGroupDetailBarComponent implements OnInit {
           const query = search?.trim() || '';
           if (query && groupId) {
             this.isLoading = true;
-            this.messageService
+            this.messageAPIService
               .getMessageByGroupService(groupId, 1, 10, search)
               .subscribe({
                 next: (data) => {

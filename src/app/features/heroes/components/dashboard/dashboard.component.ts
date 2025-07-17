@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { Store } from '@ngrx/store';
-import { HeroService } from '../../service/heroes.service';
+import { HeroServiceAPI } from '../../service/heroesAPI.service';
 import { IHero } from '../../model/heroes';
 
 @Component({
@@ -14,12 +13,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
   trackSub: Subscription;
   isLoading = false;
 
-  constructor(private heroService: HeroService, private store: Store) {}
+  constructor(private heroServiceAPI: HeroServiceAPI) {}
 
   ngOnInit(): void {
     this.heroes = [];
     this.isLoading = true;
-    this.trackSub = this.heroService.getHeroesService().subscribe({
+    this.trackSub = this.heroServiceAPI.getHeroesService().subscribe({
       next: (data) => {
          this.isLoading = false;
          this.heroes = data

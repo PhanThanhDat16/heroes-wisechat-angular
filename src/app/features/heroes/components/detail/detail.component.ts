@@ -3,14 +3,10 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { Subscription } from 'rxjs';
-import { Store } from '@ngrx/store';
 import { ITag } from '../../../tags/model/tag';
-import { HeroService } from '../../service/heroes.service';
-import {
-  deleteHero,
-  updateHero,
-} from '../../../../core/store/hero/hero.actions';
+import { HeroServiceAPI } from '../../service/heroesAPI.service';
 import { IHero, IHeroUpdate } from '../../model/heroes';
+import { HeroService } from '../../service/hero.service';
 
 @Component({
   selector: 'app-detail',
@@ -43,9 +39,9 @@ export class DetailComponent implements OnInit, OnDestroy {
 
   constructor(
     private route: ActivatedRoute,
-    private heroService: HeroService,
+    private heroServiceAPI: HeroServiceAPI,
     private router: Router,
-    private store: Store
+    private heroService: HeroService
   ) {
     this.id = this.route.snapshot.params['id'];
   }
@@ -61,7 +57,7 @@ export class DetailComponent implements OnInit, OnDestroy {
     };
 
     try {
-      this.store.dispatch(updateHero({ id: this.id, hero: heroUpdate }));
+      this.heroService.updateHero(this.id, heroUpdate);
     } catch (error) {
       console.log(error);
     } finally {
@@ -81,7 +77,7 @@ export class DetailComponent implements OnInit, OnDestroy {
     }).then((result) => {
       if (result.isConfirmed) {
         try {
-          this.store.dispatch(deleteHero({ id: this.id }));
+          this.heroService.deleteHero(this.id);
           Swal.fire({
             title: 'Delete Successfully',
             icon: 'success',
@@ -99,22 +95,24 @@ export class DetailComponent implements OnInit, OnDestroy {
     const userId = localStorage.getItem('userId');
     if (userId) {
       this.isLoading = true;
-      this.trackSub = this.heroService.getHeroDetailService(this.id).subscribe({
-        next: (data) => {
-          this.createdAt = data.createdAt ?? '';
-          this.checkUserId = data.userId === userId;
-          this.hero = data;
-          this.tags = this.hero.tags ?? [];
-          this.formDetail.patchValue({
-            name: this.hero.name,
-            gender: this.hero.gender,
-            mail: this.hero.mail,
-            age: this.hero.age + '',
-            address: this.hero.address,
-          });
-          this.isLoading = false;
-        },
-      });
+      this.trackSub = this.heroServiceAPI
+        .getHeroDetailService(this.id)
+        .subscribe({
+          next: (data) => {
+            this.createdAt = data.createdAt ?? '';
+            this.checkUserId = data.userId === userId;
+            this.hero = data;
+            this.tags = this.hero.tags ?? [];
+            this.formDetail.patchValue({
+              name: this.hero.name,
+              gender: this.hero.gender,
+              mail: this.hero.mail,
+              age: this.hero.age + '',
+              address: this.hero.address,
+            });
+            this.isLoading = false;
+          },
+        });
     }
   }
 

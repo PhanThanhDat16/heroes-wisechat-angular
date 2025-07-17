@@ -2,20 +2,17 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { UserService } from '../../../core/services/user.service';
-import { logout } from '../../../core/store/hero/hero.actions';
 import { SocketIOService } from '../../../core/services/socket.service';
 import { Subscription, take } from 'rxjs';
 import { selectNoti } from '../../../core/store/notification/notification.selector';
 import {
-  deleteAllNoti,
   deleteAllNotiSuccess,
-  loadNoti,
-  readAllNoti,
-  updateReadNoti,
   updateReadNotiSuccess,
 } from '../../../core/store/notification/notification.actions';
 import { INotification } from '../../../core/model/notification';
 import { Actions, ofType } from '@ngrx/effects';
+import { notiService } from '../../../core/services/noti.service';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -35,19 +32,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private router: Router,
     private userService: UserService,
     private socketService: SocketIOService,
-    private action$: Actions
+    private action$: Actions,
+    private notiService: notiService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
     if (this.userId) {
-      this.store.dispatch(loadNoti({ userId: this.userId }));
+      this.notiService.loadNoti(this.userId);
       this.socketService.receiveNotification().subscribe((data) => {
         const notiStorage = localStorage.getItem('notification');
         const groupNotiMap = notiStorage ? JSON.parse(notiStorage) : {};
         const isEnabled = groupNotiMap[data.groupId] ?? true;
 
         if (this.userId && isEnabled) {
-          this.store.dispatch(loadNoti({ userId: this.userId }));
+          this.notiService.loadNoti(this.userId);
         }
       });
     }
@@ -75,13 +74,13 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   handleReadAll() {
     if (this.listNoti.length > 0) {
-      this.store.dispatch(readAllNoti({ userId: this.userId }));
+      this.notiService.readAllNoti(this.userId);
     }
   }
 
   handleClearAll() {
     if (this.listNoti.length > 0) {
-      this.store.dispatch(deleteAllNoti({ userId: this.userId }));
+      this.notiService.deleteAllNoti(this.userId);
       this.action$.pipe(ofType(deleteAllNotiSuccess), take(1)).subscribe(() => {
         this.totalUnread = 0;
       });
@@ -90,7 +89,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   handleReadNoti(noti: INotification) {
     if (!noti.isRead) {
-      this.store.dispatch(updateReadNoti({ notiId: noti._id }));
+      this.notiService.updateReadNoti(noti._id);
       this.action$
         .pipe(ofType(updateReadNotiSuccess), take(1))
         .subscribe(() => {
@@ -101,7 +100,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   handleLogout() {
     this.socketService.disconnectSocket();
-    this.store.dispatch(logout());
+    this.authService.logoutStore();
     this.router.navigate(['/login']);
   }
 

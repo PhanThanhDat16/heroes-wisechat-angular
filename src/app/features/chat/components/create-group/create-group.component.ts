@@ -11,14 +11,13 @@ import { ToastService } from 'angular-toastify';
 import { ModalAddChatComponent } from '../../../../shared/components/modal-add-chat/modal-add-chat.component';
 import { FormControl } from '@angular/forms';
 import { debounceTime, take } from 'rxjs';
-import { Store } from '@ngrx/store';
 import {
-  createGroup,
   createGroupSuccess,
 } from '../../../../core/store/group/group.actions';
 import { IGroupCreate } from '../../../group/model/group';
 import { Actions, ofType } from '@ngrx/effects';
-import { loadNoti } from '../../../../core/store/notification/notification.actions';
+import { GroupService } from '../../../group/service/groupService.service';
+import { notiService } from '../../../../core/services/noti.service';
 
 @Component({
   selector: 'app-create-group',
@@ -35,10 +34,11 @@ export class CreateGroupComponent implements OnInit {
   @ViewChildren('userCheckbox') viewChildrenUser!: ElementRef<HTMLInputElement>;
 
   constructor(
-    private store: Store,
     private action$: Actions,
     private userService: UserService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private groupService: GroupService,
+    private notiService: notiService
   ) {}
 
   ngOnInit(): void {
@@ -113,10 +113,9 @@ export class CreateGroupComponent implements OnInit {
         ownerId: userId,
         members: this.listAddUser.map((u) => u._id),
       };
-      
-      this.store.dispatch(createGroup({ data }));
+      this.groupService.createGroup(data)
       this.action$.pipe(ofType(createGroupSuccess), take(1)).subscribe(() => {
-        this.store.dispatch(loadNoti({ userId }));
+        this.notiService.loadNoti(userId)
         this.toastService.success('Create group successful!');
         this.nameGroup = ''
         this.modalComponent?.closeModal();

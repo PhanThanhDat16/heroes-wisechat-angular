@@ -2,21 +2,16 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { IMessageGroup } from '../../model/message';
 import { Store } from '@ngrx/store';
 import { Actions, ofType } from '@ngrx/effects';
-import {
-  clearUploadedFile,
-  createMessage,
-  createMessageSuccess,
-  updateEditMessage,
-  updateIsRead,
-} from '../../../../core/store/message/message.actions';
+import { createMessageSuccess } from '../../../../core/store/message/message.actions';
 import { selectUploadedFiles } from '../../../../core/store/message/message.selector';
 import { selectGroupDetail } from '../../../../core/store/group/group.selector';
 import { IGroup } from '../../../group/model/group';
 import { MessageShareService } from '../../../../shared/service/message-share.service';
 import { Subscription, take } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
+import { MessageAPIService } from '../../service/messageAPI.service';
 import { MessageService } from '../../service/message.service';
-import { loadGroup } from '../../../../core/store/group/group.actions';
+import { GroupService } from '../../../group/service/groupService.service';
 
 @Component({
   selector: 'app-chat-input',
@@ -32,16 +27,18 @@ export class ChatInputComponent implements OnInit, OnDestroy {
   replyToMessage: IMessageGroup | null = null;
   editToMessage: IMessageGroup | null = null;
   groupData: IGroup;
-  userId = localStorage.getItem("userId")
+  userId = localStorage.getItem('userId');
 
   private subscriptions = new Subscription();
 
   constructor(
     private store: Store,
     private messageShareService: MessageShareService,
-    private messageService: MessageService,
+    private messageAPIService: MessageAPIService,
     private action$: Actions,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private groupService: GroupService,
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -60,7 +57,6 @@ export class ChatInputComponent implements OnInit, OnDestroy {
     const messageSub = this.messageShareService.replyMessage$.subscribe(
       (msg) => {
         this.replyToMessage = msg;
-        console.log(msg)
       }
     );
     this.subscriptions.add(messageSub);
@@ -105,28 +101,23 @@ export class ChatInputComponent implements OnInit, OnDestroy {
   private dispatchCreateMessage(content: string, type: string) {
     const senderId = localStorage.getItem('userId');
     const username = localStorage.getItem('username');
-
-    this.store.dispatch(
-      createMessage({
-        groupId: this.groupData._id,
-        senderId,
-        content,
-        senderName: username,
-        replyToMessageId: this.replyToMessage?._id ?? null,
-        replyToContent: this.replyToMessage?.content ?? null,
-        replyToSenderName: this.replyToMessage?.senderName ?? null,
-        replyToType: this.replyToMessage?.type ?? null,
-        messageType: type as any,
-        readUsers: [senderId],
-      })
+    this.messageService.createMessage(
+      this.groupData._id,
+      senderId,
+      content,
+      username,
+      this.replyToMessage?._id ?? null,
+      this.replyToMessage?.content ?? null,
+      this.replyToMessage?.senderName ?? null,
+      this.replyToMessage?.type ?? null,
+      type as any,
+      [senderId]
     );
 
     const isReadSub = this.action$
       .pipe(ofType(createMessageSuccess))
       .subscribe(() => {
-        this.store.dispatch(
-          updateIsRead({ groupId: this.groupData._id, userId: senderId })
-        );
+        this.messageService.updateIsReadMessage(this.groupData._id, senderId);
       });
     this.subscriptions.add(isReadSub);
 
@@ -150,60 +141,51 @@ export class ChatInputComponent implements OnInit, OnDestroy {
       const fileToUpload = this.selectedFiles[0];
       messageType = this.getFileType(fileToUpload.type);
 
-      this.messageService.uploadFiles([fileToUpload]).subscribe((res) => {
+      this.messageAPIService.uploadFiles([fileToUpload]).subscribe((res) => {
         messageContent = res.url;
         this.dispatchCreateMessage(messageContent, messageType);
       });
 
       return;
     }
-    
+
     if (this.editToMessage) {
-      this.store.dispatch(
-        updateEditMessage({
-          messageId: this.editToMessage._id,
-          data: { content: messageContent },
-        })
-      );
+      this.messageService.updateEditMessage(this.editToMessage._id, {
+        content: messageContent,
+      });
     } else {
-      this.store.dispatch(
-        createMessage({
-          groupId: this.groupData._id,
-          senderId,
-          content: messageContent,
-          senderName: username,
-          replyToMessageId: this.replyToMessage?._id ?? null,
-          replyToContent: this.replyToMessage?.content ?? null,
-          replyToSenderName: this.replyToMessage?.senderName ?? null,
-          replyToType: this.replyToMessage?.type ?? null,
-          messageType,
-          readUsers: [senderId],
-        })
+      this.messageService.createMessage(
+        this.groupData._id,
+        senderId,
+        messageContent,
+        username,
+        this.replyToMessage?._id ?? null,
+        this.replyToMessage?.content ?? null,
+        this.replyToMessage?.senderName ?? null,
+        this.replyToMessage?.type ?? null,
+        messageType,
+        [senderId]
       );
     }
     const isReadSub = this.action$
       .pipe(ofType(createMessageSuccess))
       .subscribe(() => {
-        this.store.dispatch(
-          updateIsRead({ groupId: this.groupData._id, userId: senderId })
-        );
+        this.messageService.updateIsReadMessage(this.groupData._id, senderId);
       });
     this.subscriptions.add(isReadSub);
     this.editToMessage = null;
     this.messageInput = '';
-    this.store.dispatch(clearUploadedFile());
+    this.messageService.clearUploadedFile();
     this.replyToMessage = null;
-    this.action$.pipe(
-      ofType(createMessageSuccess), take(1)
-    ).subscribe(() => {
-      this.store.dispatch(loadGroup({userId: this.userId}))
-    })
+    this.action$.pipe(ofType(createMessageSuccess), take(1)).subscribe(() => {
+      this.groupService.loadGroup(this.userId);
+    });
   }
 
   handleChooseFileAndImage(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      const file = input.files[0]; 
+      const file = input.files[0];
       this.selectedFiles = [file];
 
       const reader = new FileReader();
@@ -221,7 +203,7 @@ export class ChatInputComponent implements OnInit, OnDestroy {
   }
 
   removeImage() {
-    this.store.dispatch(clearUploadedFile());
+    this.messageService.clearUploadedFile();
     this.uploaded = null;
     this.selectedFiles = [];
   }
@@ -239,61 +221,3 @@ export class ChatInputComponent implements OnInit, OnDestroy {
     this.subscriptions.unsubscribe();
   }
 }
-
-// handleChooseFileAndImage(event) {
-//   const input = event.target as HTMLInputElement;
-//   if (input.files && input.files.length > 0) {
-//     this.selectedFiles = Array.from(input.files);
-//     this.store.dispatch(uploadFiles({ files: this.selectedFiles }));
-//   }
-//   input.value = '';
-// }
-
-// handleSendMessage() {
-  //   const senderId = localStorage.getItem('userId');
-  //   const username = localStorage.getItem('username');
-  //   const content = this.messageInput.trim();
-  //   const file = this.uploaded;
-  //   if (!content && !file?.url) return;
-  //   let messageType: 'text' | 'image' | 'excel' | 'word' | 'other' = 'text';
-  //   let messageContent = content;
-
-  //   if (file?.url) {
-  //     messageType = this.getFileType(file.mimetype || '');
-  //     messageContent = file.url;
-  //   }
-  //   if (this.editToMessage) {
-  //     this.store.dispatch(
-  //       updateEditMessage({
-  //         messageId: this.editToMessage._id,
-  //         data: { content: messageContent },
-  //       })
-  //     );
-  //   } else {
-  //     this.store.dispatch(
-  //       createMessage({
-  //         groupId: this.groupData._id,
-  //         senderId,
-  //         content: messageContent,
-  //         senderName: username,
-  //         replyToMessageId: this.replyToMessage?._id ?? null,
-  //         replyToContent: this.replyToMessage?.content ?? null,
-  //         replyToSenderName: this.replyToMessage?.senderName ?? null,
-  //         replyToType: this.replyToMessage?.type ?? null,
-  //         messageType,
-  //         readUsers: [senderId],
-  //       })
-  //     );
-  //   }
-  //   const isReadSub = this.action$.pipe(ofType(createMessageSuccess)).subscribe(() => {
-  //     this.store.dispatch(
-  //       updateIsRead({ groupId: this.groupData._id, userId: senderId })
-  //     );
-  //   });
-  //   this.subscriptions.add(isReadSub)
-
-  //   this.editToMessage = null;
-  //   this.messageInput = '';
-  //   this.store.dispatch(clearUploadedFile());
-  //   this.replyToMessage = null;
-  // }

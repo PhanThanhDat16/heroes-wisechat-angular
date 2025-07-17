@@ -7,7 +7,7 @@ import { IHero, IHeroUpdate } from '../model/heroes';
 @Injectable({
   providedIn: 'root',
 })
-export class HeroService {
+export class HeroServiceAPI {
   private URL = 'http://localhost:3000/api/heroes';
   private URL2 = 'http://localhost:3000/api';
 

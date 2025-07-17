@@ -3,14 +3,11 @@ import { FormControl } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { ModalUtilsChatComponent } from '../../../../shared/components/modal-utils-chat/modal-utils-chat.component';
 import { ToastService } from 'angular-toastify';
-import { Store } from '@ngrx/store';
-import {
-  updateGroup,
-  updateGroupSuccess,
-} from '../../../../core/store/group/group.actions';
+import { updateGroupSuccess } from '../../../../core/store/group/group.actions';
 import { take } from 'rxjs';
 import { Actions, ofType } from '@ngrx/effects';
-import { loadNoti } from '../../../../core/store/notification/notification.actions';
+import { GroupService } from '../../service/groupService.service';
+import { notiService } from '../../../../core/services/noti.service';
 
 @Component({
   selector: 'app-utils-rename-group',
@@ -19,24 +16,23 @@ import { loadNoti } from '../../../../core/store/notification/notification.actio
 })
 export class UtilsRenameGroupComponent {
   nameGroup = new FormControl('');
-  userId: string = localStorage.getItem('userId')
+  userId: string = localStorage.getItem('userId');
   @ViewChild(ModalUtilsChatComponent) modalComponent!: ModalUtilsChatComponent;
 
   constructor(
-    private store: Store,
     private action$: Actions,
     private route: ActivatedRoute,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private groupService: GroupService,
+    private notiService: notiService
   ) {}
 
   handlRenameGroup() {
     const groupId = this.route.snapshot.params['id'];
-
     if (groupId) {
-      this.store.dispatch(updateGroup({ groupId, name: this.nameGroup.value }));
-      
+      this.groupService.updateGroup(groupId, this.nameGroup.value);
       this.action$.pipe(ofType(updateGroupSuccess), take(1)).subscribe(() => {
-        this.store.dispatch(loadNoti({ userId: this.userId }));
+        this.notiService.loadNoti(this.userId);
         this.toastService.success('Rename successfull');
         this.modalComponent.closeModal();
       });

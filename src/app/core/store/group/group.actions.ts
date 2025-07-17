@@ -97,3 +97,16 @@ export const updateThemeGroupFailure = createAction(
   '[Group] Update Theme Group Failure',
   props<{ error: any }>()
 );
+
+export const deleteGroup = createAction(
+  '[Group] Delete Group',
+  props<{ groupId: string}>()
+);
+export const deleteGroupSuccess = createAction(
+  '[Group] Delete Group Success',
+  props<{ groupId: string }>()
+);
+export const deleteGroupFailure = createAction(
+  '[Group] Delete Group Failure',
+  props<{ error: any }>()
+);

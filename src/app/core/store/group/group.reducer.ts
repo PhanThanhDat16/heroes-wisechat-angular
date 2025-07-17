@@ -7,6 +7,9 @@ import {
   createGroup,
   createGroupFailure,
   createGroupSuccess,
+  deleteGroup,
+  deleteGroupFailure,
+  deleteGroupSuccess,
   loadGroup,
   loadGroupDetail,
   loadGroupDetailFailure,
@@ -132,5 +135,15 @@ export const groupReducer = createReducer(
     ...state,
     error,
     loading: false,
+  })),
+
+  on(deleteGroup, (state) => ({ ...state })),
+  on(deleteGroupSuccess, (state, { groupId }) => ({
+    ...state,
+    groups: state.groups.filter((g) => g._id !== groupId),
+  })),
+  on(deleteGroupFailure, (state, { error }) => ({
+    ...state,
+    error,
   }))
 );
