@@ -8,7 +8,7 @@ import { IGroup, IGroupCreate, IGroupMessage } from '../model/group';
 @Injectable({
   providedIn: 'root',
 })
-export class GroupService {
+export class GroupServiceAPI {
   private URL = 'http://localhost:3002/api';
   constructor(private http: HttpClient, private authService: AuthService) {}
 
@@ -182,5 +182,13 @@ export class GroupService {
         },
       })
       .pipe(map((res) => res.data));
+  }
+
+  deleteGroup(groupId: string) {
+    return this.http.delete<{ message: string; data: any }>(`${this.URL}/group/${groupId}`, {
+      headers: {
+        Authorization: `Bearer ${this.authService.getAccessToken()}`,
+      },
+    }).pipe(map((res) => res.data));
   }
 }

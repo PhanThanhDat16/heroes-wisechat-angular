@@ -5,13 +5,13 @@ import { debounceTime, filter, map, startWith, Subscription } from 'rxjs';
 import { SocketIOService } from '../../../../core/services/socket.service';
 import { Store } from '@ngrx/store';
 import {
-  loadGroup,
   loadGroupSuccess,
 } from '../../../../core/store/group/group.actions';
 import { selectGroups } from '../../../../core/store/group/group.selector';
 import { Actions, ofType } from '@ngrx/effects';
-import { loadNoti } from '../../../../core/store/notification/notification.actions';
 import { FormControl } from '@angular/forms';
+import { GroupService } from '../../../group/service/groupService.service';
+import { notiService } from '../../../../core/services/noti.service';
 
 @Component({
   selector: 'app-chatapp',
@@ -33,13 +33,12 @@ export class ChatappComponent implements OnInit, OnDestroy {
     private action$: Actions,
     private route: ActivatedRoute,
     private router: Router,
-    private socketService: SocketIOService
+    private socketService: SocketIOService,
+    private groupService: GroupService,
+    private notiService: notiService
   ) {}
 
   ngOnInit(): void {
-    // this.route.firstChild?.params.subscribe((params) => {
-    //   this.currentGroupId = params['id'];
-    // });
     this.router.events
       .pipe(
         filter((e) => e instanceof NavigationEnd),
@@ -58,7 +57,7 @@ export class ChatappComponent implements OnInit, OnDestroy {
       const newGroupSub = this.socketService
         .listenNewGroup()
         .subscribe((group: any) => {
-          this.store.dispatch(loadGroup({ userId }));
+          this.groupService.loadGroup(userId);
           const effectSub = this.action$
             .pipe(ofType(loadGroupSuccess))
             .subscribe(() => {
@@ -67,7 +66,7 @@ export class ChatappComponent implements OnInit, OnDestroy {
           this.subscriptions.add(effectSub);
 
           if (group.ownerId !== userId) {
-            this.store.dispatch(loadNoti({ userId }));
+            this.notiService.loadNoti(userId);
           }
         });
       this.subscriptions.add(newGroupSub);
@@ -92,7 +91,7 @@ export class ChatappComponent implements OnInit, OnDestroy {
             //   dataClone.unshift(updatedGroup);
             //   this.data = dataClone;
             // }
-            this.store.dispatch(loadGroup({ userId }));
+            this.groupService.loadGroup(userId);
           }
         });
       this.subscriptions.add(receiveSub);
@@ -121,7 +120,7 @@ export class ChatappComponent implements OnInit, OnDestroy {
       .subscribe(({ group, listUser, userId }) => {
         if (this.userId !== userId) {
           this.socketService.joinGroup([group._id]);
-          this.store.dispatch(loadGroup({ userId: this.userId! }));
+          this.groupService.loadGroup(this.userId!);
         }
         //  else {
         //   console.log('đã join');

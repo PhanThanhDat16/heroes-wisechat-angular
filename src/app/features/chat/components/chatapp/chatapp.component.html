@@ -52,9 +52,9 @@
       <ng-container *ngIf="data.length === 0">
         <i
           class="fa-solid fa-layer-group text-center my-5"
-          style="color: #3c434a; font-size: 260px"
+          style="color: #568dff; font-size: 230px"
         ></i>
-        <span class="text-center text-primary-m fs-3 fw-bold"
+        <span class="text-center text-primary-m fs-4 fw-bold"
           >There are not group yet</span
         >
       </ng-container>
@@ -64,12 +64,9 @@
       </ng-container>
 
       <ng-container *ngIf="data.length > 0 && !checkLinkDetail">
-        <div class="text-center d-flex flex-column gap-4">
-          <i
-            class="fa-regular fa-message"
-            style="color: #3c434a; font-size: 310px; margin-top: 70px"
-          ></i>
-          <span class="fs-1 fw-bold text-primary-m">Conversation</span>
+        <div class="text-center d-flex flex-column gap-4 align-items-center">
+          <img src="/assets/public/img/message.png" alt="" style="width: 230px; height: 230px;">
+          <span class="fs-4 fw-bold text-primary-m">Conversation</span>
         </div>
       </ng-container>
     </div>

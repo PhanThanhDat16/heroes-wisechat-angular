@@ -131,7 +131,10 @@ export const messageReducer = createReducer(
     loading: true,
     error: null,
   })),
-  on(deleteMessageForMeSuccess, (state, { message }) => ({
+  on(deleteMessageForMeSuccess, (state, { message }) => {
+  const isImage = message.type === 'image';
+    const isFile = message.type === 'excel' || message.type === 'word';
+    return ({
     ...state,
     loading: false,
     messageDetail: state.messageDetail
@@ -140,9 +143,16 @@ export const messageReducer = createReducer(
           senderId: state.messageDetail.senderId.map((m) =>
             m._id === message._id ? message : m
           ),
+        mediaImageCount: isImage
+          ? Math.max((state.messageDetail.mediaImageCount || 1) - 1, 0)
+          : state.messageDetail.mediaImageCount || 0,
+        mediaFileCount: isFile
+          ? Math.max((state.messageDetail.mediaFileCount || 1) - 1, 0)
+          : state.messageDetail.mediaFileCount || 0,
         }
       : state.messageDetail,
-  })),
+  })
+  }),
   on(deleteMessageForMeFailure, (state, { error }) => ({
     ...state,
     loading: false,

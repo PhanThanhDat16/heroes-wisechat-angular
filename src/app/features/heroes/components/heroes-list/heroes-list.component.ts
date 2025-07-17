@@ -5,11 +5,11 @@ import Swal from 'sweetalert2';
 import { DropdownlableComponent } from '../dropdownlable/dropdownlable.component';
 import { ToastService } from 'angular-toastify';
 import { ITag } from '../../../tags/model/tag';
-import { HeroService } from '../../service/heroes.service';
-import { loadHeroes } from '../../../../core/store/hero/hero.actions';
+import { HeroServiceAPI } from '../../service/heroesAPI.service';
 import { selectAllHeroes } from '../../../../core/store/hero/hero.selectors';
 import { TagService } from '../../../tags/service/tag.service';
 import { IHero } from '../../model/heroes';
+import { HeroService } from '../../service/hero.service';
 
 @Component({
   selector: 'app-heroes-list',
@@ -26,14 +26,15 @@ export class HeroesListComponent implements OnInit, OnDestroy {
   @ViewChild('dropdownComponent') dropdownComponent: DropdownlableComponent;
 
   constructor(
-    private heroService: HeroService,
+    private heroServiceAPI: HeroServiceAPI,
     private tagService: TagService,
     private store: Store,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private heroService: HeroService
   ) {}
 
   ngOnInit(): void {
-    this.store.dispatch(loadHeroes());
+    this.heroService.loadHero();
     this.trackSub = this.store.select(selectAllHeroes).subscribe({
       next: (data) => {
         this.isLoading = data.loading;
@@ -79,7 +80,7 @@ export class HeroesListComponent implements OnInit, OnDestroy {
       confirmButtonText: 'Yes, delete it!',
     }).then((result) => {
       if (result.isConfirmed) {
-        this.heroService
+        this.heroServiceAPI
           .deleteManyHeroesService(this.selectedHeroIds)
           .subscribe({
             next: (data) => {
@@ -108,7 +109,7 @@ export class HeroesListComponent implements OnInit, OnDestroy {
 
     forkJoin(
       this.selectedHeroIds.map((id) =>
-        this.heroService.getHeroDetailService(id)
+        this.heroServiceAPI.getHeroDetailService(id)
       )
     ).subscribe((heroes: IHero[]) => {
       const tagIdsToAdd = tags.map((tag) => tag._id);
@@ -128,7 +129,7 @@ export class HeroesListComponent implements OnInit, OnDestroy {
       });
 
       forkJoin(updateRequests).subscribe({
-        next: () => this.store.dispatch(loadHeroes()),
+        next: () => this.heroService.loadHero(),
         error: (error) => console.error(error),
       });
     });
@@ -169,7 +170,7 @@ export class HeroesListComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.selectedHeroIds = [];
-          this.store.dispatch(loadHeroes());
+          this.heroService.loadHero();
           this.toastService.success('Remove All Succesfull');
         },
         error: (error) => {

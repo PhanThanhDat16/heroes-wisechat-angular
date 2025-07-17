@@ -3,15 +3,12 @@ import { IMessageGroup } from '../../model/message';
 import { SocketIOService } from '../../../../core/services/socket.service';
 import { MessageShareService } from '../../../../shared/service/message-share.service';
 import { Store } from '@ngrx/store';
-import {
-  reactToMessage,
-  reactToMessageSuccess,
-} from '../../../../core/store/message/message.actions';
 import { ITheme } from '../../model/theme';
 import { selectGroupDetail } from '../../../../core/store/group/group.selector';
 import { ActivatedRoute } from '@angular/router';
 import { listTheme } from '../../model/listTheme';
 import { listEmoji } from '../../model/listEmoji';
+import { MessageService } from '../../service/message.service';
 
 @Component({
   selector: 'app-message',
@@ -24,14 +21,15 @@ export class MessageComponent implements OnInit {
   onlineUserIds: string[] = [];
   selectedImageUrl: string | null = null;
   listEmoji = listEmoji;
-  showMessageEdit: IMessageGroup | null = null
+  showMessageEdit: IMessageGroup | null = null;
   theme: ITheme | null = null;
 
   constructor(
     private socketService: SocketIOService,
     private messageShareService: MessageShareService,
     private store: Store,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -56,22 +54,20 @@ export class MessageComponent implements OnInit {
 
     this.socketService.reactMessage().subscribe((data) => {
       if (data.userId !== this.userId) {
-        this.store.dispatch(
-          reactToMessageSuccess({
-            messageId: data.messageId,
-            reactions: data.reactions,
-            quantityReact: data.quantityReact,
-          })
+        this.messageService.reactToMessageSuccess(
+          data.messageId,
+          data.reactions,
+          data.quantityReact
         );
       }
     });
 
     this.socketService.receiveChangeTheme().subscribe((data) => {
-      const groupId = this.route.snapshot.params['id']
-      if(data.groupId === groupId){
-        this.theme = data.theme
+      const groupId = this.route.snapshot.params['id'];
+      if (data.groupId === groupId) {
+        this.theme = data.theme;
       }
-    })
+    });
   }
 
   getDateAndTimeStamp(currentMsg: IMessageGroup, index: number) {
@@ -88,25 +84,13 @@ export class MessageComponent implements OnInit {
     return null;
   }
 
-  // getStatusMessage (message: IMessageGroup, index: number) {
-  //   const lastMessage = this.messagesGroup[index - 1]
-  //   if(lastMessage && message.senderId !== lastMessage.senderId ) {
-  //     return message.status
-  //   }else{
-  //     if(this.getDateAndTimeStamp(message, index)){
-  //       return message.status
-  //     }
-  //   }
-  //   return null
-  // }
-
   handleReply(msg) {
     this.messageShareService.sendReplyMessage(msg);
   }
 
   handleEdit(msg) {
     this.messageShareService.sendEditMessage(msg);
-    this.showMessageEdit = msg
+    this.showMessageEdit = msg;
   }
 
   extractFileName(url: string): string {
@@ -139,8 +123,22 @@ export class MessageComponent implements OnInit {
   }
 
   handleEmoji(messageId, types, groupId) {
-    this.store.dispatch(
-      reactToMessage({ messageId, userId: this.userId, types, groupId })
+    this.messageService.reactToMessage(messageId, this.userId, types, groupId);
+  }
+
+  shouldShowName(index: number): boolean {
+    const msg = this.messagesGroup[index];
+    if (msg.senderId === this.userId || msg.senderName === 'System'){
+      return false;
+    }
+    return (
+      index === 0 || this.messagesGroup[index - 1].senderId !== msg.senderId
     );
+  }
+
+  shouldShowStatusOnlyLastOfChain(index: number) {
+    const current = this.messagesGroup[index];
+    const next = this.messagesGroup[index + 1];
+    return !next || current.senderId !== next.senderId;
   }
 }

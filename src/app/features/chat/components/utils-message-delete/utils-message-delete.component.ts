@@ -1,16 +1,14 @@
 import { Component, Input, ViewChild } from '@angular/core';
-import { Store } from '@ngrx/store';
 import Swal from 'sweetalert2';
 import { IMessageGroup } from '../../model/message';
 import {
-  deleteMessageEveryone,
   deleteMessageEveryoneSuccess,
-  deleteMessageForMe,
   deleteMessageForMeSuccess,
 } from '../../../../core/store/message/message.actions';
 import { Actions, ofType } from '@ngrx/effects';
 import { take } from 'rxjs';
 import { ModalUtilsMessageComponent } from '../../../../shared/components/modal-utils-message/modal-utils-message.component';
+import { MessageService } from '../../service/message.service';
 
 @Component({
   selector: 'app-utils-message-delete',
@@ -23,7 +21,10 @@ export class UtilsMessageDeleteComponent {
   @ViewChild(ModalUtilsMessageComponent)
   modalComponent!: ModalUtilsMessageComponent;
 
-  constructor(private store: Store, private action$: Actions) {}
+  constructor(
+    private action$: Actions,
+    private messageService: MessageService
+  ) {}
 
   handleDeleteEveryone() {
     Swal.fire({
@@ -37,9 +38,7 @@ export class UtilsMessageDeleteComponent {
     }).then((result) => {
       if (result.isConfirmed) {
         if (this.message && this.message._id) {
-          this.store.dispatch(
-            deleteMessageEveryone({ messageId: this.message._id })
-          );
+          this.messageService.deleteMessageEveryone(this.message._id);
 
           this.action$
             .pipe(ofType(deleteMessageEveryoneSuccess), take(1))
@@ -68,13 +67,7 @@ export class UtilsMessageDeleteComponent {
     }).then((result) => {
       if (result.isConfirmed) {
         if (this.message && this.message._id && this.userId) {
-          this.store.dispatch(
-            deleteMessageForMe({
-              messageId: this.message._id,
-              userId: this.userId,
-            })
-          );
-
+          this.messageService.deleteMessageForMe(this.message._id, this.userId);
           this.action$
             .pipe(ofType(deleteMessageForMeSuccess), take(1))
             .subscribe(() => {

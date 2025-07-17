@@ -53,8 +53,9 @@
         </div>
 
         <div class="d-flex flex-column gap-1 flex-fill">
+          <!-- *ngIf="msg.senderId !== userId && msg.senderName !== 'System'" -->
           <span
-            *ngIf="msg.senderId !== userId && msg.senderName !== 'System'"
+           *ngIf="shouldShowName(index)"
             class="text-name text-bg-default"
             [ngClass]="{
               'text-bg-default': !theme || theme.name === 'default',
@@ -367,8 +368,9 @@
               >
                 Edited
               </p>
+              <!-- *ngIf="!msg.isEdited" -->
               <p
-                *ngIf="!msg.isEdited"
+               *ngIf="!msg.isEdited && shouldShowStatusOnlyLastOfChain(index)"
                 class="text-edit mb-0 mt-1"
                 [ngClass]="{
                   'text-end text-edit-right': msg.senderId === userId,

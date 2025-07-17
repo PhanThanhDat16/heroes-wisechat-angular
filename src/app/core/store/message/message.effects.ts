@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { MessageService } from '../../../features/chat/service/message.service';
+import { MessageAPIService } from '../../../features/chat/service/messageAPI.service';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { catchError, map, mergeMap, of, switchMap, tap } from 'rxjs';
 import {
@@ -38,22 +38,22 @@ import {
   uploadFilesSuccess,
 } from './message.actions';
 import { SocketIOService } from '../../services/socket.service';
-import { GroupService } from '../../../features/group/service/group.service';
+import { GroupServiceAPI } from '../../../features/group/service/groupAPI.service';
 
 @Injectable()
 export class messageEffects {
   constructor(
     private action$: Actions,
-    private messageService: MessageService,
+    private messageAPI: MessageAPIService,
     private socketService: SocketIOService,
-    private groupService: GroupService
+    private groupServiceAPI: GroupServiceAPI
   ) {}
 
   loadMessage$ = createEffect(() =>
     this.action$.pipe(
       ofType(loadMessage),
       switchMap(({ groupId, page, limit, search }) =>
-        this.messageService
+        this.messageAPI
           .getMessageByGroupService(groupId, page, limit, search)
           .pipe(
             map((messageDetail) =>
@@ -81,7 +81,7 @@ export class messageEffects {
           messageType,
           readUsers,
         }) =>
-          this.messageService
+          this.messageAPI
             .createMessageByGroupService(
               groupId,
               senderId,
@@ -121,7 +121,7 @@ export class messageEffects {
     this.action$.pipe(
       ofType(deleteMessageEveryone),
       mergeMap(({ messageId }) =>
-        this.messageService.deleteMessageForEveryone(messageId).pipe(
+        this.messageAPI.deleteMessageForEveryone(messageId).pipe(
           tap((data) => this.socketService.deleteMessage(data)),
           map((data) => deleteMessageEveryoneSuccess({ messages: data })),
           catchError(({ error }) => of(deleteMessageEveryoneFailure({ error })))
@@ -134,7 +134,7 @@ export class messageEffects {
     this.action$.pipe(
       ofType(deleteMessageForMe),
       switchMap(({ messageId, userId }) =>
-        this.messageService.deleteMessageForMe(messageId, userId).pipe(
+        this.messageAPI.deleteMessageForMe(messageId, userId).pipe(
           tap((data) => {
             this.socketService.deleteMessageForMe(data);
           }),
@@ -149,7 +149,7 @@ export class messageEffects {
     this.action$.pipe(
       ofType(updateEditMessage),
       mergeMap(({ messageId, data }) =>
-        this.messageService.updateEditMEssage(messageId, data).pipe(
+        this.messageAPI.updateEditMEssage(messageId, data).pipe(
           tap((message) => {
             this.socketService.editMessage(message);
           }),
@@ -164,7 +164,7 @@ export class messageEffects {
     this.action$.pipe(
       ofType(updateIsRead),
       switchMap(({ groupId, userId }) =>
-        this.messageService.updateIsReadMessage(groupId, userId).pipe(
+        this.messageAPI.updateIsReadMessage(groupId, userId).pipe(
           map((message) => updateIsReadSuccess({ message })),
           catchError(({ error }) => of(updateIsReadFailure({ error })))
         )
@@ -176,7 +176,7 @@ export class messageEffects {
     this.action$.pipe(
       ofType(uploadFiles),
       switchMap(({ files }) =>
-        this.messageService.uploadFiles(files).pipe(
+        this.messageAPI.uploadFiles(files).pipe(
           map((uploadedFiles) => uploadFilesSuccess({ files: uploadedFiles })),
           catchError(({ error }) => of(uploadFilesFailure({ error })))
         )
@@ -187,8 +187,8 @@ export class messageEffects {
   addMemberInGroup$ = createEffect(() =>
     this.action$.pipe(
       ofType(addMemberInGroup),
-      mergeMap(({ group, users, userId }) =>
-        this.groupService.addMemberInGroup(group._id, users).pipe(
+      switchMap(({ group, users, userId }) =>
+        this.groupServiceAPI.addMemberInGroup(group._id, users).pipe(
           tap((data) => {
             this.socketService.addMemberFromGroup(data.result, group, userId);
             this.socketService.sendMessage(
@@ -205,8 +205,7 @@ export class messageEffects {
               data.message.readUsers
             );
           }),
-          map((newMember) =>
-            addMemberInGroupSuccess({ newMember: newMember.result })
+          map((newMember) => addMemberInGroupSuccess({ newMember: newMember.result })
           ),
           catchError((error) => of(addMemberInGroupFailure({ error })))
         )
@@ -218,7 +217,7 @@ export class messageEffects {
     this.action$.pipe(
       ofType(deleteMemberInGroup),
       switchMap(({ groupId, memberId }) =>
-        this.groupService.deleteMemberInGroups(groupId, memberId).pipe(
+        this.groupServiceAPI.deleteMemberInGroups(groupId, memberId).pipe(
           tap((data) => {
             const ownerId = localStorage.getItem('userId');
             if (ownerId) {
@@ -253,7 +252,7 @@ export class messageEffects {
     this.action$.pipe(
       ofType(leaveGroup),
       switchMap(({ groupId, userId, data }) =>
-        this.groupService.leaveGroup(groupId, userId, data).pipe(
+        this.groupServiceAPI.leaveGroup(groupId, userId, data).pipe(
           tap((data) => {
             const oldOwnerId = localStorage.getItem('userId');
             if (oldOwnerId) {
@@ -288,7 +287,7 @@ export class messageEffects {
     this.action$.pipe(
       ofType(reactToMessage),
       mergeMap(({ messageId, userId, types, groupId }) =>
-        this.messageService
+        this.messageAPI
           .reactMessageEmoji(messageId, groupId, { userId, type: types })
           .pipe(
             map((res) =>

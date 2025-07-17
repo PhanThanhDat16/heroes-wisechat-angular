@@ -3,18 +3,18 @@ import { ActivatedRoute } from '@angular/router';
 import { SocketIOService } from '../../../../core/services/socket.service';
 import { IGroup } from '../../../group/model/group';
 import { Store } from '@ngrx/store';
-import { loadGroupDetail } from '../../../../core/store/group/group.actions';
 import {
   selectGroupDetail,
   selectGroups,
 } from '../../../../core/store/group/group.selector';
-import { loadMessage } from '../../../../core/store/message/message.actions';
 import { selectMembersGroup } from '../../../../core/store/message/message.selector';
 import { IUser } from '../../../auth/model/user';
 import { Subscription } from 'rxjs';
 import { ITheme } from '../../model/theme';
 import { listTheme } from '../../model/listTheme';
 import { listTag } from '../../model/listTag';
+import { MessageService } from '../../service/message.service';
+import { GroupService } from '../../../group/service/groupService.service';
 
 @Component({
   selector: 'app-group-detail',
@@ -36,15 +36,18 @@ export class GroupDetailComponent implements OnInit, OnDestroy {
   constructor(
     private store: Store,
     private route: ActivatedRoute,
-    private socketService: SocketIOService
+    private socketService: SocketIOService,
+    private messageService: MessageService,
+    private groupService: GroupService
   ) {}
 
   ngOnInit(): void {
     const routeSub = this.route.params.subscribe((params) => {
       this.groupId = params['id'];
+       this.tag = null; 
       if (this.groupId) {
         this.isLoading = true;
-        this.store.dispatch(loadGroupDetail({ groupId: this.groupId }));
+        this.groupService.loadGroupDetail(this.groupId);
       }
     });
     this.subscriptions.add(routeSub);
@@ -62,7 +65,7 @@ export class GroupDetailComponent implements OnInit, OnDestroy {
       .receiveKickedFromGroup()
       .subscribe(({ groupId, userId }) => {
         if (this.groupId === groupId) {
-          this.store.dispatch(loadGroupDetail({ groupId: this.groupId }));
+          this.groupService.loadGroupDetail(this.groupId);
         }
       });
 
@@ -70,12 +73,11 @@ export class GroupDetailComponent implements OnInit, OnDestroy {
       .select(selectGroupDetail)
       .subscribe((groupDetail) => {
         if (groupDetail) {
+          this.tag = groupDetail.tag
           this.theme = listTheme.find((t) => t.name === groupDetail.theme);
           this.groupData = groupDetail;
           this.isLoading = false;
-          this.store.dispatch(
-            loadMessage({ groupId: this.groupId, page: 1, limit: 10 })
-          );
+          this.messageService.loadMessage(this.groupId);
         }
       });
     this.subscriptions.add(groupSub);
@@ -108,19 +110,6 @@ export class GroupDetailComponent implements OnInit, OnDestroy {
       });
     this.subscriptions.add(receiveEdit);
 
-    // const receiveSub = this.socketService
-    //   .receiveMessage()
-    //   .subscribe((message) => {
-    //     const route = this.route.snapshot.params['id'];
-    //     if (message.groupId === route) {
-    //       if (this.userId) {
-    //         this.store.dispatch(
-    //           updateIsRead({ groupId: route, userId: this.userId })
-    //         );
-    //       }
-    //     }
-    //   });
-    // this.subscriptions.add(receiveSub);
     this.socketService.receiveChangeTheme().subscribe((data) => {
       if (data.groupId === this.groupData._id) {
         this.theme = data.theme;

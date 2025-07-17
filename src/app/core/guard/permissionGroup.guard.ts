@@ -7,13 +7,13 @@ import {
 } from '@angular/router';
 import { of, Observable } from 'rxjs';
 import { catchError, map, take } from 'rxjs/operators';
-import { GroupService } from '../../features/group/service/group.service';
+import { GroupServiceAPI } from '../../features/group/service/groupAPI.service';
 import { ToastService } from 'angular-toastify';
 
 export const permissionGroupGuard: CanActivateFn = (
   route: ActivatedRouteSnapshot
 ): Observable<boolean | UrlTree> => {
-  const groupService = inject(GroupService);
+  const groupService = inject(GroupServiceAPI);
   const router = inject(Router);
   const toast = inject(ToastService);
   const groupId = route.params['id'];

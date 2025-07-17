@@ -12,27 +12,23 @@ import { IGroup } from '../../../group/model/group';
 import { IUser } from '../../../auth/model/user';
 import { debounceTime, fromEvent, Subscription } from 'rxjs';
 import { Store } from '@ngrx/store';
-import {
-  selectGroupDetail,
-} from '../../../../core/store/group/group.selector';
+import { selectGroupDetail } from '../../../../core/store/group/group.selector';
 import {
   selectMessage,
   selectUploadedFiles,
 } from '../../../../core/store/message/message.selector';
 import { SocketIOService } from '../../../../core/services/socket.service';
+import { MessageAPIService } from '../../service/messageAPI.service';
 import { MessageService } from '../../service/message.service';
-import {
-  createMessageSuccess,
-  deleteMessageEveryoneSuccess,
-  deleteMessageForMeSuccess,
-} from '../../../../core/store/message/message.actions';
 
 @Component({
   selector: 'app-chat-message',
   templateUrl: './chat-message.component.html',
   styleUrls: ['./chat-message.component.scss'],
 })
-export class ChatMessageComponent implements AfterViewInit, OnInit, AfterViewChecked, OnDestroy {
+export class ChatMessageComponent
+  implements AfterViewInit, OnInit, AfterViewChecked, OnDestroy
+{
   checkMessageGroup = true;
   @ViewChild('scrollableChatRef') scrollableChatRef: ElementRef;
   groupData: IGroup;
@@ -51,6 +47,7 @@ export class ChatMessageComponent implements AfterViewInit, OnInit, AfterViewChe
   constructor(
     private store: Store,
     private socketService: SocketIOService,
+    private messageAPIService: MessageAPIService,
     private messageService: MessageService
   ) {}
 
@@ -70,28 +67,24 @@ export class ChatMessageComponent implements AfterViewInit, OnInit, AfterViewChe
       });
     this.subscriptions.add(groupSub);
 
-    // const loadingSub = this.store.select(selectGroupLoading).subscribe((loading) => {
-    //   this.isLoadingMessages = loading;
-    // });
-    // this.subscriptions.add(loadingSub);
-
-    const selectMessageSub = this.store.select(selectMessage).subscribe((message) => {
-      if (message) {
-        this.messagesGroup = message.senderId;
-        this.shouldScrollToBottom = true;
-        this.checkMessageGroup = false;
-      }
-    });
+    const selectMessageSub = this.store
+      .select(selectMessage)
+      .subscribe((message) => {
+        if (message) {
+          this.messagesGroup = message.senderId;
+          this.shouldScrollToBottom = true;
+          this.checkMessageGroup = false;
+        }
+      });
     this.subscriptions.add(selectMessageSub);
 
-    const selectFileSub = this.store.select(selectUploadedFiles).subscribe((data) => {
-      this.uploaded = data;
-    });
-    this.subscriptions.add(selectFileSub)
+    const selectFileSub = this.store
+      .select(selectUploadedFiles)
+      .subscribe((data) => {
+        this.uploaded = data;
+      });
+    this.subscriptions.add(selectFileSub);
 
-    // if (this.messageSub) {
-    //   this.messageSub.unsubscribe();
-    // }
     const socketMessageSub = this.socketService
       .receiveMessage()
       .subscribe((message) => {
@@ -99,31 +92,35 @@ export class ChatMessageComponent implements AfterViewInit, OnInit, AfterViewChe
           this.userId !== message.senderId &&
           this.groupData?._id === message.groupId
         ) {
-          this.store.dispatch(createMessageSuccess({ message }));
+          this.messageService.createMessageSuccess(message);
         }
         this.shouldScrollToBottom = true;
       });
     this.subscriptions.add(socketMessageSub);
 
-    const receiveDeleteMeSub = this.socketService.receiveDeleteMessage().subscribe((data) => {
-      this.store.dispatch(deleteMessageEveryoneSuccess({ messages: data }));
-      this.currentPage = 1;
-      this.hasMoreMessages = true;
-      this.isLoadingMessages = false;
-      this.shouldScrollToBottom = true;
-    });
-    this.subscriptions.add(receiveDeleteMeSub)
+    const receiveDeleteMeSub = this.socketService
+      .receiveDeleteMessage()
+      .subscribe((data) => {
+        this.messageService.deleteMessageEveryoneSuccess(data);
+        this.currentPage = 1;
+        this.hasMoreMessages = true;
+        this.isLoadingMessages = false;
+        this.shouldScrollToBottom = true;
+      });
+    this.subscriptions.add(receiveDeleteMeSub);
 
-    const receiveDeleteForMeSub = this.socketService.receiveDeleteMessageForMe().subscribe((data) => {
-      this.store.dispatch(deleteMessageForMeSuccess({ message: data }));
-      this.currentPage = 1;
-      this.hasMoreMessages = true;
-      this.isLoadingMessages = false;
-      this.shouldScrollToBottom = true;
-    });
-    this.subscriptions.add(receiveDeleteForMeSub)
-
-    
+    const receiveDeleteForMeSub = this.socketService
+      .receiveDeleteMessageForMe()
+      .subscribe((data) => {
+        if (data.senderId === this.userId) {
+          this.messageService.deleteMessageForMeSuccess(data);
+        }
+        this.currentPage = 1;
+        this.hasMoreMessages = true;
+        this.isLoadingMessages = false;
+        this.shouldScrollToBottom = true;
+      });
+    this.subscriptions.add(receiveDeleteForMeSub);
   }
 
   ngAfterViewInit(): void {
@@ -161,7 +158,7 @@ export class ChatMessageComponent implements AfterViewInit, OnInit, AfterViewChe
       return;
     }
 
-    this.messageService
+    this.messageAPIService
       .getMessageByGroupService(this.groupData._id, this.currentPage + 1, 10)
       .subscribe({
         next: (data) => {
@@ -171,9 +168,10 @@ export class ChatMessageComponent implements AfterViewInit, OnInit, AfterViewChe
             return;
           }
           const newMessages = data.senderId.filter(
-  (newMsg) => !this.messagesGroup.some((oldMsg) => oldMsg._id === newMsg._id)
-);
-this.messagesGroup = [...newMessages, ...this.messagesGroup];
+            (newMsg) =>
+              !this.messagesGroup.some((oldMsg) => oldMsg._id === newMsg._id)
+          );
+          this.messagesGroup = [...newMessages, ...this.messagesGroup];
           this.currentPage++;
 
           setTimeout(() => {

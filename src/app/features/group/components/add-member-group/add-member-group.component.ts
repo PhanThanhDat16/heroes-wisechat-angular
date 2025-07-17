@@ -17,15 +17,14 @@ import { UserService } from '../../../../core/services/user.service';
 import { ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { IGroup } from '../../model/group';
-import {
-  addMemberInGroup,
-  addMemberInGroupSuccess,
-} from '../../../../core/store/message/message.actions';
+import { addMemberInGroupSuccess } from '../../../../core/store/message/message.actions';
 import { Actions, ofType } from '@ngrx/effects';
 import { ToastService } from 'angular-toastify';
 import { SocketIOService } from '../../../../core/services/socket.service';
 import { selectMembersGroup } from '../../../../core/store/message/message.selector';
-import { loadNoti } from '../../../../core/store/notification/notification.actions';
+import { GroupService } from '../../service/groupService.service';
+import { notiService } from '../../../../core/services/noti.service';
+import { MessageService } from '../../../chat/service/message.service';
 
 @Component({
   selector: 'app-add-member-group',
@@ -51,7 +50,10 @@ export class AddMemberGroupComponent implements OnChanges, OnDestroy, OnInit {
     private store: Store,
     private action$: Actions,
     private toastService: ToastService,
-    private socketService: SocketIOService
+    private socketService: SocketIOService,
+    private groupService: GroupService,
+    private notiService: notiService,
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -80,16 +82,6 @@ export class AddMemberGroupComponent implements OnChanges, OnDestroy, OnInit {
         }
       });
     this.subscriptions.add(memberGroupSub);
-
-    // const socketKickUserSub = this.socketService
-    //   .receiveKickedFromGroup()
-    //   .subscribe(({ groupId, userId, ownerId }) => {
-    //     if (this.userId !== ownerId && this.groupData._id === groupId) {
-    //       const getUser = this.allUser.find((u) => u._id === userId);
-    //       this.users = [...this.users, getUser];
-    //     }
-    //   });
-    // this.subscriptions.add(socketKickUserSub);
 
     const socketAddUserSub = this.socketService
       .receiveAddMemberFromGroup()
@@ -157,18 +149,17 @@ export class AddMemberGroupComponent implements OnChanges, OnDestroy, OnInit {
   handleAddMember() {
     if (this.userId) {
       const listUserId = this.listAddUser.map((uId) => uId._id);
-      this.store.dispatch(
-        addMemberInGroup({
-          group: this.groupData,
-          users: listUserId,
-          userId: this.userId,
-        })
+      this.groupService.addMemberInGroup(
+        this.groupData,
+        listUserId,
+        this.userId
       );
 
       const addMemberSub = this.action$
         .pipe(ofType(addMemberInGroupSuccess), take(1))
         .subscribe(() => {
-          this.store.dispatch(loadNoti({ userId: this.userId }));
+          this.notiService.loadNoti(this.userId);
+          this.messageService.loadMessage(this.groupData._id)
           this.toastService.success('Add member successful!');
           this.modalComponent.closeModal();
         });

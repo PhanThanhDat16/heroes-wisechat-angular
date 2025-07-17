@@ -4,14 +4,13 @@ import {
   Input,
   OnChanges,
   OnDestroy,
-  OnInit,
   Output,
   SimpleChanges,
 } from '@angular/core';
-import { GroupService } from '../../../group/service/group.service';
+import { GroupServiceAPI } from '../../../group/service/groupAPI.service';
 import { IGroup } from '../../../group/model/group';
 import { IMessageGeneral } from '../../model/message';
-import { MessageService } from '../../service/message.service';
+import { MessageAPIService } from '../../service/messageAPI.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -28,15 +27,15 @@ export class SearchGeneralComponent implements OnChanges, OnDestroy {
   listMessage: IMessageGeneral[] | null = null;
 
   constructor(
-    private groupService: GroupService,
-    private messageService: MessageService,
+    private groupServiceAPI: GroupServiceAPI,
+    private messageAPIService: MessageAPIService,
     private router: Router
   ) {}
 
   ngOnChanges(changes: SimpleChanges): void {
     if (this.search !== '') {
       this.isLoading = true;
-      this.groupService.getManyGroup(this.search).subscribe({
+      this.groupServiceAPI.getManyGroup(this.search).subscribe({
         next: (data) => {
           this.isLoading = false;
           this.listGroup = data;
@@ -48,7 +47,7 @@ export class SearchGeneralComponent implements OnChanges, OnDestroy {
   handleFindMessageGenernal() {
     if (this.search) {
       this.isLoading = true;
-      this.messageService.getManyMessage(this.search).subscribe({
+      this.messageAPIService.getManyMessage(this.search).subscribe({
         next: (data) => {
           this.isLoading = false;
           this.listMessage = data.senderId;
