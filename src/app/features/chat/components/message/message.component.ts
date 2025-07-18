@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { IMessageGroup } from '../../model/message';
 import { SocketIOService } from '../../../../core/services/socket.service';
 import { MessageShareService } from '../../../../shared/service/message-share.service';
@@ -9,13 +9,15 @@ import { ActivatedRoute } from '@angular/router';
 import { listTheme } from '../../model/listTheme';
 import { listEmoji } from '../../model/listEmoji';
 import { MessageService } from '../../service/message.service';
+import { Subscription } from 'rxjs';
+import { selectMessage } from '../../../../core/store/message/message.selector';
 
 @Component({
   selector: 'app-message',
   templateUrl: './message.component.html',
   styleUrl: './message.component.scss',
 })
-export class MessageComponent implements OnInit {
+export class MessageComponent implements OnInit, OnDestroy {
   @Input() messagesGroup: IMessageGroup[] = [];
   userId = localStorage.getItem('userId');
   onlineUserIds: string[] = [];
@@ -23,6 +25,9 @@ export class MessageComponent implements OnInit {
   listEmoji = listEmoji;
   showMessageEdit: IMessageGroup | null = null;
   theme: ITheme | null = null;
+  quantityEmoji = 0
+  private subscriptions = new Subscription();
+  
 
   constructor(
     private socketService: SocketIOService,
@@ -33,6 +38,16 @@ export class MessageComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    // this.store.select(selectMessage).subscribe((data) => {
+    //   // if(data){
+    //   //   this.quantityEmoji = 0
+    //   //   data.senderId.map((m) => {
+    //   //     console.log(m)
+    //   //   })
+    //   // }
+      
+    //   console.log(this.messagesGroup)
+    // })
     this.store.select(selectGroupDetail).subscribe((groupDetail) => {
       if (groupDetail) {
         this.theme = listTheme.find((t) => t.name === groupDetail.theme);
@@ -140,5 +155,9 @@ export class MessageComponent implements OnInit {
     const current = this.messagesGroup[index];
     const next = this.messagesGroup[index + 1];
     return !next || current.senderId !== next.senderId;
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe()
   }
 }

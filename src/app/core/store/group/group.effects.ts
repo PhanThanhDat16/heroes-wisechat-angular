@@ -85,14 +85,8 @@ export class GroupEffects {
   createGroup$ = createEffect(() =>
     this.action$.pipe(
       ofType(createGroup),
-      mergeMap(({ data }) =>
+      switchMap(({ data }) =>
         this.groupServiceAPI.createGroup(data).pipe(
-          tap((group: IGroup) => {
-            this.socketService.sendNewGroup({
-              ...group,
-              members: data.members,
-            });
-          }),
           map((group: IGroup) => createGroupSuccess({ group })),
           catchError((error) => of(createGroupFailure({ error })))
         )
@@ -106,29 +100,7 @@ export class GroupEffects {
       mergeMap(({ groupId, name }) => {
         const userId = localStorage.getItem('userId');
         const username = localStorage.getItem('username');
-        return this.groupServiceAPI.updateGroup(groupId, name).pipe(
-          tap((data) => {
-            this.socketService.sendUpdateEditGroup({
-              senderId: userId,
-              senderName: username,
-              groupId: data.result._id,
-              name: data.result.name,
-            });
-
-            this.socketService.sendMessage(
-              data.message._id,
-              data.message.senderId,
-              data.message.senderName,
-              data.message.content,
-              data.message.groupId,
-              data.message.replyToMessageId,
-              data.message.replyToContent,
-              data.message.replyToSenderName,
-              data.message.replyToType,
-              data.message.messageType,
-              data.message.readUsers
-            );
-          }),
+        return this.groupServiceAPI.updateGroup(groupId, {name, senderId: userId, senderName: username}).pipe(
           map((group) => updateGroupSuccess({ group: group.result })),
           catchError((error) => of(updateGroupFailure({ error })))
         );
@@ -155,31 +127,7 @@ export class GroupEffects {
         const senderId = localStorage.getItem('userId');
         const senderName = localStorage.getItem('username');
 
-        return this.groupServiceAPI.updateThemeGroup(groupId, theme).pipe(
-          tap((data) => {
-            this.socketService.changeTheme({
-              senderId,
-              senderName,
-              groupId: data.result._id,
-              theme: listTheme.find((t) => t.name === data.result.theme),
-            });
-
-            if (data.message) {
-              this.socketService.sendMessage(
-                data.message._id,
-                data.message.senderId,
-                data.message.senderName,
-                data.message.content,
-                data.message.groupId,
-                data.message.replyToMessageId,
-                data.message.replyToContent,
-                data.message.replyToSenderName,
-                data.message.replyToType,
-                data.message.messageType,
-                data.message.readUsers
-              );
-            }
-          }),
+        return this.groupServiceAPI.updateThemeGroup(groupId, {theme, senderId, senderName}).pipe(
           map((data) => updateThemeGroupSuccess({ group: data.result })),
           catchError((error) => of(updateThemeGroupFailure({ error })))
         );

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { MessageAPIService } from '../../../features/chat/service/messageAPI.service';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
-import { catchError, map, mergeMap, of, switchMap, tap } from 'rxjs';
+import { catchError, map, mergeMap, of, switchMap } from 'rxjs';
 import {
   addMemberInGroup,
   addMemberInGroupFailure,
@@ -95,21 +95,6 @@ export class messageEffects {
               readUsers
             )
             .pipe(
-              tap((data) => {
-                this.socketService.sendMessage(
-                  data._id,
-                  senderId,
-                  senderName,
-                  data.content,
-                  groupId,
-                  replyToMessageId,
-                  replyToContent,
-                  replyToSenderName,
-                  replyToType,
-                  messageType,
-                  data.readUsers
-                );
-              }),
               map((message) => createMessageSuccess({ message })),
               catchError(({ error }) => of(createMessageFailure({ error })))
             )
@@ -122,7 +107,6 @@ export class messageEffects {
       ofType(deleteMessageEveryone),
       mergeMap(({ messageId }) =>
         this.messageAPI.deleteMessageForEveryone(messageId).pipe(
-          tap((data) => this.socketService.deleteMessage(data)),
           map((data) => deleteMessageEveryoneSuccess({ messages: data })),
           catchError(({ error }) => of(deleteMessageEveryoneFailure({ error })))
         )
@@ -135,9 +119,6 @@ export class messageEffects {
       ofType(deleteMessageForMe),
       switchMap(({ messageId, userId }) =>
         this.messageAPI.deleteMessageForMe(messageId, userId).pipe(
-          tap((data) => {
-            this.socketService.deleteMessageForMe(data);
-          }),
           map((data) => deleteMessageForMeSuccess({ message: data })),
           catchError(({ error }) => of(deleteMessageForMeFailure({ error })))
         )
@@ -150,9 +131,6 @@ export class messageEffects {
       ofType(updateEditMessage),
       mergeMap(({ messageId, data }) =>
         this.messageAPI.updateEditMEssage(messageId, data).pipe(
-          tap((message) => {
-            this.socketService.editMessage(message);
-          }),
           map((message) => updateEditMessageSuccess({ message })),
           catchError(({ error }) => of(updateEditMessageFailure({ error })))
         )
@@ -188,23 +166,7 @@ export class messageEffects {
     this.action$.pipe(
       ofType(addMemberInGroup),
       switchMap(({ group, users, userId }) =>
-        this.groupServiceAPI.addMemberInGroup(group._id, users).pipe(
-          tap((data) => {
-            this.socketService.addMemberFromGroup(data.result, group, userId);
-            this.socketService.sendMessage(
-              data.message._id,
-              data.message.senderId,
-              data.message.senderName,
-              data.message.content,
-              data.message.groupId,
-              data.message.replyToMessageId,
-              data.message.replyToContent,
-              data.message.replyToSenderName,
-              data.message.replyToType,
-              data.message.messageType,
-              data.message.readUsers
-            );
-          }),
+        this.groupServiceAPI.addMemberInGroup(group._id, {users, group}).pipe(
           map((newMember) => addMemberInGroupSuccess({ newMember: newMember.result })
           ),
           catchError((error) => of(addMemberInGroupFailure({ error })))
@@ -218,29 +180,6 @@ export class messageEffects {
       ofType(deleteMemberInGroup),
       switchMap(({ groupId, memberId }) =>
         this.groupServiceAPI.deleteMemberInGroups(groupId, memberId).pipe(
-          tap((data) => {
-            const ownerId = localStorage.getItem('userId');
-            if (ownerId) {
-              this.socketService.kickedFromGroup(
-                data.result.userId,
-                data.result.groupId,
-                ownerId
-              );
-            }
-            this.socketService.sendMessage(
-              data.message._id,
-              data.message.senderId,
-              data.message.senderName,
-              data.message.content,
-              data.message.groupId,
-              data.message.replyToMessageId,
-              data.message.replyToContent,
-              data.message.replyToSenderName,
-              data.message.replyToType,
-              data.message.messageType,
-              data.message.readUsers
-            );
-          }),
           map((user) => deleteMemberInGroupSuccess({ user })),
           catchError((error) => of(deleteMemberInGroupFailure({ error })))
         )
@@ -253,29 +192,6 @@ export class messageEffects {
       ofType(leaveGroup),
       switchMap(({ groupId, userId, data }) =>
         this.groupServiceAPI.leaveGroup(groupId, userId, data).pipe(
-          tap((data) => {
-            const oldOwnerId = localStorage.getItem('userId');
-            if (oldOwnerId) {
-              this.socketService.kickedFromGroup(
-                oldOwnerId,
-                data.result.groupId,
-                data.result.userId
-              );
-            }
-            this.socketService.sendMessage(
-              data.message._id,
-              data.message.senderId,
-              data.message.senderName,
-              data.message.content,
-              data.message.groupId,
-              data.message.replyToMessageId,
-              data.message.replyToContent,
-              data.message.replyToSenderName,
-              data.message.replyToType,
-              data.message.messageType,
-              data.message.readUsers
-            );
-          }),
           map((user) => leaveGroupSuccess({ user: user.result })),
           catchError((error) => of(leaveGroupFailure({ error })))
         )
