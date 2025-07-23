@@ -11,9 +11,7 @@ import { ToastService } from 'angular-toastify';
 import { ModalAddChatComponent } from '../../../../shared/components/modal-add-chat/modal-add-chat.component';
 import { FormControl } from '@angular/forms';
 import { debounceTime, take } from 'rxjs';
-import {
-  createGroupSuccess,
-} from '../../../../core/store/group/group.actions';
+import { createGroupSuccess } from '../../../../core/store/group/group.actions';
 import { IGroupCreate } from '../../../group/model/group';
 import { Actions, ofType } from '@ngrx/effects';
 import { GroupService } from '../../../group/service/groupService.service';
@@ -30,6 +28,7 @@ export class CreateGroupComponent implements OnInit {
   listAddUser: IUser[] = [];
   step: 'CHOOSE_MEMBER' | 'CREATE_MEMBER' = 'CHOOSE_MEMBER';
   nameGroup = '';
+  isLoading = false;
   @ViewChild(ModalAddChatComponent) modalComponent!: ModalAddChatComponent;
   @ViewChildren('userCheckbox') viewChildrenUser!: ElementRef<HTMLInputElement>;
 
@@ -44,7 +43,6 @@ export class CreateGroupComponent implements OnInit {
   ngOnInit(): void {
     const userId = localStorage.getItem('userId');
     if (!userId) return;
-
     this.userService.getAllUser().subscribe({
       next: (data: IUser[]) => {
         this.users = data.filter((u) => u._id !== userId);
@@ -96,8 +94,8 @@ export class CreateGroupComponent implements OnInit {
     }
   }
 
-  handleBack(){
-    this.step = 'CHOOSE_MEMBER'
+  handleBack() {
+    this.step = 'CHOOSE_MEMBER';
   }
 
   handleCreate() {
@@ -106,18 +104,19 @@ export class CreateGroupComponent implements OnInit {
       this.toastService.error('Please enter name group');
       return;
     }
-
+    this.isLoading = true;
     if (userId) {
       const data: IGroupCreate = {
         name: this.nameGroup,
         ownerId: userId,
         members: this.listAddUser.map((u) => u._id),
       };
-      this.groupService.createGroup(data)
+      this.groupService.createGroup(data);
       this.action$.pipe(ofType(createGroupSuccess), take(1)).subscribe(() => {
-        this.notiService.loadNoti(userId)
+        this.isLoading = false;
+        this.notiService.loadNoti(userId);
         this.toastService.success('Create group successful!');
-        this.nameGroup = ''
+        this.nameGroup = '';
         this.modalComponent?.closeModal();
       });
     }

@@ -75,9 +75,6 @@ export class messageEffects {
           content,
           senderName,
           replyToMessageId,
-          replyToContent,
-          replyToSenderName,
-          replyToType,
           messageType,
           readUsers,
         }) =>
@@ -88,9 +85,6 @@ export class messageEffects {
               content,
               senderName,
               replyToMessageId,
-              replyToContent,
-              replyToSenderName,
-              replyToType,
               messageType,
               readUsers
             )

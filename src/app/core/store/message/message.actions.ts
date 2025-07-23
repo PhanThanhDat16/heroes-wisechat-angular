@@ -28,9 +28,6 @@ export const createMessage = createAction(
     content: string;
     senderName: string;
     replyToMessageId: string | null;
-    replyToContent: string | null;
-    replyToSenderName: string | null;
-    replyToType: string | null;
     messageType: string;
     readUsers: string[]
   }>()

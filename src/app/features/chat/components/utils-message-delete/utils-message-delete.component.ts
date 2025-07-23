@@ -20,7 +20,6 @@ export class UtilsMessageDeleteComponent {
   @Input() message: IMessageGroup;
   @ViewChild(ModalUtilsMessageComponent)
   modalComponent!: ModalUtilsMessageComponent;
-
   constructor(
     private action$: Actions,
     private messageService: MessageService
@@ -47,6 +46,7 @@ export class UtilsMessageDeleteComponent {
                 title: 'Delete Successfully',
                 icon: 'success',
               }).then(() => {
+                this.messageService.loadMessage(this.message.groupId);
                 this.modalComponent?.closeModal();
               });
             });

@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Socket, io } from 'socket.io-client';
-import { IEditGroup } from '../model/socket';
 import { IGroup } from '../../features/group/model/group';
-import { IMessageGroup } from '../../features/chat/model/message';
 import { IUser } from '../../features/auth/model/user';
 import { IThemeSocket } from '../../features/chat/model/theme';
 import { ENameEvent } from '../model/nameEventSocket';

@@ -25,10 +25,8 @@ export class MessageComponent implements OnInit, OnDestroy {
   listEmoji = listEmoji;
   showMessageEdit: IMessageGroup | null = null;
   theme: ITheme | null = null;
-  quantityEmoji = 0
+  quantityEmoji = 0;
   private subscriptions = new Subscription();
-  
-
   constructor(
     private socketService: SocketIOService,
     private messageShareService: MessageShareService,
@@ -38,16 +36,6 @@ export class MessageComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // this.store.select(selectMessage).subscribe((data) => {
-    //   // if(data){
-    //   //   this.quantityEmoji = 0
-    //   //   data.senderId.map((m) => {
-    //   //     console.log(m)
-    //   //   })
-    //   // }
-      
-    //   console.log(this.messagesGroup)
-    // })
     this.store.select(selectGroupDetail).subscribe((groupDetail) => {
       if (groupDetail) {
         this.theme = listTheme.find((t) => t.name === groupDetail.theme);
@@ -65,6 +53,9 @@ export class MessageComponent implements OnInit, OnDestroy {
         }
         return msg;
       });
+      if (data) {
+        this.messageService.loadMessage(data.groupId);
+      }
     });
 
     this.socketService.reactMessage().subscribe((data) => {
@@ -143,7 +134,7 @@ export class MessageComponent implements OnInit, OnDestroy {
 
   shouldShowName(index: number): boolean {
     const msg = this.messagesGroup[index];
-    if (msg.senderId === this.userId || msg.senderName === 'System'){
+    if (msg.senderId === this.userId || msg.senderName === 'System') {
       return false;
     }
     return (
@@ -157,7 +148,28 @@ export class MessageComponent implements OnInit, OnDestroy {
     return !next || current.senderId !== next.senderId;
   }
 
+  canEditMessage(msg: IMessageGroup) {
+    if (!msg || msg.senderId !== this.userId || msg.type !== 'text')
+      return false;
+    const createdTime = new Date(msg.createdAt).getTime();
+    const now = Date.now();
+    const FIFTEEN_MINUTES = 15 * 60 * 1000;
+    return now - createdTime <= FIFTEEN_MINUTES;
+  }
+
+  getTotalReactions(msg: IMessageGroup) {
+    const reactions = (msg as any).reactions || {};
+    return Object.values(reactions).reduce(
+      (total: number, reaction: any) => total + reaction.count,
+      0
+    );
+  }
+
+  getQuantityReactLength(reactObj: any) {
+    return reactObj ? Object.keys(reactObj).length : 0;
+  }
+
   ngOnDestroy(): void {
-    this.subscriptions.unsubscribe()
+    this.subscriptions.unsubscribe();
   }
 }

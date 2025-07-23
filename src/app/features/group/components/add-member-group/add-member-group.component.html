@@ -25,10 +25,17 @@
     modal-header-action
     class="modal-title btn-next lh-1 px-4 py-3 border rounded-pill"
     id="modal-basic-title"
-    [ngClass]="listAddUser.length >= 1 ? 'btn-next-access fw-bold' : ''"
+    [ngClass]="{
+      'btn-next-access fw-bold': listAddUser.length >= 1,
+      'disable-btn': isLoading
+    }"
     (click)="handleAddMember()"
+    [disabled]="isLoading || listAddUser.length === 0"
   >
-    Add
+    <ng-container *ngIf="!isLoading; else loadingTpl"> Add </ng-container>
+    <ng-template #loadingTpl>
+      <div class="spinner-border spinner-border-sm text-white"></div>
+    </ng-template>
   </button>
   <div modal-body class="text-primary-m">
     <div

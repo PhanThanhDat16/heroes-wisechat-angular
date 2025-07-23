@@ -60,7 +60,6 @@ export const messageReducer = createReducer(
   on(createMessageSuccess, (state, { message }) => {
     const isImage = message.type === 'image';
     const isFile = message.type === 'excel' || message.type === 'word';
-
     return {
       ...state,
       loading: false,
@@ -98,17 +97,26 @@ export const messageReducer = createReducer(
         ? {
             ...state.messageDetail,
             senderId: state.messageDetail.senderId
-              .filter((m) => m._id !== messages._id)
-              .map((m) =>
-                m.replyToMessageId === messages._id
-                  ? {
-                      ...m,
-                      replyToContent: 'Deleted',
-                      replyToType: 'delete',
-                      replyToSenderName: null,
-                    }
-                  : m
-              ),
+              .filter(
+                (m) => m._id !== messages._id || messages.type !== 'delete'
+              )
+              .map((m) => {
+                if (
+                  m.replyToMessageId &&
+                  m.replyToMessageId._id === messages._id
+                ) {
+                  return {
+                    ...m,
+                    replyToMessageId: {
+                      ...m.replyToMessageId,
+                      content: 'Deleted',
+                      senderName: null,
+                      type: 'delete',
+                    },
+                  };
+                }
+                return m;
+              }),
             mediaImageCount: isImage
               ? Math.max((state.messageDetail.mediaImageCount || 1) - 1, 0)
               : state.messageDetail.mediaImageCount || 0,
@@ -119,7 +127,6 @@ export const messageReducer = createReducer(
         : state.messageDetail,
     };
   }),
-
   on(deleteMessageEveryoneFailure, (state, { error }) => ({
     ...state,
     loading: false,
@@ -132,26 +139,26 @@ export const messageReducer = createReducer(
     error: null,
   })),
   on(deleteMessageForMeSuccess, (state, { message }) => {
-  const isImage = message.type === 'image';
+    const isImage = message.type === 'image';
     const isFile = message.type === 'excel' || message.type === 'word';
-    return ({
-    ...state,
-    loading: false,
-    messageDetail: state.messageDetail
-      ? {
-          ...state.messageDetail,
-          senderId: state.messageDetail.senderId.map((m) =>
-            m._id === message._id ? message : m
-          ),
-        mediaImageCount: isImage
-          ? Math.max((state.messageDetail.mediaImageCount || 1) - 1, 0)
-          : state.messageDetail.mediaImageCount || 0,
-        mediaFileCount: isFile
-          ? Math.max((state.messageDetail.mediaFileCount || 1) - 1, 0)
-          : state.messageDetail.mediaFileCount || 0,
-        }
-      : state.messageDetail,
-  })
+    return {
+      ...state,
+      loading: false,
+      messageDetail: state.messageDetail
+        ? {
+            ...state.messageDetail,
+            senderId: state.messageDetail.senderId.map((m) =>
+              m._id === message._id ? message : m
+            ),
+            mediaImageCount: isImage
+              ? Math.max((state.messageDetail.mediaImageCount || 1) - 1, 0)
+              : state.messageDetail.mediaImageCount || 0,
+            mediaFileCount: isFile
+              ? Math.max((state.messageDetail.mediaFileCount || 1) - 1, 0)
+              : state.messageDetail.mediaFileCount || 0,
+          }
+        : state.messageDetail,
+    };
   }),
   on(deleteMessageForMeFailure, (state, { error }) => ({
     ...state,

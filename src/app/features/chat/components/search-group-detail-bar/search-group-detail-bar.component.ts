@@ -31,7 +31,7 @@ export class SearchGroupDetailBarComponent implements OnInit {
           if (query && groupId) {
             this.isLoading = true;
             this.messageAPIService
-              .getMessageByGroupService(groupId, 1, 10, search)
+              .getMessageByGroupService(groupId, 1, 20, search)
               .subscribe({
                 next: (data) => {
                   this.isLoading = false;

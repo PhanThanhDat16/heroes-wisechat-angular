@@ -40,10 +40,20 @@
       modal-header-action
       class="modal-title btn-next border rounded-pill lh-1 px-4 py-3"
       id="modal-basic-title"
-      [ngClass]="listAddUser.length >= 1 ? 'btn-next-access fw-bold' : ''"
+      [ngClass]="{
+        'btn-next-access fw-bold': listAddUser.length >= 1,
+        'disable-btn': isLoading
+      }"
+      [disabled]="isLoading || listAddUser.length === 0"
       (click)="handleCreate()"
     >
-      Create
+      <ng-container *ngIf="!isLoading; else loadingTpl"> Create </ng-container>
+      <ng-template #loadingTpl>
+        <div
+          class="spinner-border spinner-border-sm text-white"
+          role="status"
+        ></div>
+      </ng-template>
     </button>
   </div>
 

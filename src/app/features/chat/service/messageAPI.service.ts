@@ -16,9 +16,6 @@ export class MessageAPIService {
     content: string,
     senderName: string,
     replyToMessageId: string | null,
-    replyToContent: string | null,
-    replyToSenderName: string | null,
-    replyToType: string | null,
     type = 'text',
     isRead = []
   ) {
@@ -30,9 +27,6 @@ export class MessageAPIService {
           content,
           senderName,
           replyToMessageId,
-          replyToContent,
-          replyToSenderName,
-          replyToType,
           type,
           isRead,
         },
@@ -124,11 +118,15 @@ export class MessageAPIService {
     types: { userId: string; type: string }
   ) {
     return this.http
-      .post<any>(`${this.URL}/groups/${groupId}/message/${messageId}/react`, types, {
-        headers: {
-          authorization: `Bearer ${this.authService.getAccessToken()}`,
-        },
-      })
+      .post<any>(
+        `${this.URL}/groups/${groupId}/message/${messageId}/react`,
+        types,
+        {
+          headers: {
+            authorization: `Bearer ${this.authService.getAccessToken()}`,
+          },
+        }
+      )
       .pipe(map((res) => res.data));
   }
 
@@ -138,15 +136,12 @@ export class MessageAPIService {
       params = params.set('search', search);
     }
     return this.http
-      .get<{ message: string; data: any }>(
-        `${this.URL}/users/messages`,
-        {
-          params,
-          headers: {
-            Authorization: `Bearer ${this.authService.getAccessToken()}`,
-          },
-        }
-      )
+      .get<{ message: string; data: any }>(`${this.URL}/users/messages`, {
+        params,
+        headers: {
+          Authorization: `Bearer ${this.authService.getAccessToken()}`,
+        },
+      })
       .pipe(map((res) => res.data));
   }
 }
