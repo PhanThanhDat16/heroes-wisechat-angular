@@ -26,7 +26,7 @@
   &-search {
     border-radius: 14px;
     padding: 15px;
-    background-color: #e8e8e8;
+    background-color: #e8e8e87a;
     border: 1px solid #dcdcdc;
   }
 }
@@ -44,6 +44,10 @@
     padding: 15px;
     border-radius: 50px;
   }
+}
+
+.message-title{
+  letter-spacing: 0.5px;
 }
 
 .p-10 {

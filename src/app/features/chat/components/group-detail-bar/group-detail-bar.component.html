@@ -28,40 +28,15 @@
           <i class="fa-solid fa-gear"></i>
         </span>
         <div class="p-0 detailbar-dropdown position-absolute">
-          <span
-            class="d-flex gap-2 align-items-center w-100 detailbar-dropdown-item position-relative"
-          >
-            <i class="fa-solid fa-tag"></i>
-            <span>Tag</span>
-            <form
-              [formGroup]="tagForm"
-              class="position-absolute tag-list d-flex flex-column gap-3"
+          <app-dropdown-label-group [groupId]="groupData?._id">
+            <span
+              class="d-flex gap-2 align-items-center w-100 detailbar-dropdown-item position-relative"
             >
-              <div
-                *ngFor="let tag of listTagGroup"
-                class="tag-item d-flex justify-content-between"
-              >
-                <span
-                  class="tag-title"
-                  [ngStyle]="{
-                    'background-color': tag.background,
-                    color: tag.color
-                  }"
-                >
-                  {{ tag.tag }}
-                </span>
-                <label class="toggle-switch-tag">
-                  <input
-                    type="checkbox"
-                    [formControlName]="tag.tag"
-                    [checked]="tagForm.get(tag.tag)?.value"
-                    (click)="handleTagChange(tag.tag, $event)"
-                  />
-                  <span class="slider-tag"></span>
-                </label>
-              </div>
-            </form>
-          </span>
+              <i class="fa-solid fa-tag"></i>
+              <span>Tag</span>
+            </span>
+          </app-dropdown-label-group>
+
           <app-utils-rename-group></app-utils-rename-group>
           <span
             class="d-flex align-items-center gap-2 d-inline-block detailbar-dropdown-item"
@@ -125,7 +100,7 @@
     <div class="group-detail-barBodyCenter">
       <div class="p-4">
         <h5>Themes</h5>
-        <div class="group-detail-barBodyList">
+        <div class="group-detail-barBodyList gap-4">
           <div
             *ngFor="let theme of listTheme"
             class="group-detail-barBodyListItem cursor-point"
@@ -142,8 +117,7 @@
                   border: 1px solid #ccc;
                   border-radius: 10px;
                 "
-              >
-              </div>
+              ></div>
             </ng-template>
           </div>
         </div>

@@ -163,9 +163,11 @@
                       'theme-green':
                         theme?.name === 'green' && msg.senderId === userId,
                       'theme-green-orther':
-                        theme?.name === 'green' && msg.senderId !== userId
+                        theme?.name === 'green' && msg.senderId !== userId,
+                      'text-content-other': msg.senderId !== userId,
+                      'text-content': msg.senderId === userId,
                     }"
-                    class="mb-0 text-message fs-6 text-content message-item"
+                    class="mb-0 text-message fs-6 message-item"
                     style="z-index: 1"
                   >
                     {{ msg.content }}
@@ -219,9 +221,11 @@
                       'theme-green-orther align-self-start':
                         theme?.name === 'green' && msg.senderId !== userId,
                       'z-max-relative':
-                        showMessageEdit && showMessageEdit._id === msg._id
+                        showMessageEdit && showMessageEdit._id === msg._id,
+                        'text-content-other': msg.senderId !== userId,
+                      'text-content': msg.senderId === userId,
                     }"
-                    class="mb-0 text-message fs-6 text-content message-item"
+                    class="mb-0 text-message fs-6 message-item"
                   >
                     {{ msg.content }}
                     <div

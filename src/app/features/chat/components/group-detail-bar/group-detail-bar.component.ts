@@ -25,9 +25,7 @@ import { GroupService } from '../../../group/service/groupService.service';
 })
 export class GroupDetailBarComponent implements OnInit, OnDestroy {
   step: 'SEARCH_MESSAGE' | 'GROUP_BAR' = 'GROUP_BAR';
-  tagForm: FormGroup;
   listTheme = listTheme;
-  listTagGroup = listTag;
   notification: Record<string, boolean> = {};
   notificationOn: boolean;
   userOnlineGroup: string[];
@@ -55,13 +53,6 @@ export class GroupDetailBarComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const controls = {};
-    const savedTagMap = JSON.parse(localStorage.getItem('tagMap') || '{}');
-    for (const tag of this.listTagGroup) {
-      controls[tag.tag] = new FormControl(savedTagMap[tag.tag] ?? false);
-    }
-    this.tagForm = this.fb.group(controls);
-
     const routeSub = this.route.params.subscribe((params) => {
       this.quantityImgAndFile.file = 0;
       this.quantityImgAndFile.image = 0;
@@ -156,26 +147,6 @@ export class GroupDetailBarComponent implements OnInit, OnDestroy {
     this.notification[this.groupData._id] = value;
     this.notificationOn = value;
     localStorage.setItem('notification', JSON.stringify(this.notification));
-  }
-
-  handleTagChange(selectedTag: string, e: MouseEvent) {
-    e.stopImmediatePropagation();
-    const currentValue = this.tagForm.get(selectedTag)?.value;
-    if (currentValue) {
-      this.tagForm.get(selectedTag)?.setValue(false, { emitEvent: false });
-      this.groupSerivce.addTagInGroup(this.groupData._id, this.userId);
-    } else {
-      for (const tag of this.listTagGroup) {
-        this.tagForm.get(tag.tag)?.setValue(false, { emitEvent: false });
-      }
-      this.tagForm.get(selectedTag)?.setValue(true, { emitEvent: false });
-      this.groupSerivce.addTagInGroup(
-        this.groupData._id,
-        this.userId,
-        selectedTag.toLocaleLowerCase()
-      );
-    }
-    localStorage.setItem('tagMap', JSON.stringify(this.tagForm.value));
   }
 
   onChangeTheme(theme: ITheme) {

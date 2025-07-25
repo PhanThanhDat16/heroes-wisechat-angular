@@ -1,0 +1,51 @@
+<div class="row">
+  <div class="col">
+    <div ngbDropdown class="d-inline-block">
+      <button
+        type="button"
+        class="d-flex align-items-center label"
+        id="dropdownForm1"
+        ngbDropdownToggle
+      >
+        <ng-content></ng-content>
+      </button>
+
+      <div ngbDropdownMenu aria-labelledby="dropdownForm1">
+        <div
+          class="container-tags d-flex flex-wrap gap-2 align-items-center p-2"
+        >
+          <div
+            *ngIf="selectTagGroup"
+            class="tag d-flex gap-2 align-items-center py-2 px-3 rounded-pill cursor-point"
+            [ngStyle]="{
+              'background-color': selectTagGroup.background,
+              color: selectTagGroup.color
+            }"
+          >
+            <i class="fa-solid fa-tag"></i>
+            <span class="cursor-point">{{ selectTagGroup.tag }}</span>
+            <span (click)="handleDeleteTag(selectTagGroup.tag)">
+              <i class="fa-solid fa-xmark"></i>
+            </span>
+          </div>
+        </div>
+
+        <div class="list-tags p-2">
+          <span class="text-gray fw-normal mb-3 d-inline-block title-tag">Select an option</span>
+          <div
+            *ngFor="let tag of listTagGroup; let i = index"
+            class="mb-2 d-flex gap-1 tag-item cursor-point rounded-pill"
+            (click)="handleAddTag(tag)"
+            [ngStyle]="{
+              'background-color': tag.background,
+              color: tag.color
+            }"
+          >
+            <i class="fa-solid fa-tag"></i>
+            <span class="cursor-point">{{ tag.tag }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

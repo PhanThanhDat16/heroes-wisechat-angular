@@ -95,7 +95,14 @@
 
   &-content {
     padding: 10px 15px;
-    border-radius: 22px;
+    // border-radius: 22px;
+    border-radius: 22px 22px 2px 22px;
+    cursor: pointer;
+  }
+
+  &-content-other {
+    padding: 10px 15px;
+    border-radius: 22px 22px 22px 2px;
     cursor: pointer;
   }
 
@@ -125,8 +132,8 @@
 
 .card {
   &-avatar {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     margin-right: 10px;
     object-fit: cover;
@@ -372,6 +379,7 @@
     background: white;
     border-radius: 22px;
     box-shadow: 0 0 10px 0px rgba(0, 0, 0, 0.1);
+    z-index: 1;
   }
 
   &-item {

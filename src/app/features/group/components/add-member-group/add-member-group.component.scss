@@ -81,10 +81,14 @@ app-modal-add-chat {
   width: 0;
 }
 
+.btn-addMember{
+  letter-spacing: 1px;
+}
+
 .checkmark {
   height: 20px;
   width: 20px;
-  background-color: #eee;
+  background-color: #eeeeee4a;
   border: 2px solid #ccc;
   display: inline-flex;
   align-items: center;
