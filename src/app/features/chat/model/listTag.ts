@@ -1,3 +1,9 @@
+export interface ITagGroup {
+  tag: string;
+  background: string;
+  color: string;
+}
+
 export const listTag = [
   {
     tag: 'Family',
@@ -30,3 +36,4 @@ export const listTag = [
     color: '#e65100',
   },
 ];
+

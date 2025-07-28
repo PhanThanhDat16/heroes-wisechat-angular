@@ -16,6 +16,7 @@ import { UtilsMessageDeleteComponent } from './components/utils-message-delete/u
 import { GroupDetailBarComponent } from './components/group-detail-bar/group-detail-bar.component';
 import { SearchGroupDetailBarComponent } from './components/search-group-detail-bar/search-group-detail-bar.component';
 import { SearchGeneralComponent } from './components/search-general/search-general.component';
+import { DropdownLabelGroupComponent } from './components/dropdown-label-group/dropdown-label-group.component';
 
 @NgModule({
   declarations: [
@@ -30,6 +31,7 @@ import { SearchGeneralComponent } from './components/search-general/search-gener
     GroupDetailBarComponent,
     SearchGroupDetailBarComponent,
     SearchGeneralComponent,
+    DropdownLabelGroupComponent,
   ],
   imports: [
     ChatRoutingModule,

@@ -2,7 +2,7 @@
   <div class="wrapper-chat-container flex-fill overflow-hidden">
     <div
       class="d-flex flex-column overflow-hidden"
-      style="border-right: 1px solid #dcdcdc"
+      style="box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.07); z-index: 1;"
     >
       <div class="p-3 d-flex flex-column gap-3 border-bottom-1">
         <div class="d-flex align-items-center gap-3 justify-content-between">
@@ -24,7 +24,7 @@
           *ngIf="!query && query.trim() === ''"
           class="m-0 mt-3 d-flex align-items-center justify-content-between text-black"
         >
-          <h4>Messages</h4>
+          <h4 class="message-title">Messages</h4>
           <span style="color: #85a4e0">({{ data.length || "0" }}) Groups</span>
         </div>
       </div>

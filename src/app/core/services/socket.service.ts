@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Socket, io } from 'socket.io-client';
-import { IEditGroup } from '../model/socket';
 import { IGroup } from '../../features/group/model/group';
-import { IMessageGroup } from '../../features/chat/model/message';
 import { IUser } from '../../features/auth/model/user';
 import { IThemeSocket } from '../../features/chat/model/theme';
+import { ENameEvent } from '../model/nameEventSocket';
 
 @Injectable({
   providedIn: 'root',
@@ -22,7 +21,7 @@ export class SocketIOService {
 
   initSocket() {
     this.socket = io(this.URL_SOCKET);
-    this.socket.on('updateOnlineUsers', (users: string[]) => {
+    this.socket.on(ENameEvent.UPDATE_ONLINE_USER, (users: string[]) => {
       this.onlineUsersSubject.next(users);
     });
   }
@@ -35,33 +34,25 @@ export class SocketIOService {
 
   joinGroup(listGroupId: string[]) {
     listGroupId.map((groupId) => {
-      this.socket.emit('joinGroup', { groupId });
+      this.socket.emit(ENameEvent.JOIN_GROUP, { groupId });
     });
-  }
-
-  sendNewGroup(group: IGroup) {
-    this.socket.emit('newGroup', group);
   }
 
   listenNewGroup() {
     return new Observable<IGroup>((observer) => {
-      this.socket.on('newGroup', (group: IGroup) => {
+      this.socket.on(ENameEvent.RECEIVE_NEW_GROUP, (group: IGroup) => {
         observer.next(group);
       });
     });
   }
 
   sendUserOnline(userId: string) {
-    this.socket.emit('userOnline', { userId });
-  }
-
-  sendUpdateEditGroup({ senderId, senderName, name, groupId }: IEditGroup) {
-    this.socket.emit('editGroup', { senderId, senderName, name, groupId });
+    this.socket.emit(ENameEvent.USER_ONLINE, { userId });
   }
 
   receiveEditGroup(): Observable<any> {
     return new Observable((observer) => {
-      this.socket.on('editGroup', (data) => {
+      this.socket.on(ENameEvent.RECEIVE_EDIT_GROUP, (data) => {
         observer.next(data);
       });
 
@@ -71,94 +62,50 @@ export class SocketIOService {
     });
   }
 
-  sendMessage(
-    _id: string,
-    senderId: string,
-    senderName: string,
-    message: string,
-    groupId: string,
-    replyToMessageId: string | null,
-    replyToContent: string | null,
-    replyToSenderName: string | null,
-    replyToType: string | null,
-    type: string,
-    readUsers = []
-  ) {
-    this.socket.emit('sendMessage', {
-      _id,
-      senderId,
-      senderName,
-      content: message,
-      groupId,
-      replyToMessageId,
-      replyToContent,
-      replyToSenderName,
-      replyToType,
-      type,
-      readUsers,
-    });
-  }
-
   receiveMessage(): Observable<any> {
     return new Observable((observer) => {
-      this.socket.on('receiveMessage', (data) => {
+      this.socket.on(ENameEvent.RECEIVE_MESSAGE, (data) => {
         observer.next(data);
       });
     });
-  }
-
-  deleteMessage(data) {
-    this.socket.emit('deleteMessage', data);
   }
 
   receiveDeleteMessage(): Observable<any> {
     return new Observable((observer) => {
-      this.socket.on('deleteMessage', (data) => {
+      this.socket.on(ENameEvent.RECEIVE_DELETE_MESSAGE, (data) => {
         observer.next(data);
       });
 
       return () => {
-        this.socket.off('deleteMessage');
+        this.socket.off(ENameEvent.RECEIVE_DELETE_MESSAGE);
       };
     });
-  }
-
-  deleteMessageForMe(data) {
-    this.socket.emit('deleteMessageForMe', data);
   }
 
   receiveDeleteMessageForMe(): Observable<any> {
     return new Observable((observer) => {
-      this.socket.on('deleteMessageForMe', (data) => {
+      this.socket.on(ENameEvent.RECEIVE_DELETE_MESSAGE_ME, (data) => {
         observer.next(data);
       });
       return () => {
-        this.socket.off('deleteMessageForMe');
+        this.socket.off(ENameEvent.RECEIVE_DELETE_MESSAGE_ME);
       };
     });
   }
 
-  editMessage(data: IMessageGroup) {
-    this.socket.emit('editMessage', data);
-  }
-
   receiveEditMessage(): Observable<any> {
     return new Observable((observer) => {
-      this.socket.on('editMessage', (data) => {
+      this.socket.on(ENameEvent.RECEIVE_EDIT_MESSAGE, (data) => {
         observer.next(data);
       });
       return () => {
-        this.socket.off('editMessage');
+        this.socket.off(ENameEvent.RECEIVE_EDIT_MESSAGE);
       };
     });
   }
 
   leaveGroup(groupId: string) {
-    this.socket.emit('leaveGroup', { groupId });
-  }
-
-  kickedFromGroup(userId, groupId, ownerId) {
-    this.socket.emit('kickUserFromGroup', { userId, groupId, ownerId });
+    this.socket.emit(ENameEvent.LEAVE_GROUP, { groupId });
   }
 
   receiveKickedFromGroup(): Observable<{
@@ -168,16 +115,12 @@ export class SocketIOService {
   }> {
     return new Observable((observer) => {
       this.socket.on(
-        'kickUserFromGroup',
+        ENameEvent.RECEIVE_KICK_USER,
         (data: { groupId: string; userId: string; ownerId: string }) => {
           observer.next(data);
         }
       );
     });
-  }
-
-  addMemberFromGroup(listUser, group, userId) {
-    this.socket.emit('addMemberFromGroup', { listUser, group, userId });
   }
 
   receiveAddMemberFromGroup(): Observable<{
@@ -188,7 +131,7 @@ export class SocketIOService {
   }> {
     return new Observable((observer) => {
       this.socket.on(
-        'addMemberFromGroup',
+        ENameEvent.RECEIVE_ADD_MEMBER,
         (data: {
           group: IGroup;
           listUser: IUser[];
@@ -203,7 +146,7 @@ export class SocketIOService {
 
   receiveNotification(): Observable<{ content: string; groupId: string }> {
     return new Observable((observer) => {
-      this.socket.on('newNotification', (data) => {
+      this.socket.on(ENameEvent.RECEIVE_NEW_NOTIFICATION, (data) => {
         observer.next(data);
       });
     });
@@ -216,19 +159,15 @@ export class SocketIOService {
     quantityReact: number;
   }> {
     return new Observable((observer) => {
-      this.socket.on('reactMessage', (data) => {
+      this.socket.on(ENameEvent.RECEIVE_REACT_MESSAGE, (data) => {
         observer.next(data);
       });
     });
   }
 
-  changeTheme(data: IThemeSocket) {
-    this.socket.emit('changeTheme', data);
-  }
-
   receiveChangeTheme(): Observable<IThemeSocket> {
     return new Observable((observer) => {
-      this.socket.on('changeTheme', (data: IThemeSocket) => {
+      this.socket.on(ENameEvent.RECEIVE_CHANGE_THEME, (data: IThemeSocket) => {
         observer.next(data);
       });
     });

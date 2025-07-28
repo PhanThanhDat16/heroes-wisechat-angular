@@ -28,7 +28,7 @@ export const listTheme = [
   },
   {
     name: 'default',
-    image: '#f4f4f4',
+    image: '#f8f8fa',
     selfBg: '#0d6efd',
     selfText: '#ffffff',
     otherBg: '#e8e8e8',

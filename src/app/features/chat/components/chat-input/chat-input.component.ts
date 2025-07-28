@@ -28,7 +28,6 @@ export class ChatInputComponent implements OnInit, OnDestroy {
   editToMessage: IMessageGroup | null = null;
   groupData: IGroup;
   userId = localStorage.getItem('userId');
-
   private subscriptions = new Subscription();
 
   constructor(
@@ -42,10 +41,11 @@ export class ChatInputComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.route.params.subscribe((params) => {
+    const routeSub = this.route.params.subscribe((params) => {
       this.messageInput = '';
       this.replyToMessage = null;
     });
+    this.subscriptions.add(routeSub);
 
     const groupSub = this.store.select(selectGroupDetail).subscribe((data) => {
       if (data) {
@@ -107,9 +107,6 @@ export class ChatInputComponent implements OnInit, OnDestroy {
       content,
       username,
       this.replyToMessage?._id ?? null,
-      this.replyToMessage?.content ?? null,
-      this.replyToMessage?.senderName ?? null,
-      this.replyToMessage?.type ?? null,
       type as any,
       [senderId]
     );
@@ -140,12 +137,10 @@ export class ChatInputComponent implements OnInit, OnDestroy {
     if (this.selectedFiles.length > 0) {
       const fileToUpload = this.selectedFiles[0];
       messageType = this.getFileType(fileToUpload.type);
-
       this.messageAPIService.uploadFiles([fileToUpload]).subscribe((res) => {
         messageContent = res.url;
         this.dispatchCreateMessage(messageContent, messageType);
       });
-
       return;
     }
 
@@ -160,9 +155,6 @@ export class ChatInputComponent implements OnInit, OnDestroy {
         messageContent,
         username,
         this.replyToMessage?._id ?? null,
-        this.replyToMessage?.content ?? null,
-        this.replyToMessage?.senderName ?? null,
-        this.replyToMessage?.type ?? null,
         messageType,
         [senderId]
       );

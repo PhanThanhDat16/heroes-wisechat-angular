@@ -2,17 +2,18 @@
   width: 45px;
   height: 45px;
   border-radius: 50%;
-  border: 1px solid #5a5656;
-  color: #2b2b2b;
-  i{
+  background-color: #5f88f2;
+  color: white;
+  box-shadow: 0 0 16px 5px rgba(95, 136, 242, 0.3);
+  i {
     font-weight: bold;
     font-size: 20px;
   }
 
-  &-title{
+  &-title {
     font-size: 15px;
-  color: #0d0d0d;
-  font-weight: 500;
+    color: #0d0d0d;
+    font-weight: 500;
   }
 }
 
@@ -78,7 +79,7 @@
 .checkmark {
   height: 20px;
   width: 20px;
-  background-color: #eee;
+  background-color: #eeeeee56;
   border: 2px solid #ccc;
   display: inline-flex;
   align-items: center;
@@ -97,9 +98,7 @@
   display: block;
 }
 
-  
-.modal-text-title{
-    font-weight: 700 !important;
-    color: #12131e !important;
+.modal-text-title {
+  font-weight: 700 !important;
+  color: #12131e !important;
 }
-

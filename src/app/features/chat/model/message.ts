@@ -11,18 +11,23 @@ export interface IMessageGroup {
   senderName: string;
   updatedAt: string;
   isEdited: boolean;
-  replyToMessageId: string | null;
-  replyToContent: string | null;
-  replyToSenderName: string | null;
-  replyToType: string | null;
+  replyToMessageId: {
+    _id: string;
+    content: string;
+    senderName: string;
+    type: string;
+  } | null;
   type: string;
   readUsers: string[];
   deleteForUser: string[];
   status: string;
-  reactions?: Record<string, {
+  reactions?: Record<
+    string,
+    {
       count: number;
       users: string[];
-    }>;
+    }
+  >;
 }
 
 export interface IMessageGeneral {
@@ -30,26 +35,31 @@ export interface IMessageGeneral {
   content: string;
   createdAt: string;
   groupId: {
-    _id: string,
-    name: string
+    _id: string;
+    name: string;
   };
   quantityReact: number;
   senderId: string;
   senderName: string;
   updatedAt: string;
   isEdited: boolean;
-  replyToMessageId: string | null;
-  replyToContent: string | null;
-  replyToSenderName: string | null;
-  replyToType: string | null;
+  replyToMessageId: {
+    _id: string;
+    content: string;
+    senderName: string;
+    type: string;
+  } | null;
   type: string;
   readUsers: string[];
   deleteForUser: string[];
   status: string;
-  reactions?: Record<string, {
+  reactions?: Record<
+    string,
+    {
       count: number;
       users: string[];
-    }>;
+    }
+  >;
 }
 
 export interface IMessageCreate {
@@ -58,9 +68,6 @@ export interface IMessageCreate {
   content: string;
   senderName: string;
   replyToMessageId: string | null;
-  replyToContent: string | null;
-  replyToSenderName: string | null;
-  replyToType: string | null;
   type: string;
 }
 

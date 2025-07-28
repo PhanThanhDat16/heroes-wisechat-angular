@@ -1,0 +1,17 @@
+export enum ENameEvent {
+  JOIN_GROUP = 'joinGroup',
+  USER_ONLINE = 'userOnline',
+  UPDATE_ONLINE_USER = 'updateOnlineUsers',
+  RECEIVE_NEW_GROUP = 'newGroup',
+  RECEIVE_EDIT_GROUP = 'editGroup',
+  RECEIVE_MESSAGE = 'receiveMessage',
+  RECEIVE_DELETE_MESSAGE = 'deleteMessage',
+  RECEIVE_DELETE_MESSAGE_ME = 'deleteMessageForMe',
+  RECEIVE_EDIT_MESSAGE = 'editMessage',
+  RECEIVE_KICK_USER = 'kickUserFromGroup',
+  RECEIVE_ADD_MEMBER = 'addMemberFromGroup',
+  RECEIVE_NEW_NOTIFICATION = 'newNotification',
+  RECEIVE_REACT_MESSAGE = 'reactMessage',
+  RECEIVE_CHANGE_THEME = 'changeTheme',
+  LEAVE_GROUP = 'leaveGroup',
+}

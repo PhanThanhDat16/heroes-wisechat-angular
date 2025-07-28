@@ -89,23 +89,23 @@ export class GroupItemComponent implements OnInit, OnDestroy {
 
     this.store.select(selectMessage).subscribe((message) => {
       if (message && message.group._id === this.itemGroup._id) {
-        if(message.senderId){
+        if (message.senderId) {
           const userId = this.userId;
-        const visibleMessages = message.senderId.filter(
-          (msg) => !msg.deleteForUser?.includes(userId)
-        );
-        const lastVisibleMessage = visibleMessages[visibleMessages.length - 1];
-        this.itemGroup = {
-          ...this.itemGroup,
-          lastMessage: lastVisibleMessage
-            ? {
-                content: lastVisibleMessage.content,
-                senderId: lastVisibleMessage.senderId,
-                senderName: lastVisibleMessage.senderName,
-                createdAt: lastVisibleMessage.createdAt,
-              }
-            : null,
-        };
+          const visibleMessages = message.senderId.filter(
+            (msg) => !msg.deleteForUser?.includes(userId)
+          );
+          const lastVisibleMessage = visibleMessages[visibleMessages.length - 1];
+          this.itemGroup = {
+            ...this.itemGroup,
+            lastMessage: lastVisibleMessage
+              ? {
+                  content: lastVisibleMessage.content,
+                  senderId: lastVisibleMessage.senderId,
+                  senderName: lastVisibleMessage.senderName,
+                  createdAt: lastVisibleMessage.createdAt,
+                }
+              : null,
+          };
         }
 
         if (

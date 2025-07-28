@@ -44,7 +44,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
         const notiStorage = localStorage.getItem('notification');
         const groupNotiMap = notiStorage ? JSON.parse(notiStorage) : {};
         const isEnabled = groupNotiMap[data.groupId] ?? true;
-
         if (this.userId && isEnabled) {
           this.notiService.loadNoti(this.userId);
         }

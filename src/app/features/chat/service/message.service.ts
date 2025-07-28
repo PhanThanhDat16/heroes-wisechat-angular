@@ -22,7 +22,7 @@ export class MessageService {
   constructor(private store: Store) {}
 
   loadMessage(groupId) {
-    this.store.dispatch(loadMessage({ groupId, page: 1, limit: 10 }));
+    this.store.dispatch(loadMessage({ groupId, page: 1, limit: 20 }));
   }
 
   createMessage(
@@ -31,9 +31,6 @@ export class MessageService {
     content,
     senderName,
     replyToMessageId,
-    replyToContent,
-    replyToSenderName,
-    replyToType,
     messageType,
     readUsers
   ) {
@@ -44,9 +41,6 @@ export class MessageService {
         content,
         senderName,
         replyToMessageId,
-        replyToContent,
-        replyToSenderName,
-        replyToType,
         messageType,
         readUsers,
       })

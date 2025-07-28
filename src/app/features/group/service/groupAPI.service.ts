@@ -63,11 +63,11 @@ export class GroupServiceAPI {
       .pipe(map((res) => res.data));
   }
 
-  updateGroup(groupId, name: string) {
+  updateGroup(groupId, data: { name: string, senderId: string, senderName: string}) {
     return this.http
       .put<{ message: string; data: any }>(
         `${this.URL}/groups/${groupId}`,
-        { name },
+        data ,
         {
           headers: {
             Authorization: `Bearer ${this.authService.getAccessToken()}`,
@@ -91,6 +91,7 @@ export class GroupServiceAPI {
   }
 
   leaveGroup(groupId, userId, data: { ownerId: string | null }) {
+    const oldOwnerId = localStorage.getItem('userId');
     return this.http
       .delete<{ message: string; data: any }>(
         `${this.URL}/groups/${groupId}/users/${userId}`,
@@ -98,17 +99,17 @@ export class GroupServiceAPI {
           headers: {
             Authorization: `Bearer ${this.authService.getAccessToken()}`,
           },
-          body: data,
+          body: {...data, oldOwnerId},
         }
       )
       .pipe(map((res) => res.data));
   }
 
-  addMemberInGroup(groupId: string, users: string[]) {
+  addMemberInGroup(groupId: string, data: {users: string[], group: IGroup}) {
     return this.http
       .put<{ message: string; data: any }>(
         `${this.URL}/groups/${groupId}/users`,
-        users,
+        data,
         {
           headers: {
             Authorization: `Bearer ${this.authService.getAccessToken()}`,
@@ -119,10 +120,12 @@ export class GroupServiceAPI {
   }
 
   deleteMemberInGroups(groupId: string, memberId: string) {
+    const ownerId = localStorage.getItem('userId');
     return this.http
       .delete<{ message: string; data: any }>(
         `${this.URL}/groups/${groupId}/members/${memberId}`,
         {
+          body: {ownerId},
           headers: {
             Authorization: `Bearer ${this.authService.getAccessToken()}`,
           },
@@ -160,11 +163,11 @@ export class GroupServiceAPI {
       .pipe(map((res) => res.data));
   }
 
-  updateThemeGroup(groupId: string, theme: string) {
+  updateThemeGroup(groupId: string, data: {theme: string, senderId: string, senderName: string}) {
     return this.http
       .put<{ message: string; data: any }>(
         `${this.URL}/group/${groupId}/theme`,
-        { theme },
+        data,
         {
           headers: {
             Authorization: `Bearer ${this.authService.getAccessToken()}`,

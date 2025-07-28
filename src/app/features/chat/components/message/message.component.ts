@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { IMessageGroup } from '../../model/message';
 import { SocketIOService } from '../../../../core/services/socket.service';
 import { MessageShareService } from '../../../../shared/service/message-share.service';
@@ -9,13 +9,15 @@ import { ActivatedRoute } from '@angular/router';
 import { listTheme } from '../../model/listTheme';
 import { listEmoji } from '../../model/listEmoji';
 import { MessageService } from '../../service/message.service';
+import { Subscription } from 'rxjs';
+import { selectMessage } from '../../../../core/store/message/message.selector';
 
 @Component({
   selector: 'app-message',
   templateUrl: './message.component.html',
   styleUrl: './message.component.scss',
 })
-export class MessageComponent implements OnInit {
+export class MessageComponent implements OnInit, OnDestroy {
   @Input() messagesGroup: IMessageGroup[] = [];
   userId = localStorage.getItem('userId');
   onlineUserIds: string[] = [];
@@ -23,7 +25,8 @@ export class MessageComponent implements OnInit {
   listEmoji = listEmoji;
   showMessageEdit: IMessageGroup | null = null;
   theme: ITheme | null = null;
-
+  quantityEmoji = 0;
+  private subscriptions = new Subscription();
   constructor(
     private socketService: SocketIOService,
     private messageShareService: MessageShareService,
@@ -50,6 +53,9 @@ export class MessageComponent implements OnInit {
         }
         return msg;
       });
+      if (data) {
+        this.messageService.loadMessage(data.groupId);
+      }
     });
 
     this.socketService.reactMessage().subscribe((data) => {
@@ -128,7 +134,7 @@ export class MessageComponent implements OnInit {
 
   shouldShowName(index: number): boolean {
     const msg = this.messagesGroup[index];
-    if (msg.senderId === this.userId || msg.senderName === 'System'){
+    if (msg.senderId === this.userId || msg.senderName === 'System') {
       return false;
     }
     return (
@@ -140,5 +146,30 @@ export class MessageComponent implements OnInit {
     const current = this.messagesGroup[index];
     const next = this.messagesGroup[index + 1];
     return !next || current.senderId !== next.senderId;
+  }
+
+  canEditMessage(msg: IMessageGroup) {
+    if (!msg || msg.senderId !== this.userId || msg.type !== 'text')
+      return false;
+    const createdTime = new Date(msg.createdAt).getTime();
+    const now = Date.now();
+    const FIFTEEN_MINUTES = 15 * 60 * 1000;
+    return now - createdTime <= FIFTEEN_MINUTES;
+  }
+
+  getTotalReactions(msg: IMessageGroup) {
+    const reactions = (msg as any).reactions || {};
+    return Object.values(reactions).reduce(
+      (total: number, reaction: any) => total + reaction.count,
+      0
+    );
+  }
+
+  getQuantityReactLength(reactObj: any) {
+    return reactObj ? Object.keys(reactObj).length : 0;
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 }

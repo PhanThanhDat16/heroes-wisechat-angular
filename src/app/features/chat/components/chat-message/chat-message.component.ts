@@ -41,7 +41,6 @@ export class ChatMessageComponent
   shouldScrollToBottom = false;
   uploaded: { url?: string; originalname?: string; mimetype?: string } | null =
     null;
-
   private subscriptions = new Subscription();
 
   constructor(
@@ -152,14 +151,13 @@ export class ChatMessageComponent
     if (!scrollElement) return;
     const prevScrollHeight = scrollElement.scrollHeight;
     this.isLoadingMessages = true;
-
-    if (this.messagesGroup.length < 10) {
+    if (this.messagesGroup.length < 20) {
       this.isLoadingMessages = false;
       return;
     }
 
     this.messageAPIService
-      .getMessageByGroupService(this.groupData._id, this.currentPage + 1, 10)
+      .getMessageByGroupService(this.groupData._id, this.currentPage + 1, 20)
       .subscribe({
         next: (data) => {
           if (!data.senderId || data.senderId.length === 0) {
